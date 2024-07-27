@@ -1,7 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { Navbar } from "./components";
-import { Home } from "./pages";
+import { Campaign, Home } from "./pages";
+import { Footer } from "./components";
 const App = () => {
   return (
     <div className="relative sm:-8 p-4 bg-[white] min-h-screen flex flex-row">
@@ -9,7 +10,9 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/campaign" element={<Campaign />} />
         </Routes>
+        <Footer />
       </div>
     </div>
   );
