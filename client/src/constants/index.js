@@ -23,16 +23,21 @@ export const navlinks = [
   //   imgUrl: createCampaign,
   //   link: "/create-campaign",
   // },
-  // {
-  //   name: "login",
-  //   imgUrl: profile,
-  //   link: "/login",
-  // },
-  // {
-  //   name: "register",
-  //   imgUrl: profile,
-  //   link: "/register",
-  // },
+  {
+    name: "login",
+   imgUrl: profile,
+   link: "/login",
+  },
+  {
+    name: "register",
+    imgUrl: profile,
+    link: "/register",
+  },
+  {
+    name: "AddFunds",
+    imgUrl: profile,
+    link: "/AddFunds",
+  },
   // {
   //   name: "campaign",
   //   imgUrl: createCampaign,
