@@ -4,7 +4,6 @@ import { FaInstagram, FaFacebookF, FaTwitter, FaYoutube } from "react-icons/fa";
 const Footer = () => {
   return (
     <footer className="bg-white border-t-2 border-black py-6">
-      {/* Social Media Icons */}
       <div className="flex justify-center mb-4 space-x-6">
         <a
           href="https://www.instagram.com"
@@ -40,7 +39,6 @@ const Footer = () => {
         </a>
       </div>
 
-      {/* Navigation Links */}
       <div className="flex justify-center mb-4 space-x-6 text-black text-sm">
         <a href="/" className="hover:text-gray-700">
           Home
@@ -55,7 +53,6 @@ const Footer = () => {
         </a>
       </div>
 
-      {/* Copyright */}
       <div className="text-center text-black text-sm">
         © Copyright. All rights reserved.
       </div>
