@@ -41,7 +41,7 @@ const Navbar = () => {
           title="Start Project"
           styles="bg-gray-300 font-bold rounded-full px-4 py-2 border-2 border-black"
           textColor={"text-black"}
-          handleClick={() => navigate("./CreateCampaign")}
+          handleClick={() => navigate("./create-campaign")}
         />
         <Link to="/profile" className="ml-4">
           <div className="flex items-center">

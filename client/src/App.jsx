@@ -12,10 +12,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/campaign" element={<Campaign />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Register" element={<Register />}/>
-          <Route path="/AddFunds" element={<AddFunds />}/>
-          <Route path="/CreateCampaign" element={<CreateCampaign />}/>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />}/>
+          <Route path="/add-funds" element={<AddFunds />}/>
+          <Route path="/create-campaign" element={<CreateCampaign />}/>
         </Routes>
         <Footer />
       </div>

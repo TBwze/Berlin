@@ -18,15 +18,15 @@ export const navlinks = [
     imgUrl: createCampaign,
     link: "/campaign",
   },
-   {
+  {
     name: "CreateCampaign",
     imgUrl: createCampaign,
-    link: "/CreateCampaign",
-   },
+    link: "/create-campaign",
+  },
   {
     name: "login",
-   imgUrl: profile,
-   link: "/login",
+    imgUrl: profile,
+    link: "/login",
   },
   {
     name: "register",
@@ -36,7 +36,7 @@ export const navlinks = [
   {
     name: "AddFunds",
     imgUrl: profile,
-    link: "/AddFunds",
+    link: "/add-funds",
   },
   // {
   //   name: "campaign",
