@@ -11,9 +11,15 @@
   },
   "dependencies": {
     "@thirdweb-dev/contracts": "^3.8.0",
-    "zksync-web3": "^0.14.3",
-    "thirdweb": "^5.37.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  }
+    "dotenv": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "thirdweb": "^5.45.0",
+    "zksync-web3": "^0.14.3"
+  },
+  "description": "Create a project using this examplecd :",
+  "version": "1.0.0",
+  "main": "hardhat.config.js",
+  "author": "",
+  "license": "ISC"
 }

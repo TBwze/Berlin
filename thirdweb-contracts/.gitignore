@@ -8,3 +8,7 @@ typechain-types
 #Hardhat files
 cache*
 artifacts*
+
+#Files from thirdweb deploy
+artifacts-zk/
+cache-zk/
