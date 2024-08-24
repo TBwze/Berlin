@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CustomButton } from "./";
+import CustomButton from "./CustomButton";
 import { logo, profile, search } from "../assets";
-
-import { navlinks } from "../constants";
 
 const Navbar = () => {
   const navigate = useNavigate();
