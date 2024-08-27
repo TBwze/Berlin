@@ -6,6 +6,7 @@ import Campaign from "../pages/Campaign";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import AddFunds from "../pages/AddFunds";
+import Profile from "../pages/Profile";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "/add-funds",
         element: <AddFunds />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },
