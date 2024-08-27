@@ -2,12 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomButton from "./CustomButton";
 import { logo, profile, search } from "../assets";
+import { useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
+  const { search } = useLocation();
+  const query = new URLSearchParams(search);
+  const balance = query.get("balance") || "0";
 
+  const [integerPart, decimalPart] = balance.split(".");
+  const firstThreeDigits = decimalPart ? decimalPart.slice(0, 3) : "";
+  const result = integerPart + "." + firstThreeDigits;
   return (
     <div className="w-full flex justify-between items-center bg-white border-b-2 border-black">
       {/* Logo and slogan */}
@@ -50,7 +57,7 @@ const Navbar = () => {
             />
             <div className="ml-2 text-left">
               <p className="text-sm font-bold">Username</p>
-              <p className="text-xs text-black-500">ETH 50+</p>
+              <p className="text-xs text-black-500"> {result} ETH</p>
             </div>
           </div>
         </Link>

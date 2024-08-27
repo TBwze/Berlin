@@ -1,8 +1,16 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 
 const Home = () => {
+  const { search } = useLocation();
+  const query = new URLSearchParams(search);
+  const balance = query.get("balance") || "0";
+
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
+      <div className="text-lg font-bold mb-4">
+        Current Balance: {balance} ETH
+      </div>
       {/* Projek Populer Section */}
       <section className="mb-12">
         <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
