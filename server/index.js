@@ -1,13 +1,15 @@
-import e from "express";
+import express from "express";
 import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
+import cors from "cors";
+import { ATLAS_URI, PORT } from "./config.js";
 
-const app = e();
+const app = express();
 
-app.use(e.json);
+app.use(express.json);
 app.use(
     cors({
-        methods: [GET, POST, PUT, DELETE],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type"],
     })
 );
@@ -15,7 +17,7 @@ app.use(
 app.use("/users", userRoute);
 
 mongoose
-    .connect(process.env.ATLAS_URI, {
+    .connect(ATLAS_URI, {
         dbName: "crowdfunding",
     })
     .then(() => {
