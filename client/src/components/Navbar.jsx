@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import CustomButton from "./CustomButton";
+import CustomButton from "./CustomButton.component";
 import { logo, profile, search } from "../assets";
 import { useLocation } from "react-router-dom";
 
@@ -45,7 +45,7 @@ const Navbar = () => {
           btnType="button"
           title="Start Project"
           styles="bg-gray-300 font-bold rounded-full px-4 py-2 border-2 border-black"
-          textColor={"text-black"}
+          textColor="text-black"
           handleClick={() => navigate("./create-campaign")}
         />
         <Link to="/profile" className="ml-4">
