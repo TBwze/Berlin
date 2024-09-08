@@ -6,23 +6,18 @@ import { ATLAS_URI, PORT } from "./config.js";
 
 const app = express();
 
-app.use(express.json);
-app.use(
-    cors({
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type"],
-    })
-);
+app.use(express.json());
+app.use(cors());
 
-app.use("/users", userRoute);
+app.use("/user", userRoute);
 
 mongoose
     .connect(ATLAS_URI, {
-        dbName: "crowdfunding",
+        dbName: "crowdfunding-skripsi",
     })
     .then(() => {
         console.log("App connected to database");
-        app.listen(process.env.PORT, () => {
+        app.listen(PORT, () => {
             console.log(`App is listening on port: ${PORT}`);
         });
     })
