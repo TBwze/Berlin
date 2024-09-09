@@ -17,8 +17,7 @@ const Profile = () => {
       lastname: "",
       email: "",
       password: "",
-      image:
-        "https://cdn.pixabay.com/photo/2022/01/11/21/48/link-6931554_1280.png",
+      image: "",
     },
   });
 

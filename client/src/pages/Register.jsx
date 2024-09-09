@@ -20,6 +20,7 @@ export const Register = () => {
       password: "",
       role: "user",
       account: "",
+      profilePicture: "",
     },
   });
 
@@ -55,26 +56,31 @@ export const Register = () => {
   const onSubmit = async () => {
     if (isConnected) {
       setIsLoading(true);
-      const newUser = {
-        firstname: form.getValues("firstname"),
-        lastname: form.getValues("lastname"),
-        username: form.getValues("username"),
-        email: form.getValues("email"),
-        password: form.getValues("password"),
-        role: "user",
-        wallet: form.watch("account"),
-      };
-      await registerUser(newUser)
-        .then(() => {
-          alert("Register success!");
-          navigate("/");
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-      setIsLoading(false);
+
+      const formData = new FormData();
+      formData.append("firstname", form.getValues("firstname"));
+      formData.append("lastname", form.getValues("lastname"));
+      formData.append("username", form.getValues("username"));
+      formData.append("email", form.getValues("email"));
+      formData.append("password", form.getValues("password"));
+      formData.append("role", "user");
+      formData.append("wallet", form.watch("account"));
+
+      if (selectedFile) {
+        formData.append("profilePicture", selectedFile);
+      }
+
+      try {
+        await registerUser(formData);
+        alert("Register success!");
+        navigate("/");
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setIsLoading(false);
+      }
     } else {
-      alert("Please connect to a Ethereum wallet to register");
+      alert("Please connect to an Ethereum wallet to register");
     }
   };
 

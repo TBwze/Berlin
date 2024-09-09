@@ -1,5 +1,6 @@
 import { User } from "../model/User.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export const create = async (request, response) => {
     try {
@@ -15,14 +16,18 @@ export const create = async (request, response) => {
             });
         }
 
+        const hashedPassword = await bcrypt.hash(request.body.password, 10);
+        const profilePicture = request.file ? request.file.path : "";
+
         const newUser = {
             firstname: request.body.firstname,
             lastname: request.body.lastname,
             username: request.body.username,
             email: request.body.email,
-            password: request.body.password,
+            password: hashedPassword,
             role: "user",
             wallet: request.body.wallet,
+            profilePicture: profilePicture || null,
         };
 
         const user = await User.create(newUser);
@@ -41,18 +46,28 @@ export const login = async (request, response) => {
     try {
         const user = await User.findOne({ email });
 
-        if (!user || user.password !== password) {
+        if (!user) {
+            return response.status(400).json({
+                message: "Email or password does not match!",
+            });
+        }
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordMatch) {
             return response.status(400).json({
                 message: "Email or password does not match!",
             });
         }
 
         const jwtToken = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user._id, email: user.email },
             process.env.JWT_SECRET
         );
 
-        response.json({ message: "Welcome Back!", token: jwtToken });
+        response.json({
+            message: "Welcome Back!",
+            token: jwtToken,
+        });
     } catch (err) {
         console.error("Error during login:", err);
         response
@@ -61,31 +76,20 @@ export const login = async (request, response) => {
     }
 };
 
-export const findAll = async (request, response) => {
+export const getAccountInfo = async (request, response) => {
     try {
-        const users = await User.find({});
-        return response.status(200).send({
-            count: users.length,
-            data: users,
-        });
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({
-            message: error.message,
-        });
-    }
-};
+        const userId = request.user.id;
 
-export const findOne = async (request, response) => {
-    try {
-        const { id } = request.params;
-        const user = await User.findById(id);
-        return response.status(200).send(user);
+        const user = await User.findById(userId).select("-password");
+
+        if (!user) {
+            return response.status(404).json({ message: "User not found" });
+        }
+
+        response.json(user);
     } catch (error) {
-        console.log(error.message);
-        response.status(500).send({
-            message: error.message,
-        });
+        console.error("Error fetching account information:", error);
+        response.status(500).json({ message: "An error occurred" });
     }
 };
 

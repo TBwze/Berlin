@@ -5,6 +5,7 @@ import CustomButton from "../components/CustomButton.component";
 import TextFieldComponent from "../components/textfield.component";
 import PageLoad from "../components/Loading.component";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
+import { loginUser } from "../api/User/login.api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,21 +24,30 @@ const Login = () => {
     const email = form.getValues("email");
     const password = form.getValues("password");
 
-    await loginUser(email, password)
-      .then((response) => {
-        signIn({
-          token: response.data.token,
+    try {
+      const response = await loginUser(email, password);
+
+      if (response?.data?.token) {
+        localStorage.setItem("token", response.data.token);
+        cookie;
+      }
+
+      signIn({
+        auth: {
+          token: response?.data?.token,
           expiresIn: 3600,
           tokenType: "Bearer",
           authState: { email: form.getValues("email") },
-        });
-        navigate("/");
-        alert("Login success!");
-        console.log(response);
-      })
-      .catch((error) => {
-        alert(error.message);
+        },
       });
+
+      navigate("/");
+      alert("Login success!");
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert(error.message);
+    }
+
     setIsLoading(false);
   };
 

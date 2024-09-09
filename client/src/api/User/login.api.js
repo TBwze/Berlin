@@ -7,7 +7,12 @@ export async function loginUser(email, password) {
       password: password,
     });
 
-    return response.data;
+    // Check if the token exists in the response data
+    if (response && response.data?.token) {
+      localStorage.setItem("token", response.data.token);
+    }
+
+    return response;
   } catch (error) {
     throw error.response?.data?.message || "Login failed!";
   }

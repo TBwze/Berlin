@@ -2,25 +2,23 @@ import express from "express";
 import {
     create,
     login,
-    findAll,
-    findOne,
     edit,
     destroy,
+    getAccountInfo,
 } from "../controller/UserController.js";
+import { authenticateToken } from "../middleware/AuthMiddleware.js";
+import { upload } from "../middleware/MulterMiddleware.js";
 
 const router = express.Router();
 
-// Upload new
-router.post("/", create);
+// Register a new user
+router.post("/", upload.single("profilePicture"), create);
 
 //login
 router.post("/login", login);
 
-// Find all
-router.get("/", findAll);
-
-// Find one
-router.get("/:id", findOne);
+// get profile
+router.get("/account", authenticateToken, getAccountInfo);
 
 // Update one
 router.put("/:id", edit);
