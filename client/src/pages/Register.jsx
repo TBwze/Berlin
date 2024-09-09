@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,6 @@ import PageLoad from "../components/Loading.component";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [account, setAccount] = useState("");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm({
@@ -44,7 +43,6 @@ export const Register = () => {
         const web3 = new Web3(currentProvider);
         const userAccount = await web3.eth.getAccounts();
         const account = userAccount[0];
-        setAccount(account);
         setIsConnected(true);
 
         form.setValue("account", account);
@@ -54,7 +52,6 @@ export const Register = () => {
     }
   };
 
-  // Handle form submission
   const onSubmit = async () => {
     if (isConnected) {
       setIsLoading(true);
@@ -71,7 +68,7 @@ export const Register = () => {
       await registerUser(newUser)
         .then(() => {
           alert("Register success!");
-          navigate("/home");
+          navigate("/");
         })
         .catch((error) => {
           alert(error.message);
@@ -79,6 +76,17 @@ export const Register = () => {
       setIsLoading(false);
     } else {
       alert("Please connect to a Ethereum wallet to register");
+    }
+  };
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
     }
   };
 
@@ -129,6 +137,7 @@ export const Register = () => {
               required
             />
             <TextFieldComponent
+              type="email"
               name="email"
               label="Email"
               placeholder="Masukan email"
@@ -143,6 +152,25 @@ export const Register = () => {
               control={form.control}
               required
             />
+            <input
+              type="file"
+              id="upload-button"
+              onChange={handleFileChange}
+              accept="image/*"
+              className="w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded-full file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-blue-50 file:text-blue-700
+                       hover:file:bg-blue-100 mt-4"
+            />
+            {selectedFile && (
+              <img
+                src={URL.createObjectURL(selectedFile)}
+                alt="Profile Preview"
+                className="rounded-full object-cover mb-3 w-32 h-32"
+              />
+            )}
           </div>
           <div
             style={{
@@ -155,8 +183,9 @@ export const Register = () => {
             {!isConnected ? (
               <CustomButton
                 title="Connect MetaMask"
-                bgColor="brown"
+                bgColor="bg-orange-700"
                 handleClick={onConnect}
+                styles="mt-5"
               />
             ) : (
               <div className="app-details">
@@ -183,15 +212,15 @@ export const Register = () => {
             <CustomButton
               btnType="submit"
               title="Register"
-              bgColor="#007AFF"
-              styles="mb-3 mt-2"
+              bgColor="bg-blue-500"
+              styles="mb-3 mt-1"
             />
           </div>
         </form>
 
         <div
           className="Login"
-          style={{ fontSize: "1.2vh", fontFamily: "Poppins", margin: "1vh 0" }}
+          style={{ fontSize: "2vh", fontFamily: "Poppins", margin: "1vh 0" }}
         >
           Sudah punya akun?{" "}
           <a href="/Login" style={{ color: "#007AFF" }}>

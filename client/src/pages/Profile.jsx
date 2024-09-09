@@ -1,75 +1,156 @@
-import React from "react";
-import profilePicture from '../assets/profilePicture.png';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import profilePicture from "../assets/profilePicture.png";
+import { useNavigate } from "react-router-dom";
+import CustomButton from "../components/CustomButton.component";
+import TextFieldComponent from "../components/textfield.component";
+import PageLoad from "../components/Loading.component";
 
 const Profile = () => {
-    return (
-        <div className="max-w-[1280px] mx-auto p-4 bg-white" style={{fontFamily:"poppins"}}>
-            <h1 style={{fontSize:"2vh", margin:"1vh 0vw"}}>Pengaturan Profil</h1>
-            <div className = "container" style={{flexDirection:"row", display:'flex', alignItems: 'center', justifyContent: "space-evenly"}}>
-                <div className="profile-picture" style={{display:"flex",flexDirection:"column" ,alignItems:"center"}}>
-                    <div className="picture">
-                        <img src={profilePicture} alt=""/>
-                    </div>
-                    <a href="" style={{color:"#007AFF"}}>Ubah Foto Profil</a>
-                </div>
-                <div className ="Information" style={{flexDirection : "column", display:"flex",  fontSize:"1.6vh"}}>
-                    <div className = "username" style={{margin:"1vh 0vw"}}>
-                        <div className="label" style ={{margin:'1vh 0vw'}}>
-                            <b>Username</b>
-                        </div>
-                        <p>JohnDoe</p>
-                        <a href="" style={{color:"#007AFF"}}>Ubah Username</a>
-                    </div>
-                    <div className ="Nama" style={{display:"flex", flexDirection:"row", justifyContent:"space-around"}}>
-                        <div className = "Nama Depan" style={{margin:"1vh 0vw", marginRight:"1.5vw"}}>
-                            <div className="label" style ={{margin:'1vh 0vw'}}>
-                                <b>Nama Depan</b>
-                            </div>
-                            <p>JohnDoe</p>
-                            <a href="" style={{color:"#007AFF"}}>Ubah Nama Depan</a>
-                        </div>
-                        <div className = "Nama Belakang" style={{margin:"1vh 0vw", marginLeft:"1.5vw"}}>
-                            <div className="label" style ={{margin:'1vh 0vw'}}>
-                                <b>Nama Belakang</b>
-                            </div>
-                            <p>JohnDoe</p>
-                            <a href="" style={{color:"#007AFF"}}>Ubah Nama Depan</a>
-                        </div>
-                    </div>
-                    <div className = "Email" style={{margin:"1vh 0vw"}}>
-                        <div className="label" style ={{margin:'1vh 0vw'}}>
-                            <b>Email</b>
-                        </div>
-                        <p>JohnDoe</p>
-                        <a href="" style={{color:"#007AFF"}}>Ubah Email</a>
-                    </div>
-                    <div className = "Tanggal Lahir" style={{margin:"1vh 0vw"}}>
-                        <div className="label" style ={{margin:'1vh 0vw'}}>
-                            <b>Tanggal Lahir</b>
-                        </div>
-                        <p>12/01/2003</p>
-                        <a href="" style={{color:"#007AFF"}}>Ubah Tanggal Lahir</a>
-                    </div>
-                    <div className = "Jenis Kelamin" style={{margin:"1vh 0vw"}}>
-                        <div className="label" style ={{margin:'1vh 0vw'}}>
-                            <b>Jenis Kelamin</b>
-                        </div>
-                        <p>Laki-Laki</p>
-                        <a href="" style={{color:"#007AFF"}}>Ubah Jenis Kelamin</a>
-                    </div>
-                    <div className = "Password" style={{margin:"1vh 0vw"}}>
-                        <div className="label" style ={{margin:'1vh 0vw'}}>
-                            <b>Password</b>
-                        </div>
-                        <p>JohnDoe</p>
-                        <a href="" style={{color:"#007AFF"}}>Ubah Password</a>
-                    </div>
-                </div>
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  // Fetch the data from the API and set it in the form
+  useEffect(() => {
+    form.setValue("username", "asdf1");
+    form.setValue("firstname", "asdf2");
+    form.setValue("lastname", "asd12f");
+    form.setValue("email", "12@gmail.com");
+    form.setValue("password", "asdf"); // Mask password for security
+  }, [form]);
+
+  // Function to handle form submission
+  const onSubmit = (formData) => {
+    setIsLoading(true);
+    const dataToSubmit = new FormData();
+
+    // Append all form fields to the FormData
+    Object.keys(formData).forEach((key) => {
+      dataToSubmit.append(key, formData[key]);
+    });
+
+    // Append the profile image if one was selected
+    if (selectedFile) {
+      dataToSubmit.append("profileImage", selectedFile);
+    }
+
+    console.log("Updated Data:", dataToSubmit);
+    alert("Updated Profile");
+    setIsLoading(false);
+    navigate("/");
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      form.setValue("profileImage", file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  return (
+    <div
+      className="flex max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg my-2"
+      style={{ fontFamily: "Poppins" }}
+    >
+      <PageLoad loading={isLoading} />
+      <div className="w-1/3 flex flex-col items-center justify-center p-4 border-r border-gray-300">
+        <img
+          src={
+            selectedFile ? URL.createObjectURL(selectedFile) : profilePicture
+          }
+          alt="Profile"
+          className="rounded-full object-cover mb-3"
+        />
+        <input
+          type="file"
+          id="upload-button"
+          onChange={handleFileChange}
+          accept="image/*"
+          className="w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded-full file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-blue-50 file:text-blue-700
+                       hover:file:bg-blue-100"
+        />
+      </div>
+      <div className="w-2/3 p-4 mt-12">
+        <h1 className="text-2xl font-bold">Account Settings</h1>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-col">
+            <TextFieldComponent
+              name="username"
+              label="Username"
+              control={form.control}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <TextFieldComponent
+                name="firstname"
+                label="First Name"
+                control={form.control}
+                required
+              />
             </div>
-        </div>
-    )
-}
-
-
+            <div className="flex flex-col">
+              <TextFieldComponent
+                name="lastname"
+                label="Last Name"
+                control={form.control}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <TextFieldComponent
+              name="email"
+              label="Email"
+              type="email"
+              control={form.control}
+              required
+            />
+          </div>
+          <div className="flex gap-4 mt-4">
+            <CustomButton
+              btnType="submit"
+              title="Save Changes"
+              className="bg-blue-500 text-white "
+            />
+            <CustomButton
+              btnType="button"
+              title="Cancel"
+              className="bg-gray-500 text-white "
+              handleClick={() => {
+                navigate("/");
+              }}
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default Profile;

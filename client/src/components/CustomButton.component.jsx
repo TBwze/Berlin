@@ -1,22 +1,16 @@
-import React from "react";
-
 const CustomButton = ({
   btnType = "button",
   title,
   handleClick,
   styles = "",
   textColor = "text-white",
-  bgColor,
+  bgColor = "bg-gray-200", // Default background color
   className = "",
 }) => {
-  // Only apply backgroundColor if bgColor is provided
-  const inlineStyles = bgColor ? { backgroundColor: bgColor } : {};
-
   return (
     <button
       type={btnType}
-      className={`font-semibold text-[12px] leading-[26px] min-h-[32px] px-4 rounded-[10px] cursor-pointer mt-3 ${textColor} ${styles} ${className}`}
-      style={inlineStyles}
+      className={`font-semibold text-[12px] leading-[26px] min-h-[36px] px-4 rounded-[10px] cursor-pointer mt-2 ${bgColor} ${textColor} ${styles} ${className}`}
       onClick={handleClick}
     >
       {title}
