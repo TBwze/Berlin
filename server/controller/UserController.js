@@ -1,4 +1,5 @@
 import { User } from "../model/User.js";
+import jwt from "jsonwebtoken";
 
 export const create = async (request, response) => {
     try {
@@ -31,6 +32,32 @@ export const create = async (request, response) => {
         response.status(500).send({
             message: error.message,
         });
+    }
+};
+
+export const login = async (request, response) => {
+    const { email, password } = request.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user || user.password !== password) {
+            return response.status(400).json({
+                message: "Email or password does not match!",
+            });
+        }
+
+        const jwtToken = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET
+        );
+
+        response.json({ message: "Welcome Back!", token: jwtToken });
+    } catch (err) {
+        console.error("Error during login:", err);
+        response
+            .status(500)
+            .json({ message: "An error occurred during login" });
     }
 };
 

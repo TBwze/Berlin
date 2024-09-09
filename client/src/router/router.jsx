@@ -5,8 +5,8 @@ import CreateCampaign from "../pages/CreateCampaign";
 import Campaign from "../pages/Campaign";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import AddFunds from "../pages/AddFunds";
 import Profile from "../pages/Profile";
+import RequireAuth from "@auth-kit/react-router/RequireAuth";
 
 const router = createBrowserRouter([
   {
@@ -19,11 +19,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/create-campaign",
-        element: <CreateCampaign />,
+        element: (
+          <RequireAuth fallbackPath="/login">
+            <CreateCampaign />
+          </RequireAuth>
+        ),
       },
       {
         path: "/campaign",
-        element: <Campaign />,
+        element: (
+          <RequireAuth fallbackPath="/login">
+            <Campaign />
+          </RequireAuth>
+        ),
       },
       {
         path: "/login",
@@ -34,12 +42,12 @@ const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/add-funds",
-        element: <AddFunds />,
-      },
-      {
         path: "/profile",
-        element: <Profile />,
+        element: (
+          <RequireAuth fallbackPath="/login">
+            <Profile />
+          </RequireAuth>
+        ),
       },
     ],
   },

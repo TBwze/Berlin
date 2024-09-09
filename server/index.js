@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
 import cors from "cors";
 import { ATLAS_URI, PORT } from "./config.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
 
 app.use(express.json());

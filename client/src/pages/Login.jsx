@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton.component";
 import TextFieldComponent from "../components/textfield.component";
 import PageLoad from "../components/Loading.component";
+import useSignIn from "react-auth-kit/hooks/useSignIn";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const signIn = useSignIn();
 
   const form = useForm({
     defaultValues: {
@@ -16,12 +18,26 @@ const Login = () => {
     },
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     setIsLoading(true);
-    console.log(form.getValues("email"));
-    console.log(form.getValues("password"));
-    navigate("/");
-    alert("Login success!");
+    const email = form.getValues("email");
+    const password = form.getValues("password");
+
+    await loginUser(email, password)
+      .then((response) => {
+        signIn({
+          token: response.data.token,
+          expiresIn: 3600,
+          tokenType: "Bearer",
+          authState: { email: form.getValues("email") },
+        });
+        navigate("/");
+        alert("Login success!");
+        console.log(response);
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
     setIsLoading(false);
   };
 

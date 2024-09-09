@@ -64,7 +64,6 @@ export const Register = () => {
         role: "user",
         wallet: form.watch("account"),
       };
-      console.log(newUser);
       await registerUser(newUser)
         .then(() => {
           alert("Register success!");

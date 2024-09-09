@@ -1,6 +1,7 @@
 import express from "express";
 import {
     create,
+    login,
     findAll,
     findOne,
     edit,
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // Upload new
 router.post("/", create);
+
+//login
+router.post("/login", login);
 
 // Find all
 router.get("/", findAll);
