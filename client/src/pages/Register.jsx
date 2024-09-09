@@ -152,25 +152,27 @@ export const Register = () => {
               control={form.control}
               required
             />
-            <input
-              type="file"
-              id="upload-button"
-              onChange={handleFileChange}
-              accept="image/*"
-              className="w-full text-sm text-gray-500
+            <div className="flex flex-col items-center">
+              <input
+                type="file"
+                id="upload-button"
+                onChange={handleFileChange}
+                accept="image/*"
+                className="w-full text-sm text-gray-500
                        file:mr-4 file:py-2 file:px-4
                        file:rounded-full file:border-0
                        file:text-sm file:font-semibold
                        file:bg-blue-50 file:text-blue-700
                        hover:file:bg-blue-100 mt-4"
-            />
-            {selectedFile && (
-              <img
-                src={URL.createObjectURL(selectedFile)}
-                alt="Profile Preview"
-                className="rounded-full object-cover mb-3 w-32 h-32"
               />
-            )}
+              {selectedFile && (
+                <img
+                  src={URL.createObjectURL(selectedFile)}
+                  alt="Profile Preview"
+                  className="rounded-full object-cover mb-3 w-32 h-32 center mt-5"
+                />
+              )}
+            </div>
           </div>
           <div
             style={{
