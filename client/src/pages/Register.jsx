@@ -49,7 +49,7 @@ export const Register = () => {
         form.setValue("account", account);
       }
     } catch (err) {
-      console.log(err);
+      alert(err);
     }
   };
 
@@ -73,7 +73,7 @@ export const Register = () => {
       try {
         await registerUser(formData);
         alert("Register success!");
-        navigate("/");
+        navigate("/login");
       } catch (error) {
         alert(error.message);
       } finally {

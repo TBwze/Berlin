@@ -95,35 +95,34 @@ export const getAccountInfo = async (request, response) => {
 
 export const edit = async (request, response) => {
     try {
-        const { id } = request.params;
-        const { username, firstname, lastname, email, password } = request.body;
+        const userId = request.user.id;
 
-        const hashedPassword = password
-            ? await bcrypt.hash(password, 10)
-            : null;
+        const user = await User.findById(userId);
 
-        const updateFields = {};
-        if (username) updateFields.username = username;
-        if (firstname) updateFields.firstname = firstname;
-        if (lastname) updateFields.lastname = lastname;
-        if (email) updateFields.email = email;
-        if (hashedPassword) updateFields.password = hashedPassword;
-
-        const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
-            new: true,
-        });
-
-        if (!updatedUser) {
+        if (!user) {
             return response.status(404).json({ message: "User not found" });
         }
 
-        response.status(200).json({
-            message: "Profile updated successfully",
-            user: updatedUser,
-        });
+        const { firstname, lastname, username, email, password } = request.body;
+
+        if (firstname) user.firstname = firstname;
+        if (lastname) user.lastname = lastname;
+        if (username) user.username = username;
+        if (email) user.email = email;
+
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        if (request.file) {
+            user.profilePicture = request.file.path;
+        }
+        await user.save();
+
+        return response.status(200).json(user);
     } catch (error) {
-        console.error(error);
-        response.status(500).json({ message: "Server error" });
+        console.error(error.message);
+        response.status(500).json({ message: error.message });
     }
 };
 

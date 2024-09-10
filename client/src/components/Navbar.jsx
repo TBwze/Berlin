@@ -7,6 +7,8 @@ import { FaChevronDown } from "react-icons/fa";
 import { getUserDetails } from "../api/User/getUserDetails.api";
 import { API_BASE_URL } from "../utils/api.utils";
 import { useForm } from "react-hook-form";
+import PageLoad from "./Loading.component";
+import Web3 from "web3";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,7 +18,8 @@ const Navbar = () => {
   const [ethBalance, setEthBalance] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
+  const web3 = new Web3(window.ethereum);
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
@@ -45,7 +48,10 @@ const Navbar = () => {
         params: [walletAddress, "latest"],
       });
 
-      const ethBalance = window.web3.utils.fromWei(balance, "ether");
+      let ethBalance = web3.utils.fromWei(balance, "ether");
+
+      ethBalance = parseFloat(ethBalance).toFixed(4);
+
       setEthBalance(ethBalance);
     } catch (error) {
       console.error("Error fetching ETH balance:", error);
@@ -54,10 +60,12 @@ const Navbar = () => {
   };
 
   const handleLogOutButton = () => {
+    setIsLoading(true);
     Cookies.remove("token");
     setShowDropdown(false);
     setIsLoggedIn(false);
     navigate("/");
+    setIsLoading(false);
   };
 
   const toggleDropdown = () => {
@@ -75,12 +83,12 @@ const Navbar = () => {
     const relativePath = fullPath.substring(startIndex);
     const finalPath = relativePath.replace(/\\/g, "/");
     const fullUrl = `${API_BASE_URL}/${finalPath}`;
-    console.log(fullUrl);
     return fullUrl;
   };
 
   return (
     <div className="w-full flex justify-between items-center bg-white border-b-2 border-black">
+      <PageLoad loading={isLoading} />
       {/* Logo and slogan */}
       <div className="flex items-center">
         <div className="ml-4 mb-4">

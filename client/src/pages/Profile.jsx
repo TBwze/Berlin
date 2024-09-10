@@ -43,7 +43,6 @@ const Profile = () => {
       })
       .catch((error) => {
         alert(error);
-        console.log(error.message);
       });
   }, [form]);
 
@@ -81,7 +80,7 @@ const Profile = () => {
     }
 
     try {
-      await updateUserProfile(form.getValues("id"), formData);
+      await updateUserProfile(formData);
       alert("Profile updated successfully!");
       navigate("/");
     } catch (error) {
