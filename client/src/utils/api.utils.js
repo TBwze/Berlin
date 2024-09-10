@@ -1,5 +1,7 @@
-export const API_BASE_URL = "http://localhost:8000";
 import axios from "axios";
+import Cookies from "js-cookie";
+
+export const API_BASE_URL = "http://localhost:5000";
 
 export function getApiInstance() {
   const instance = axios.create({
@@ -7,10 +9,12 @@ export function getApiInstance() {
     headers: {
       "Content-Type": "application/json",
     },
+    withCredentials: true,
   });
+
   instance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }

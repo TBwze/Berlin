@@ -80,7 +80,7 @@ export const getAccountInfo = async (request, response) => {
     try {
         const userId = request.user.id;
 
-        const user = await User.findById(userId).select("-password");
+        const user = await User.findById(userId);
 
         if (!user) {
             return response.status(404).json({ message: "User not found" });

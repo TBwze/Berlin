@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
+import Cookies from "cookies";
 
 export const authenticateToken = (request, response, next) => {
-    const authHeader = request.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-
+    const cookies = new Cookies(request, response);
+    const token = cookies.get("token");
     if (!token) {
         return response
             .status(401)
@@ -15,7 +15,6 @@ export const authenticateToken = (request, response, next) => {
             return response.status(403).json({ message: "Invalid token" });
         }
 
-        // Attach user data (decoded from token) to the request object
         request.user = user;
         next();
     });

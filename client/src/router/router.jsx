@@ -6,7 +6,6 @@ import Campaign from "../pages/Campaign";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
-import RequireAuth from "@auth-kit/react-router/RequireAuth";
 
 const router = createBrowserRouter([
   {
@@ -14,40 +13,28 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/",
+        path: "",
         element: <Home />,
       },
       {
-        path: "/create-campaign",
-        element: (
-          <RequireAuth fallbackPath="/login">
-            <CreateCampaign />
-          </RequireAuth>
-        ),
+        path: "create-campaign",
+        element: <CreateCampaign />,
       },
       {
-        path: "/campaign",
-        element: (
-          <RequireAuth fallbackPath="/login">
-            <Campaign />
-          </RequireAuth>
-        ),
+        path: "campaign",
+        element: <Campaign />,
       },
       {
-        path: "/login",
+        path: "login",
         element: <Login />,
       },
       {
-        path: "/register",
+        path: "register",
         element: <Register />,
       },
       {
-        path: "/profile",
-        element: (
-          <RequireAuth fallbackPath="/login">
-            <Profile />
-          </RequireAuth>
-        ),
+        path: "profile",
+        element: <Profile />,
       },
     ],
   },

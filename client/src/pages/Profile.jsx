@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton.component";
 import TextFieldComponent from "../components/textfield.component";
 import PageLoad from "../components/Loading.component";
+import { getUserDetails } from "../api/User/getUserDetails.api";
+import { API_BASE_URL } from "../utils/api.utils";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -22,13 +24,39 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    form.setValue("username", "asdf1");
-    form.setValue("firstname", "asdf2");
-    form.setValue("lastname", "asd12f");
-    form.setValue("email", "12@gmail.com");
-    form.setValue("password", "asdf");
-    // Image URL is already set in defaultValues
+    getUserDetails()
+      .then((response) => {
+        form.setValue("username", response.username);
+        form.setValue("firstname", response.firstname);
+        form.setValue("lastname", response.lastname);
+        form.setValue("email", response.email);
+
+        const originalPath = response.profilePicture;
+        const startDirectory = "assets";
+        const imageUrl = getFullUrl(originalPath, startDirectory);
+
+        form.setValue("image", imageUrl);
+      })
+      .catch((error) => {
+        alert(error);
+        console.log(error.message);
+      });
   }, [form]);
+
+  const getFullUrl = (fullPath, startDirectory) => {
+    const startIndex = fullPath.indexOf(startDirectory);
+
+    if (startIndex === -1) {
+      console.error("Start directory not found in path");
+      return "";
+    }
+
+    const relativePath = fullPath.substring(startIndex);
+    const finalPath = relativePath.replace(/\\/g, "/");
+    const fullUrl = `${API_BASE_URL}/${finalPath}`;
+
+    return fullUrl;
+  };
 
   const onSubmit = (formData) => {
     setIsLoading(true);
@@ -85,11 +113,11 @@ const Profile = () => {
             onChange={handleFileChange}
             accept="image/*"
             className="w-full text-sm text-gray-500
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded-full file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-blue-50 file:text-blue-700
-                       hover:file:bg-blue-100"
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100"
           />
         </div>
         <div className="w-2/3 p-4">
@@ -130,7 +158,7 @@ const Profile = () => {
               <CustomButton
                 btnType="submit"
                 title="Save Changes"
-                className="bg-blue-500 text-white"
+                className="bg-green-500 text-white"
               />
               <CustomButton
                 btnType="button"

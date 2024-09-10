@@ -1,20 +1,84 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "./CustomButton.component";
-import { logo, profile, search } from "../assets";
-import { useLocation } from "react-router-dom";
+import { logo, profile } from "../assets";
+import Cookies from "js-cookie";
+import { FaChevronDown } from "react-icons/fa";
+import { getUserDetails } from "../api/User/getUserDetails.api";
+import { API_BASE_URL } from "../utils/api.utils";
+import { useForm } from "react-hook-form";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [isActive, setIsActive] = useState("dashboard");
-  const [toggleDrawer, setToggleDrawer] = useState(false);
-  const { search } = useLocation();
-  const query = new URLSearchParams(search);
-  const balance = query.get("balance") || "0";
+  const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [ethBalance, setEthBalance] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
-  const [integerPart, decimalPart] = balance.split(".");
-  const firstThreeDigits = decimalPart ? decimalPart.slice(0, 3) : "";
-  const result = integerPart + "." + firstThreeDigits;
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      setIsLoggedIn(true);
+
+      getUserDetails()
+        .then((response) => {
+          setUserDetails(response.username);
+          getEthBalance(response.wallet);
+          const originalPath = response.profilePicture;
+          const startDirectory = "assets";
+          setImageUrl(getFullUrl(originalPath, startDirectory));
+        })
+        .catch((error) => {
+          console.error("Error fetching user details:", error);
+        });
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [location]);
+
+  const getEthBalance = async (walletAddress) => {
+    try {
+      const balance = await window.ethereum.request({
+        method: "eth_getBalance",
+        params: [walletAddress, "latest"],
+      });
+
+      const ethBalance = window.web3.utils.fromWei(balance, "ether");
+      setEthBalance(ethBalance);
+    } catch (error) {
+      console.error("Error fetching ETH balance:", error);
+      setEthBalance(0);
+    }
+  };
+
+  const handleLogOutButton = () => {
+    Cookies.remove("token");
+    setShowDropdown(false);
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const getFullUrl = (fullPath, startDirectory) => {
+    const startIndex = fullPath.indexOf(startDirectory);
+
+    if (startIndex === -1) {
+      console.error("Start directory not found in path");
+      return "";
+    }
+
+    const relativePath = fullPath.substring(startIndex);
+    const finalPath = relativePath.replace(/\\/g, "/");
+    const fullUrl = `${API_BASE_URL}/${finalPath}`;
+    console.log(fullUrl);
+    return fullUrl;
+  };
+
   return (
     <div className="w-full flex justify-between items-center bg-white border-b-2 border-black">
       {/* Logo and slogan */}
@@ -32,35 +96,69 @@ const Navbar = () => {
             Join the Movement: See, Support, Succeed!
           </h2>
           <a href="/campaign">
-            <p style={{ fontSize: "14px" }} className=" font-poppins">
+            <p style={{ fontSize: "14px" }} className="font-poppins">
               Jelajahi
             </p>
           </a>
         </div>
       </div>
 
-      {/* Start Project button and profile */}
-      <div className="flex items-center">
+      <div className="flex items-center space-x-4">
         <CustomButton
           btnType="button"
           title="Start Project"
           styles="bg-gray-300 font-bold rounded-full px-4 py-2 border-2 border-black"
           textColor="text-black"
-          handleClick={() => navigate("./create-campaign")}
+          handleClick={() => navigate("/create-campaign")}
         />
-        <Link to="/profile" className="ml-4">
-          <div className="flex items-center">
-            <img
-              src={profile}
-              alt="user"
-              className="w-[40px] h-[40px] rounded-full"
-            />
-            <div className="ml-2 text-left">
-              <p className="text-sm font-bold">Username</p>
-              <p className="text-xs text-black-500"> {result} ETH</p>
+
+        {isLoggedIn ? (
+          <div className="relative">
+            <div
+              className="flex items-center cursor-pointer"
+              onClick={toggleDropdown}
+            >
+              <img
+                src={imageUrl ? imageUrl : profile}
+                alt={profile}
+                className="w-[40px] h-[40px] rounded-full"
+              />
+              <div className="ml-2 text-left">
+                <p className="text-sm font-bold">{userDetails}</p>
+                <p className="text-xs text-black-500">{ethBalance} ETH</p>
+              </div>
+              <div className="ml-2">
+                <FaChevronDown />
+              </div>
             </div>
+
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200">
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-black rounded-t-lg transition duration-200"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  className="w-full text-left block px-4 py-2 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-b-lg transition duration-200"
+                  onClick={handleLogOutButton}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
           </div>
-        </Link>
+        ) : (
+          <CustomButton
+            btnType="button"
+            title="Login"
+            styles="ml-6 bg-green-300 font-bold rounded-full px-6 py-2 border-2 border-black"
+            textColor="text-black"
+            handleClick={() => navigate("/login")}
+          />
+        )}
       </div>
     </div>
   );

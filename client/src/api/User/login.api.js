@@ -1,5 +1,5 @@
 import { getApiInstance } from "../../utils/api.utils";
-
+import Cookies from "js-cookie";
 export async function loginUser(email, password) {
   try {
     const response = await getApiInstance().post("/user/login", {
@@ -7,9 +7,8 @@ export async function loginUser(email, password) {
       password: password,
     });
 
-    // Check if the token exists in the response data
     if (response && response.data?.token) {
-      localStorage.setItem("token", response.data.token);
+      Cookies.set("token", response.data.token, { expires: 7 });
     }
 
     return response;
