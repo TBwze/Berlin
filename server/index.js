@@ -3,26 +3,35 @@ import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
 import cors from "cors";
 import { ATLAS_URI, PORT } from "./config.js";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
+dotenv.config();
 const app = express();
 
-app.use(express.json);
 app.use(
     cors({
+        origin: "http://localhost:5173",
         methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true,
     })
 );
+app.use(express.json());
 
-app.use("/users", userRoute);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+app.use("/user", userRoute);
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 mongoose
     .connect(ATLAS_URI, {
-        dbName: "crowdfunding",
+        dbName: "crowdfunding-skripsi",
     })
     .then(() => {
         console.log("App connected to database");
-        app.listen(process.env.PORT, () => {
+        app.listen(PORT, () => {
             console.log(`App is listening on port: ${PORT}`);
         });
     })

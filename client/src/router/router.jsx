@@ -5,7 +5,6 @@ import CreateCampaign from "../pages/CreateCampaign";
 import Campaign from "../pages/Campaign";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import AddFunds from "../pages/AddFunds";
 import Profile from "../pages/Profile";
 
 const router = createBrowserRouter([
@@ -14,31 +13,27 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/",
+        path: "",
         element: <Home />,
       },
       {
-        path: "/create-campaign",
+        path: "create-campaign",
         element: <CreateCampaign />,
       },
       {
-        path: "/campaign",
+        path: "campaign",
         element: <Campaign />,
       },
       {
-        path: "/login",
+        path: "login",
         element: <Login />,
       },
       {
-        path: "/register",
+        path: "register",
         element: <Register />,
       },
       {
-        path: "/add-funds",
-        element: <AddFunds />,
-      },
-      {
-        path: "/profile",
+        path: "profile",
         element: <Profile />,
       },
     ],
