@@ -6,6 +6,7 @@ import TextFieldComponent from "../components/textfield.component";
 import PageLoad from "../components/Loading.component";
 import { getUserDetails } from "../api/User/getUserDetails.api";
 import { API_BASE_URL } from "../utils/api.utils";
+import { updateUserProfile } from "../api/User/updateUser.api";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Profile = () => {
 
   const form = useForm({
     defaultValues: {
+      id: "",
       username: "",
       firstname: "",
       lastname: "",
@@ -26,10 +28,12 @@ const Profile = () => {
   useEffect(() => {
     getUserDetails()
       .then((response) => {
+        form.setValue("id", response._id);
         form.setValue("username", response.username);
         form.setValue("firstname", response.firstname);
         form.setValue("lastname", response.lastname);
         form.setValue("email", response.email);
+        form.setValue("password", response.password);
 
         const originalPath = response.profilePicture;
         const startDirectory = "assets";
@@ -58,23 +62,34 @@ const Profile = () => {
     return fullUrl;
   };
 
-  const onSubmit = (formData) => {
+  const onSubmit = async () => {
     setIsLoading(true);
 
-    const dataToSubmit = new FormData();
+    const formData = new FormData();
+    formData.append("username", form.getValues("username"));
+    formData.append("firstname", form.getValues("firstname"));
+    formData.append("lastname", form.getValues("lastname"));
+    formData.append("email", form.getValues("email"));
 
-    Object.keys(formData).forEach((key) => {
-      if (key === "image" && selectedFile) {
-        dataToSubmit.append("image", selectedFile);
-      } else {
-        dataToSubmit.append(key, formData[key]);
-      }
-    });
+    const password = form.getValues("password");
+    if (password) {
+      formData.append("password", password);
+    }
 
-    console.log("Updated Data:", dataToSubmit);
+    if (selectedFile) {
+      formData.append("profilePicture", selectedFile);
+    }
+
+    try {
+      await updateUserProfile(form.getValues("id"), formData);
+      alert("Profile updated successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Error updating profile: " + error.message);
+    }
 
     setIsLoading(false);
-    navigate("/");
   };
 
   const handleFileChange = (event) => {

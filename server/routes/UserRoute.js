@@ -21,7 +21,7 @@ router.post("/login", login);
 router.get("/account", authenticateToken, getAccountInfo);
 
 // Update one
-router.put("/:id", edit);
+router.put("/update/:id", authenticateToken, edit);
 
 // Delete one
 router.delete("/:id", destroy);

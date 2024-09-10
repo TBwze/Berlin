@@ -95,34 +95,35 @@ export const getAccountInfo = async (request, response) => {
 
 export const edit = async (request, response) => {
     try {
-        if (
-            !request.body.firstname ||
-            !request.body.lastname ||
-            !request.body.username ||
-            !request.body.email ||
-            !request.body.password
-        ) {
-            return response.status(400).send({
-                message: "Send all required fields!",
-            });
-        }
         const { id } = request.params;
-        const result = await User.findByIdAndUpdate(id, request.body);
+        const { username, firstname, lastname, email, password } = request.body;
 
-        if (!result) {
-            return response.status(404).send({
-                message: "User not found!",
-            });
+        const hashedPassword = password
+            ? await bcrypt.hash(password, 10)
+            : null;
+
+        const updateFields = {};
+        if (username) updateFields.username = username;
+        if (firstname) updateFields.firstname = firstname;
+        if (lastname) updateFields.lastname = lastname;
+        if (email) updateFields.email = email;
+        if (hashedPassword) updateFields.password = hashedPassword;
+
+        const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
+            new: true,
+        });
+
+        if (!updatedUser) {
+            return response.status(404).json({ message: "User not found" });
         }
 
-        return response
-            .status(200)
-            .send({ message: "User updated successfully!" });
-    } catch (error) {
-        console.log(error.message);
-        response.status(500).send({
-            message: error.message,
+        response.status(200).json({
+            message: "Profile updated successfully",
+            user: updatedUser,
         });
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ message: "Server error" });
     }
 };
 
