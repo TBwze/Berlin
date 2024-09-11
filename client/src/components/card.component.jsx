@@ -25,7 +25,7 @@ const CardComponent = ({
       }}
       render={({ field }) => (
         <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <a href={`/${id}`}>
+          <a href={`/campaign/${id}`}>
             <img
               className="rounded-t-lg w-full h-48 object-cover"
               src={field.value.imageUrl || "/api/placeholder/384/192"}
@@ -33,7 +33,7 @@ const CardComponent = ({
             />
           </a>
           <div className="p-5">
-            <a href={`/${id}`}>
+            <a href={`/campaign/${id}`}>
               <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white truncate">
                 {field.value.title}
               </h5>
@@ -48,7 +48,7 @@ const CardComponent = ({
               {field.value.funded} / {field.value.totalFunding} Funded
             </p>
             <a
-              href={`/${id}`}
+              href={`/campaign/${id}`}
               className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               See Details

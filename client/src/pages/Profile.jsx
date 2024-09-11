@@ -28,18 +28,18 @@ const Profile = () => {
   useEffect(() => {
     getUserDetails()
       .then((response) => {
+        console.log(response.password);
         form.setValue("id", response._id);
         form.setValue("username", response.username);
         form.setValue("firstname", response.firstname);
         form.setValue("lastname", response.lastname);
         form.setValue("email", response.email);
-        form.setValue("password", response.password);
-
-        const originalPath = response.profilePicture;
-        const startDirectory = "assets";
-        const imageUrl = getFullUrl(originalPath, startDirectory);
-
-        form.setValue("image", imageUrl);
+        if (response.profilePicture !== null) {
+          const originalPath = response.profilePicture;
+          const startDirectory = "assets";
+          const imageUrl = getFullUrl(originalPath, startDirectory);
+          form.setValue("image", imageUrl);
+        }
       })
       .catch((error) => {
         alert(error);
@@ -71,14 +71,14 @@ const Profile = () => {
     formData.append("email", form.getValues("email"));
 
     const password = form.getValues("password");
-    if (password) {
+    if (password != "") {
       formData.append("password", password);
     }
 
     if (selectedFile) {
       formData.append("profilePicture", selectedFile);
     }
-
+    console.log(formData);
     try {
       await updateUserProfile(formData);
       alert("Profile updated successfully!");
@@ -115,11 +115,16 @@ const Profile = () => {
     >
       <PageLoad loading={isLoading} />
       <div className="flex w-full">
-        <div className="w-1/3 flex flex-col items-center justify-start p-4">
+        <div className="w-1/6 flex"></div>
+        <div className="w-1/3 flex flex-col justify-center p-4 items-center">
           <img
-            src={form.watch("image")}
+            src={
+              form.watch("image") !== ""
+                ? form.watch("image")
+                : "src/assets/ProfilePicture.png"
+            }
             alt="Profile"
-            className="rounded-full object-cover mb-4 w-48 h-48"
+            className="rounded-full object-cover mb-4 w-48 h-56"
           />
           <input
             type="file"
@@ -134,7 +139,8 @@ const Profile = () => {
                         hover:file:bg-blue-100"
           />
         </div>
-        <div className="w-2/3 p-4">
+        <div className="w-1/6 flex"></div>
+        <div className="w-1/3 p-4">
           <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="mb-4">
@@ -144,8 +150,6 @@ const Profile = () => {
                 control={form.control}
                 required
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
               <TextFieldComponent
                 name="firstname"
                 label="First Name"
@@ -168,6 +172,15 @@ const Profile = () => {
                 required
               />
             </div>
+            <div className="mb-4">
+              <TextFieldComponent
+                name="password"
+                label="password"
+                type="password"
+                placeholder="Change password"
+                control={form.control}
+              />
+            </div>
             <div className="flex gap-4">
               <CustomButton
                 btnType="submit"
@@ -185,6 +198,7 @@ const Profile = () => {
             </div>
           </form>
         </div>
+        <div className="w-1/6 flex"></div>
       </div>
     </div>
   );

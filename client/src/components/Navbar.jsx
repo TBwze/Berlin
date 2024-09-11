@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "./CustomButton.component";
-import { logo, profile } from "../assets";
 import Cookies from "js-cookie";
 import { FaChevronDown } from "react-icons/fa";
 import { getUserDetails } from "../api/User/getUserDetails.api";
 import { API_BASE_URL } from "../utils/api.utils";
-import { useForm } from "react-hook-form";
 import PageLoad from "./Loading.component";
 import Web3 from "web3";
+import { profile } from "../assets";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -87,7 +86,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="w-full flex justify-between items-center bg-white border-b-2 border-black">
+    <div className="w-full flex justify-between items-center bg-white border-b-2 border-black mb-4">
       <PageLoad loading={isLoading} />
       {/* Logo and slogan */}
       <div className="flex items-center">
@@ -103,19 +102,21 @@ const Navbar = () => {
           <h2 style={{ fontSize: "18px" }} className="mb-5 font-poppins">
             Join the Movement: See, Support, Succeed!
           </h2>
-          <a href="/campaign">
-            <p style={{ fontSize: "14px" }} className="font-poppins">
-              Jelajahi
-            </p>
-          </a>
+          <CustomButton
+            btnType="button"
+            title="Jelajahi"
+            styles="bg-blue-300 font-bold px-4 py-1 rounded"
+            textColor="text-black"
+            handleClick={() => navigate("/campaign")}
+          />
         </div>
       </div>
 
       <div className="flex items-center space-x-4">
         <CustomButton
           btnType="button"
-          title="Start Project"
-          styles="bg-gray-300 font-bold rounded-full px-4 py-2 border-2 border-black"
+          title="Create Campaign"
+          styles="bg-gray-300 font-bold rounded-full px-4 py-2"
           textColor="text-black"
           handleClick={() => navigate("/create-campaign")}
         />
@@ -144,7 +145,7 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200">
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:text-black rounded-t-lg transition duration-200"
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-300 hover:text-black rounded-t-lg transition duration-200"
                   onClick={() => setShowDropdown(false)}
                 >
                   Profile
@@ -162,8 +163,8 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Login"
-            styles="ml-6 bg-green-300 font-bold rounded-full px-6 py-2 border-2 border-black"
-            textColor="text-black"
+            styles="ml-6 bg-green-500 font-bold rounded-full px-6 py-2"
+            textColor="text-white"
             handleClick={() => navigate("/login")}
           />
         )}

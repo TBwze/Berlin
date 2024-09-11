@@ -6,6 +6,7 @@ import Campaign from "../pages/Campaign";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
+import ProtectedRoute from "../components/ProtectedRoute.component";
 
 const router = createBrowserRouter([
   {
@@ -18,11 +19,11 @@ const router = createBrowserRouter([
       },
       {
         path: "create-campaign",
-        element: <CreateCampaign />,
+        element: <ProtectedRoute element={<CreateCampaign />} />,
       },
       {
         path: "campaign",
-        element: <Campaign />,
+        element: <ProtectedRoute element={<Campaign />} />,
       },
       {
         path: "login",
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: <ProtectedRoute element={<Profile />} />,
       },
     ],
   },
