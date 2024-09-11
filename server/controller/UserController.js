@@ -37,7 +37,6 @@ export const create = async (request, response) => {
         const user = await User.create(newUser);
         return response.status(201).send(user);
     } catch (error) {
-        console.log(error.message);
         response.status(500).send({
             message: error.message,
         });
@@ -73,7 +72,6 @@ export const login = async (request, response) => {
             token: jwtToken,
         });
     } catch (err) {
-        console.error("Error during login:", err);
         response
             .status(500)
             .json({ message: "An error occurred during login" });
@@ -92,7 +90,6 @@ export const getAccountInfo = async (request, response) => {
 
         response.json(user);
     } catch (error) {
-        console.error("Error fetching account information:", error);
         response.status(500).json({ message: "An error occurred" });
     }
 };
@@ -131,7 +128,7 @@ export const edit = async (request, response) => {
 
                 fs.unlink(oldFilePath, (err) => {
                     if (err) {
-                        console.error(
+                        alert(
                             "Error deleting old profile picture:",
                             err.message
                         );
@@ -145,7 +142,6 @@ export const edit = async (request, response) => {
 
         return response.status(200).json(user);
     } catch (error) {
-        console.error(error.message);
         response.status(500).json({ message: error.message });
     }
 };
@@ -163,7 +159,6 @@ export const destroy = async (request, response) => {
             .status(200)
             .send({ message: "User deleted successfully!" });
     } catch (error) {
-        console.log(error.message);
         response.status(500).send({
             message: error.message,
         });

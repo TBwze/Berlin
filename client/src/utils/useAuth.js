@@ -9,7 +9,6 @@ const useAuth = () => {
   useEffect(() => {
     setIsLoading(true);
     const token = Cookies.get("token");
-    console.log(`Token retrieved: ${token}`);
 
     if (token) {
       setIsAuthenticated(true);

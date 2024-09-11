@@ -31,7 +31,7 @@ export const Register = () => {
     } else if (window.web3) {
       provider = window.web3.currentProvider;
     } else {
-      console.log("Non-ethereum browser detected. You should install MetaMask");
+      alert("Non-ethereum browser detected. You should install MetaMask");
     }
     return provider;
   };

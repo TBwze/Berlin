@@ -33,7 +33,7 @@ const Navbar = () => {
           setImageUrl(getFullUrl(originalPath, startDirectory));
         })
         .catch((error) => {
-          console.error("Error fetching user details:", error);
+          alert(error.message);
         });
     } else {
       setIsLoggedIn(false);
@@ -53,7 +53,6 @@ const Navbar = () => {
 
       setEthBalance(ethBalance);
     } catch (error) {
-      console.error("Error fetching ETH balance:", error);
       setEthBalance(0);
     }
   };
@@ -75,7 +74,6 @@ const Navbar = () => {
     const startIndex = fullPath.indexOf(startDirectory);
 
     if (startIndex === -1) {
-      console.error("Start directory not found in path");
       return "";
     }
 

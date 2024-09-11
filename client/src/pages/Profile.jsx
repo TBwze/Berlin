@@ -28,7 +28,6 @@ const Profile = () => {
   useEffect(() => {
     getUserDetails()
       .then((response) => {
-        console.log(response.password);
         form.setValue("id", response._id);
         form.setValue("username", response.username);
         form.setValue("firstname", response.firstname);
@@ -42,15 +41,14 @@ const Profile = () => {
         }
       })
       .catch((error) => {
-        alert(error);
+        alert(error.message);
       });
-  }, [form]);
+  }, []);
 
   const getFullUrl = (fullPath, startDirectory) => {
     const startIndex = fullPath.indexOf(startDirectory);
 
     if (startIndex === -1) {
-      console.error("Start directory not found in path");
       return "";
     }
 
@@ -78,14 +76,12 @@ const Profile = () => {
     if (selectedFile) {
       formData.append("profilePicture", selectedFile);
     }
-    console.log(formData);
     try {
       await updateUserProfile(formData);
       alert("Profile updated successfully!");
       navigate("/");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Error updating profile: " + error.message);
+      alert("Error updating profile: " + error);
     }
 
     setIsLoading(false);
