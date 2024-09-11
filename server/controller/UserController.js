@@ -1,6 +1,10 @@
 import { User } from "../model/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 export const create = async (request, response) => {
     try {
@@ -93,6 +97,9 @@ export const getAccountInfo = async (request, response) => {
     }
 };
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 export const edit = async (request, response) => {
     try {
         const userId = request.user.id;
@@ -115,6 +122,23 @@ export const edit = async (request, response) => {
         }
 
         if (request.file) {
+            if (user.profilePicture) {
+                const oldFilePath = path.resolve(
+                    __dirname,
+                    "..",
+                    user.profilePicture
+                );
+
+                fs.unlink(oldFilePath, (err) => {
+                    if (err) {
+                        console.error(
+                            "Error deleting old profile picture:",
+                            err.message
+                        );
+                    }
+                });
+            }
+
             user.profilePicture = request.file.path;
         }
         await user.save();

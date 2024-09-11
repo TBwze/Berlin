@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-white border-t-2 border-black py-6">
-      <div className="flex justify-center mb-4 space-x-6">
+    <footer className="bg-white border-t-2 border-black py-6 mt-4">
+      <div className="flex justify-center mb-4 space-x-6"> 
         <a
           href="https://www.instagram.com"
           target="_blank"

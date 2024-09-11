@@ -23,12 +23,13 @@ const Login = () => {
     const password = form.getValues("password");
 
     await loginUser(email, password)
-      .then((response) => {})
+      .then((response) => {
+        navigate("/");
+        alert("Login success!");
+      })
       .catch((error) => {
-        alert(error.message);
+        alert(error);
       });
-    navigate("/");
-    alert("Login success!");
     setIsLoading(false);
   };
 
