@@ -28,9 +28,11 @@ const Navbar = () => {
         .then((response) => {
           setUserDetails(response.username);
           getEthBalance(response.wallet);
-          const originalPath = response.profilePicture;
-          const startDirectory = "assets";
-          setImageUrl(getFullUrl(originalPath, startDirectory));
+          if (response.profilePicture !== null) {
+            const originalPath = response.profilePicture;
+            const startDirectory = "assets";
+            setImageUrl(getFullUrl(originalPath, startDirectory));
+          }
         })
         .catch((error) => {
           alert(error.message);

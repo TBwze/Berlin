@@ -10,6 +10,7 @@ const TextFieldComponent = ({
   control,
   required = false,
   disabled = false,
+  rows = 3,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,18 +37,34 @@ const TextFieldComponent = ({
             {label}
           </div>
           <div className="relative flex items-center">
-            <input
-              type={inputType}
-              placeholder={placeholder}
-              className="w-full p-2 pr-10 text-xs bg-transparent rounded outline-1 border border-gray-500"
-              style={{
-                fontFamily: "Poppins",
-                width: "20rem",
-              }}
-              {...field}
-              required={required}
-              disabled={disabled}
-            />
+            {type === "textarea" ? (
+              <textarea
+                rows={rows}
+                placeholder={placeholder}
+                className="w-full p-2 text-xs bg-transparent rounded outline-1 border border-gray-500"
+                style={{
+                  fontFamily: "Poppins",
+                  width: "20rem",
+                }}
+                {...field}
+                required={required}
+                disabled={disabled}
+              />
+            ) : (
+              <input
+                type={inputType}
+                placeholder={placeholder}
+                className="w-full p-2 pr-10 text-xs bg-transparent rounded outline-1 border border-gray-500"
+                style={{
+                  fontFamily: "Poppins",
+                  width: "20rem",
+                }}
+                {...field}
+                required={required}
+                disabled={disabled}
+              />
+            )}
+
             {type === "password" && (
               <button
                 type="button"

@@ -28,7 +28,7 @@ const Login = () => {
         alert("Login success!");
       })
       .catch((error) => {
-        alert(error.message);
+        alert(error);
       });
     setIsLoading(false);
   };
