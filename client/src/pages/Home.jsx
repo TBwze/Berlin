@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import CardComponent from "../components/Card.componentt";
+import CardComponent from "../components/Card.component";
 
 const Home = () => {
   const form = useForm({
