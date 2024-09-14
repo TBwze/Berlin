@@ -28,19 +28,18 @@ const TextFieldComponent = ({
       rules={{ required }}
       render={({ field }) => (
         <div className="flex flex-col space-y-1 mt-3">
-          <div className="text-xs font-bold text-black font-poppins">
-            {label}
-          </div>
+          {label && (
+            <div className="text-xs font-bold text-black font-poppins">
+              {label}
+            </div>
+          )}
           <div className="relative flex items-center">
             {type === "textarea" ? (
               <textarea
                 rows={rows}
                 placeholder={placeholder}
-                className="w-full p-2 text-xs bg-transparent rounded outline-1 border border-gray-500"
-                style={{
-                  fontFamily: "Poppins",
-                  width: "20rem",
-                }}
+                className="w-full p-2 text-xs bg-transparent rounded border border-gray-500 outline-none"
+                style={{ fontFamily: "Poppins", width: "20rem" }}
                 {...field}
                 required={required}
                 disabled={disabled}
@@ -51,11 +50,8 @@ const TextFieldComponent = ({
                 placeholder={placeholder}
                 className={`w-full p-2 pr-${
                   addOrmentString ? 16 : 10
-                } text-xs bg-transparent rounded outline-1 border border-gray-500`}
-                style={{
-                  fontFamily: "Poppins",
-                  width: "20rem",
-                }}
+                } text-xs bg-transparent rounded border border-gray-500 outline-none`}
+                style={{ fontFamily: "Poppins", width: "20rem" }}
                 {...field}
                 required={required}
                 disabled={disabled}
