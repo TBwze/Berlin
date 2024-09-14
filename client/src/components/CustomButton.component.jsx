@@ -10,7 +10,7 @@ const CustomButton = ({
   return (
     <button
       type={btnType}
-      className={`font-semibold text-[12px] leading-[26px] min-h-[36px] px-4 rounded-[10px] cursor-pointer mt-2 ${bgColor} ${textColor} ${styles} ${className}`}
+      className={`font-poppins text-[12px] leading-[26px] min-h-[36px] px-4 rounded-[10px] cursor-pointer ${bgColor} ${textColor} ${styles} ${className}`}
       onClick={handleClick}
     >
       {title}

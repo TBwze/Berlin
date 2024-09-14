@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import CardComponent from "../components/card.component";
 import { useForm } from "react-hook-form";
@@ -12,38 +12,25 @@ const Home = () => {
       campaign_backers: 21,
       campaign_funded: 55,
       campaign_total_fund: 111,
-      campaign_images: "",
+      campaign_images: "http://localhost:8000/assets/1725893454284.jpg",
     },
   });
-  const [data, setData] = useState([
-    {
-      id: 1,
-      title: "Noteworthy Technology Acquisitions 2021",
-      creator: "TechCrunch",
-      backers: 21,
-      funded: 55,
-      totalFunding: 111,
-      imageUrl: "https://example.com/image1.png",
-    },
-    {
-      id: 2,
-      title: "Top AI Startups to Watch",
-      creator: "Forbes",
-      backers: 15,
-      funded: 75,
-      totalFunding: 150,
-      imageUrl: "https://example.com/image2.png",
-    },
-    {
-      id: 3,
-      title: "The Rise of Quantum Computing",
-      creator: "Wired",
-      backers: 10,
-      funded: 100,
-      totalFunding: 200,
-      imageUrl: "https://example.com/image3.png",
-    },
-  ]);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    setData([
+      {
+        id: 1,
+        title: form.getValues("campaign_title"),
+        creator: "TechCrunch",
+        backers: 21,
+        funded: 25,
+        totalFunding: 111,
+        imageUrl: form.getValues("campaign_images"),
+      },
+    ]);
+  }, []);
+
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
       {/* Projek Populer Section */}

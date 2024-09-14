@@ -105,7 +105,7 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Jelajahi"
-            styles="bg-blue-300 font-bold px-4 py-1 rounded"
+            styles="bg-blue-300 font-bold px-4 rounded border-2 border-black drop-shadow-md"
             textColor="text-black"
             handleClick={() => navigate("/campaign")}
           />
@@ -116,7 +116,7 @@ const Navbar = () => {
         <CustomButton
           btnType="button"
           title="Create Campaign"
-          styles="bg-gray-300 font-bold rounded-full px-4 py-2"
+          styles="bg-gray-300 font-bold rounded-full px-4 border-2 border-black drop-shadow-md"
           textColor="text-black"
           handleClick={() => navigate("/create-campaign")}
         />
@@ -163,7 +163,7 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Login"
-            styles="ml-6 bg-green-500 font-bold rounded-full px-6 py-2"
+            styles="ml-6 bg-green-700 font-bold rounded-full px-6 py-2"
             textColor="text-white"
             handleClick={() => navigate("/login")}
           />
