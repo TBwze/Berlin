@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
+import campaignRoute from "./routes/CampaignRoute.js";
 import cors from "cors";
 import { ATLAS_URI, PORT } from "./config.js";
 import dotenv from "dotenv";
@@ -24,7 +25,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use("/user", userRoute);
+app.use("/campaign", campaignRoute);
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+
 mongoose
     .connect(ATLAS_URI, {
         dbName: "crowdfunding-skripsi",

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import TextFieldComponent from "../components/textfield.component";
+import { ethers } from "ethers";
 
+import TextFieldComponent from "../components/textfield.component";
+import { useForm } from "react-hook-form";
+import { useStateContext } from "../context";
+import PageLoad from "../components/Loading.component";
+import { checkIfImage } from "../utils/image.utils";
 
 const CreateCampaign = () => {
     const [file, setFile] = useState();
@@ -9,16 +13,20 @@ const CreateCampaign = () => {
     const [count, setCount] = useState(0);
     const [Target1, setTarget1] = useState(0);
     const [Target2, setTarget2] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const { createCampaign } = useStateContext();
 
     const form = useForm({
         defaultValues: {
-        JudulProyek: "",
-        DeskripsiProyek: "",
-        InformasiProyek: "",
-        Target: "",
-        JumlahBadge: "",
-        NamaBadge: "",
-        DeskripsiBadge: "",
+            judul_proyek: "",
+            deskripsi_proyek: "",
+            informasi_proyek: "",
+            target: "",
+            deadline: "",
+            image: "",
+            // jumlah_badge: "",
+            // nama_badge: "",
+            // deskripsi_badge: "",
         },
     });
 
@@ -29,54 +37,72 @@ const CreateCampaign = () => {
     }
 
     function decrement() {
-    setCount(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1); 
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
-  function IncrementTarget1() {
+        setCount(function (prevCount) {
+            if (prevCount > 0) {
+                return (prevCount -= 1); 
+            } else {
+                return (prevCount = 0);
+            }
+        });
+    }
+
+    function IncrementTarget1() {
         setTarget1(function (prevCount) {
         return (prevCount += 1);
         });
     }
 
     function decrementTarget1() {
-    setTarget1(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1); 
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
-  function IncrementTarget2() {
+        setTarget1(function (prevCount) {
+            if (prevCount > 0) {
+                return (prevCount -= 1); 
+            } else {
+            return (prevCount = 0);
+            }
+        });
+    }
+
+    function IncrementTarget2() {
         setTarget2(function (prevCount) {
-        return (prevCount += 1);
+            return (prevCount += 1);
         });
     }
 
     function decrementTarget2() {
-    setTarget2(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1); 
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
+        setTarget2(function (prevCount) {
+            if (prevCount > 0) {
+                return (prevCount -= 1); 
+            } else {
+                return (prevCount = 0);
+            }
+        });
+    }
 
-    function handleChange(e) {
-        console.log(e.target.files);
-        setFile(URL.createObjectURL(e.target.files[0]));
-        setImage(URL.createObjectURL(e.target.files[0]));
+    const handleFormFieldChange = (fieldName, e) => {
+        setForm({ ...form, [fieldName]: e.target.value })
+      }
+
+    const handleSubmit = async(e) => {
+        e.preventDefault(e);
+        
+        checkIfImage = async (exists) => {
+            if (exists) {
+                setIsLoading(true);
+                await createCampaign({
+                    ...form, target: ethers.utils.parseUnits(form.target, 18)
+                });
+                setIsLoading(false);
+            } else {
+                alert("Image URL invalid!")
+                form.setValue("image", "");
+            }
+        }
+        console.log(form)
     }
     
-
     return (
         <div className="max-w-[1280px] mx-auto p-4 bg-white" style={{ flexDirection: 'column'}}>
+            <PageLoad loading = {isLoading} />
             <div className = "container" style={{flexDirection:"row", display:'flex', alignItems: 'center', justifyContent: "space-around"}}>
                 <div className= "Campaign" style={{display: "flex", flexDirection: "column"}}>
                     <div className= "Header" style={{fontFamily: "Poppins", fontWeight: "900"}}>
@@ -85,7 +111,7 @@ const CreateCampaign = () => {
                         {/* Judul Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
                         <TextFieldComponent
-                        name="JudulProyek"
+                        name="judul_proyek"
                         label="Judul Proyek"
                         placeholder="Masukan Judul Proyek"
                         control={form.control}
@@ -95,7 +121,7 @@ const CreateCampaign = () => {
                         {/* Deskripsi Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
                         <TextFieldComponent
-                        name="DeskripsiProyek"
+                        name="deskripsi_proyek"
                         label="Deskripsi Proyek"
                         placeholder="Deskripsi singkat projek yang ditampilkan"
                         control={form.control}
@@ -105,7 +131,7 @@ const CreateCampaign = () => {
                         {/* Informasi Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
                         <TextFieldComponent
-                        name="InformasiProyek"
+                        name="informasi_proyek"
                         label="Informasi Proyek"
                         placeholder="Informasi untuk memperjelas intensi projek dan kampanye"
                         control={form.control}
@@ -117,7 +143,7 @@ const CreateCampaign = () => {
                         {/* Target */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
                         <TextFieldComponent
-                        name="Target"
+                        name="target"
                         label="Target"
                         placeholder="Jumlah target dalam ETH"
                         control={form.control}
@@ -158,7 +184,7 @@ const CreateCampaign = () => {
                                 {/* Nama Badge */}
                             <div className="input-container" style={{margin:'2vh 0vw'}}>
                                 <TextFieldComponent
-                                name="NamaBadge"
+                                name="nama_badge"
                                 label="Nama Badge"
                                 placeholder="Nama Badge"
                                 control={form.control}
@@ -168,7 +194,7 @@ const CreateCampaign = () => {
                                {/* Deskripsi Badge */}
                             <div className="input-container" style={{margin:'2vh 0vw'}}>
                                 <TextFieldComponent
-                                name="DeskripsiBadge"
+                                name="deskripsi_badge"
                                 label="Deskripsi Badge"
                                 placeholder="Reward badge untuk donatur"
                                 control={form.control}

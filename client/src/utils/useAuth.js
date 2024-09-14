@@ -1,6 +1,6 @@
 // src/hooks/useAuth.js
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -8,7 +8,7 @@ const useAuth = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    const token = Cookies.get("token");
+    const token = Cookies.get('token');
 
     if (token) {
       setIsAuthenticated(true);
