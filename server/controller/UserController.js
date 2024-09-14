@@ -44,7 +44,7 @@ export const create = async (request, response) => {
 };
 
 export const login = async (request, response) => {
-    const { email, password } = request.body;
+    const { email, password, wallet } = request.body;
 
     try {
         const user = await User.findOne({ email });
@@ -62,8 +62,13 @@ export const login = async (request, response) => {
             });
         }
 
+        if (wallet.toLowerCase() !== user.wallet.toLowerCase()) {
+            return response.status(400).json({
+                message: "User wallet does not match!",
+            });
+        }
         const jwtToken = jwt.sign(
-            { id: user._id, email: user.email },
+            { id: user._id, email: user.email, wallet: user.wallet },
             process.env.JWT_SECRET
         );
 

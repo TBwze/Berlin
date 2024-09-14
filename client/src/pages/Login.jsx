@@ -5,24 +5,56 @@ import CustomButton from "../components/CustomButton.component";
 import TextFieldComponent from "../components/textfield.component";
 import PageLoad from "../components/Loading.component";
 import { loginUser } from "../api/User/login.api";
+import Web3 from "web3";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
+      account: "",
     },
   });
+  const detectCurrentProvider = () => {
+    let provider;
+    if (window.ethereum) {
+      provider = window.ethereum;
+    } else if (window.web3) {
+      provider = window.web3.currentProvider;
+    } else {
+      alert("Non-ethereum browser detected. You should install MetaMask");
+    }
+    return provider;
+  };
+
+  const onConnect = async () => {
+    try {
+      const currentProvider = detectCurrentProvider();
+      if (currentProvider) {
+        await currentProvider.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(currentProvider);
+        const userAccount = await web3.eth.getAccounts();
+        const account = userAccount[0];
+        setIsConnected(true);
+
+        form.setValue("account", account);
+      }
+    } catch (err) {
+      alert(err);
+    }
+  };
 
   const onSubmit = async () => {
     setIsLoading(true);
     const email = form.getValues("email");
     const password = form.getValues("password");
+    const wallet = form.getValues("account");
 
-    await loginUser(email, password)
+    await loginUser(email, password, wallet)
       .then((response) => {
         navigate("/");
         alert("Login success!");
@@ -44,14 +76,17 @@ const Login = () => {
         }}
       >
         <PageLoad loading={isLoading} />
-        <div className="Header" style={{ fontFamily: "Poppins" }}>
+        <div
+          className="Header"
+          style={{ fontFamily: "Poppins", fontSize: "24px" }}
+        >
           <b>
             <h3>Selamat Datang</h3>
           </b>
         </div>
 
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="input-container" style={{ margin: "1vh 0vw" }}>
+          <div className="input-container mt-5">
             <TextFieldComponent
               name="email"
               label="Email"
@@ -60,9 +95,6 @@ const Login = () => {
               control={form.control}
               required
             />
-          </div>
-
-          <div className="input-container" style={{ margin: "1vh 0vw" }}>
             <TextFieldComponent
               name="password"
               label="Password"
@@ -71,6 +103,36 @@ const Login = () => {
               control={form.control}
               required
             />
+            {!isConnected ? (
+              <div className="flex justify-center items-center mt-3">
+                <CustomButton
+                  title="Connect MetaMask"
+                  bgColor="bg-orange-700"
+                  handleClick={onConnect}
+                  styles="mt-3"
+                />
+              </div>
+            ) : (
+              <div className="app-details mt-6">
+                <h2
+                  style={{
+                    fontFamily: "Poppins",
+                    fontWeight: "700",
+                    color: "green",
+                  }}
+                >
+                  Connected with MetaMask
+                </h2>
+                <TextFieldComponent
+                  name="account"
+                  label="Account"
+                  type="text"
+                  control={form.control}
+                  required
+                  disabled
+                />
+              </div>
+            )}
           </div>
           <div className="button" style={{ margin: "1vh 0vw" }}>
             <CustomButton
@@ -84,7 +146,7 @@ const Login = () => {
         </form>
         <div
           className="signup"
-          style={{ fontSize: "2vh", fontFamily: "Poppins", margin: "1vh 0" }}
+          style={{ fontSize: "1.5vh", fontFamily: "Poppins", margin: "1vh 0" }}
         >
           Don't have an account?{" "}
           <a href="/register" style={{ color: "#007AFF" }}>
