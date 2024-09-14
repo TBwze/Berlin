@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import TextFieldComponent from "../components/textfield.component";
+
 
 const CreateCampaign = () => {
     const [file, setFile] = useState();
@@ -6,6 +9,18 @@ const CreateCampaign = () => {
     const [count, setCount] = useState(0);
     const [Target1, setTarget1] = useState(0);
     const [Target2, setTarget2] = useState(0);
+
+    const form = useForm({
+        defaultValues: {
+        JudulProyek: "",
+        DeskripsiProyek: "",
+        InformasiProyek: "",
+        Target: "",
+        JumlahBadge: "",
+        NamaBadge: "",
+        DeskripsiBadge: "",
+        },
+    });
 
     function Increment() {
         setCount(function (prevCount) {
@@ -69,39 +84,45 @@ const CreateCampaign = () => {
                     </div>
                         {/* Judul Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
-                        <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.3vh 0.3vw'}}>
-                            Judul Projek
-                        </div>
-                        <div className="input">
-                            <input type="text" placeholder="Judul Projek" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></input>
-                        </div>
+                        <TextFieldComponent
+                        name="JudulProyek"
+                        label="Judul Proyek"
+                        placeholder="Masukan Judul Proyek"
+                        control={form.control}
+                        required
+                        />
                     </div>
                         {/* Deskripsi Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
-                        <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.3vh 0.3vw'}}>
-                            Deskripsi Projek
-                        </div>
-                        <div className="input">
-                            <input type="text" placeholder="Deskripsi singkat projek akan dipakai di tampilan utama kampanye" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></input>
-                        </div>
+                        <TextFieldComponent
+                        name="DeskripsiProyek"
+                        label="Deskripsi Proyek"
+                        placeholder="Deskripsi singkat projek yang ditampilkan"
+                        control={form.control}
+                        required
+                        />
                     </div>
                         {/* Informasi Projek */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
-                        <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.3vh 0.3vw'}}>
-                            Informasi Projek
-                        </div>
-                        <div className="input">
-                            <textarea type="text" placeholder="Informasi untuk memperjelas intensi projek dan kampanye" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></textarea>
-                        </div>
+                        <TextFieldComponent
+                        name="InformasiProyek"
+                        label="Informasi Proyek"
+                        placeholder="Informasi untuk memperjelas intensi projek dan kampanye"
+                        control={form.control}
+                        required
+                        type= "textarea"
+                        row = {4}
+                        />
                     </div>
                         {/* Target */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
-                        <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.3vh 0.3vw'}}>
-                            Target
-                        </div>
-                        <div className="input">
-                            <input type="text" placeholder="Jumlah target dalam ETH" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></input>
-                        </div>
+                        <TextFieldComponent
+                        name="Target"
+                        label="Target"
+                        placeholder="Jumlah target dalam ETH"
+                        control={form.control}
+                        required
+                        />
                     </div>
                         {/* Upload Image */}
                     <div className="input-container" style={{margin:'0.5vh 0vw'}}>
@@ -136,21 +157,23 @@ const CreateCampaign = () => {
                             <p style={{fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}>Badge - 1</p>
                                 {/* Nama Badge */}
                             <div className="input-container" style={{margin:'2vh 0vw'}}>
-                                <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.8vh 0.3vw', fontWeight:"bold"}}>
-                                    Nama Badge
-                                </div>
-                                <div className="input">
-                                    <input type="text" placeholder="Nama Badge" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></input>
-                                </div>
+                                <TextFieldComponent
+                                name="NamaBadge"
+                                label="Nama Badge"
+                                placeholder="Nama Badge"
+                                control={form.control}
+                                required
+                                />
                             </div>
                                {/* Deskripsi Badge */}
                             <div className="input-container" style={{margin:'2vh 0vw'}}>
-                                <div className="label" style ={{fontSize: '1.1vh', fontFamily:'Poppins', margin:'0.8vh 0.3vw', fontWeight:"bold"}}>
-                                    Deskripsi Badge
-                                </div>
-                                <div className="input">
-                                    <input type="text" placeholder="Reward donatur untuk badge" className="flex-1 p-2  rounded outline-none" style={{backgroundColor: "#EAEAEA",fontSize: '1.3vh', fontFamily:'Poppins', width:'28rem' }}></input>
-                                </div>
+                                <TextFieldComponent
+                                name="DeskripsiBadge"
+                                label="Deskripsi Badge"
+                                placeholder="Reward badge untuk donatur"
+                                control={form.control}
+                                required
+                                />
                             </div>
                                {/* Jangka Target Badge */}
                             <div className="input-container" style={{margin:'2vh 0vw'}}>
