@@ -85,7 +85,7 @@ const Login = () => {
           </b>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="w-1/4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="input-container mt-5">
             <TextFieldComponent
               name="email"

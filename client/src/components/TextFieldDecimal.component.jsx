@@ -17,7 +17,7 @@ const TextFieldDecimalComponent = ({
       rules={{ required }}
       render={({ field }) => (
         <div className="flex flex-col space-y-1 mt-3">
-          <div className="text-xs font-bold text-black font-poppins">
+          <div className="text-sm font-bold text-black font-poppins">
             {label}
           </div>
           <div className="relative flex items-center">
@@ -39,17 +39,22 @@ const TextFieldDecimalComponent = ({
               thousandSeparator=","
               decimalScale={2}
               placeholder="0.00"
+              required={required}
               value={field.value}
               fixedDecimalScale
               className={`w-full p-2 pr-${
                 addOrmentText ? 16 : 10
-              } text-xs bg-transparent rounded outline-1 border border-gray-500 font-poppins`}
-              style={{ width: "20rem" }}
+              } text-xs bg-transparent rounded border border-gray-500 outline-none`}
               aria-label={`textfield-decimal-${name
                 .toLowerCase()
                 .trim()
                 .replace(/_+/g, "-")}`}
             />
+            {addOrmentText && (
+              <div className="absolute right-2 text-sm text-black font-bold">
+                {addOrmentText}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -4,105 +4,52 @@ import TextFieldComponent from "../components/Textfield.component";
 import DatePickerComponent from "../components/DatePicker.component";
 import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
 import dayjs from "dayjs";
+import CustomButton from "../components/CustomButton.component";
+import DropdownComponent from "../components/Dropdown.component";
 
 const CreateCampaign = () => {
-  const [file, setFile] = useState();
-  const [image, setImage] = useState(null);
-  const [count, setCount] = useState(0);
-  const [Target1, setTarget1] = useState(0);
-  const [Target2, setTarget2] = useState(0);
-
   const form = useForm({
     defaultValues: {
-      min: 0.01,
-      max: 3.01,
-      decimalField: "",
-      dateField: null,
+      judul_proyek: "",
+      deskripsi_proyek: "",
+      informasi_proyek: "",
+      target: null,
+      deadline: "",
+      image: "",
+      hadiah_bronze: "",
+      hadiah_silver: "",
+      hadiah_gold: "",
+      minimal_eth_bronze: null,
+      minimal_eth_silver: null,
+      minimal_eth_gold: null,
     },
   });
 
-  function Increment() {
-    setCount(function (prevCount) {
-      return (prevCount += 1);
-    });
-  }
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  function decrement() {
-    setCount(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1);
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
-  function IncrementTarget1() {
-    setTarget1(function (prevCount) {
-      return (prevCount += 1);
-    });
-  }
-
-  function decrementTarget1() {
-    setTarget1(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1);
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
-  function IncrementTarget2() {
-    setTarget2(function (prevCount) {
-      return (prevCount += 1);
-    });
-  }
-
-  function decrementTarget2() {
-    setTarget2(function (prevCount) {
-      if (prevCount > 0) {
-        return (prevCount -= 1);
-      } else {
-        return (prevCount = 0);
-      }
-    });
-  }
-
-  function handleChange(e) {
-    console.log(e.target.files);
-    setFile(URL.createObjectURL(e.target.files[0]));
-    setImage(URL.createObjectURL(e.target.files[0]));
-  }
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+  };
 
   return (
-    <div
-      className="max-w-[1280px] mx-auto p-4 bg-white"
-      style={{ flexDirection: "column" }}
-    >
-      <div
-        className="container"
-        style={{
-          flexDirection: "row",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
-        }}
+    <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
+      <form
+        className="flex flex-row items-center justify-around"
+        onSubmit={form.handleSubmit()}
       >
-        <div
-          className="Campaign"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
-          <div
-            className="Header"
-            style={{ fontFamily: "Poppins", fontWeight: "900" }}
-          >
-            <h3>
-              <b>Mulai Kampanye untuk Projek Baru</b>
-            </h3>
+        <div className="flex flex-col w-1/3">
+          <div className="Header font-bold text-2xl font-poppins mb-7">
+            <h3>Mulai Kampanye untuk Projek Baru</h3>
           </div>
           {/* Judul Projek */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
+          <div className="mt-2">
             <TextFieldComponent
-              name="JudulProyek"
+              name="judul_proyek"
               label="Judul Proyek"
               placeholder="Masukan Judul Proyek"
               control={form.control}
@@ -110,9 +57,9 @@ const CreateCampaign = () => {
             />
           </div>
           {/* Deskripsi Projek */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
+          <div className="mt-2">
             <TextFieldComponent
-              name="DeskripsiProyek"
+              name="deskripsi_proyek"
               label="Deskripsi Proyek"
               placeholder="Deskripsi singkat projek yang ditampilkan"
               control={form.control}
@@ -120,9 +67,9 @@ const CreateCampaign = () => {
             />
           </div>
           {/* Informasi Projek */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
+          <div className="mt-2">
             <TextFieldComponent
-              name="InformasiProyek"
+              name="informasi_proyek"
               label="Informasi Proyek"
               placeholder="Informasi untuk memperjelas intensi projek dan kampanye"
               control={form.control}
@@ -131,242 +78,150 @@ const CreateCampaign = () => {
               rows={4}
             />
           </div>
-          {/* Target */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
+          <div className="mt-2">
             <TextFieldDecimalComponent
               name="decimalField"
               label="Decimal Field"
               control={form.control}
-              addOrmentText="ETH"
               required
-            />
-            <DatePickerComponent
-              name="dateField"
-              label="Select Date"
-              control={form.control}
+              addOrmentText="ETH"
             />
           </div>
-          {form.watch("dateField")}
+          {/* Target */}
+          <div className="mt-2">
+            <DropdownComponent
+              control={form.control}
+              name="deadline"
+              label="Durasi Proyek"
+              optionData={[
+                { deadline: 30, days: "30 hari" },
+                { deadline: 60, days: "60 hari" },
+                { deadline: 90, days: "90 hari" },
+              ]}
+              optionId="deadline"
+              optionLabel="days"
+              required
+              placeholder="Pilih Durasi Proyek"
+            />
+          </div>
           {/* Upload Image */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
-            <div
-              className="label"
-              style={{
-                fontSize: "1.1vh",
-                fontFamily: "Poppins",
-                margin: "0.3vh 0.3vw",
-              }}
-            >
-              Masukkan Gambar
-            </div>
-            {image && (
+          <div className="flex flex-col items-center mt-2">
+            <input
+              type="file"
+              id="upload-button"
+              onChange={handleFileChange}
+              accept="image/*"
+              className="w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded-lg file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-blue-50 file:text-blue-700
+                       hover:file:bg-blue-100 mt-4"
+            />
+            {selectedFile && (
               <img
-                src={image}
-                alt="Uploaded Image"
-                style={{ width: "15vw", height: "15vw", objectFit: "cover" }}
+                src={URL.createObjectURL(selectedFile)}
+                alt=""
+                className="object-cover mb-3 w-full h-60 center mt-5"
               />
             )}
-            <div className="input">
-              <input
-                type="file"
-                onChange={handleChange}
-                className="flex-1 p-2  rounded outline-none"
-                style={{
-                  fontSize: "1.3vh",
-                  fontFamily: "Poppins",
-                  width: "28rem",
-                }}
-              />
-            </div>
           </div>
+          <CustomButton
+            btnType="submit"
+            title="Register"
+            bgColor="bg-blue-500"
+            styles="mb-3 mt-7"
+          />
         </div>
-        <div
-          className="Reward"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
-          {/* Pengaturan Reward */}
-          <div className="input-container" style={{ margin: "0.5vh 0vw" }}>
-            <div
-              className="label"
-              style={{
-                fontSize: "1.1vh",
-                fontFamily: "Poppins",
-                margin: "0.3vh 0.3vw",
-              }}
-            >
-              <b>Pengaturan Reward</b>
-            </div>
-            <div className="input">
-              <div
-                className="jumlah-reward"
-                style={{ display: "flex", flexDirection: "row" }}
-              >
-                <div className="left">
-                  <p
-                    className="flex-1 p-2  rounded outline-none"
-                    style={{
-                      fontSize: "1.3vh",
-                      fontFamily: "Poppins",
-                      width: "28rem",
-                    }}
-                  >
-                    Jumlah Badge
-                  </p>
-                </div>
-                <div
-                  className="Right"
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                    alignItems: "center",
-                    backgroundColor: "#EAEAEA",
-                  }}
-                >
-                  <button onClick={decrement} style={{ margin: "0vh 0.8vw" }}>
-                    -
-                  </button>
-                  <h1>{count}</h1>
-                  <button onClick={Increment} style={{ margin: "0vh 0.8vw" }}>
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div
-              className="Badge-Container"
-              style={{
-                backgroundColor: "#D9D9D9",
-                padding: "1vh 1vw",
-                marginTop: "2vh",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "1.3vh",
-                  fontFamily: "Poppins",
-                  width: "28rem",
-                }}
-              >
-                Badge - 1
-              </p>
-              {/* Nama Badge */}
-              <div className="input-container" style={{ margin: "2vh 0vw" }}>
-                <TextFieldComponent
-                  name="NamaBadge"
-                  label="Nama Badge"
-                  placeholder="Nama Badge"
-                  control={form.control}
-                  required
-                />
-              </div>
-              {/* Deskripsi Badge */}
-              <div className="input-container" style={{ margin: "2vh 0vw" }}>
-                <TextFieldComponent
-                  name="DeskripsiBadge"
-                  label="Deskripsi Badge"
-                  placeholder="Reward badge untuk donatur"
-                  control={form.control}
-                  required
-                />
-              </div>
-              {/* Jangka Target Badge */}
-              <div className="input-container" style={{ margin: "2vh 0vw" }}>
-                <div
-                  className="label"
-                  style={{
-                    fontSize: "1.1vh",
-                    fontFamily: "Poppins",
-                    margin: "0.8vh 0.3vw",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Jangka Target Badge
-                </div>
+        <div className="flex flex-col w-1/3">
+          {/* Header */}
+          <div className="Header font-bold text-lg font-poppins mb-4">
+            <h3>Pengaturan Hadiah</h3>
+          </div>
 
-                <div
-                  className="Counter-Target"
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-evenly",
-                    backgroundColor: "#B2B2B2",
-                    padding: "1vh 1vw",
-                  }}
-                >
-                  <div
-                    className="Targets"
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                      alignItems: "center",
-                      backgroundColor: "#EAEAEA",
-                    }}
-                  >
-                    <button
-                      onClick={decrementTarget1}
-                      style={{ margin: "0vh 0.8vw" }}
-                    >
-                      -
-                    </button>
-                    <h1>{Target1}</h1>
-                    <button
-                      onClick={IncrementTarget1}
-                      style={{ margin: "0vh 0.8vw" }}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <div
-                    className="Targets"
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                      alignItems: "center",
-                    }}
-                  >
-                    <b>TO</b>
-                  </div>
-                  <div
-                    className="Targets"
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                      alignItems: "center",
-                      backgroundColor: "#EAEAEA",
-                      padding: "0.5vh 0vw",
-                    }}
-                  >
-                    <button
-                      onClick={decrementTarget2}
-                      style={{ margin: "0vh 0.8vw" }}
-                    >
-                      -
-                    </button>
-                    <h1>{Target2}</h1>
-                    <button
-                      onClick={IncrementTarget2}
-                      style={{ margin: "0vh 0.8vw" }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {/* Gold Tier */}
+          <div className="border border-gray-300 rounded-lg p-4 mb-7 shadow-lg">
+            <div className="flex items-center mb-2">
+              <img
+                src="src/assets/gold.png"
+                alt="Gold tier"
+                className="w-8 h-8 mr-2"
+              />
+              <h4 className="text-xl font-semibold font-poppins">Gold Tier</h4>
             </div>
+            <TextFieldComponent
+              name="hadiah_gold"
+              label="Hadiah"
+              placeholder="Hadiah tier gold"
+              control={form.control}
+              required
+            />
+            <TextFieldDecimalComponent
+              name="minimal_eth_gold"
+              label="Minimal Eth"
+              control={form.control}
+              required
+              addOrmentText="ETH"
+            />
+          </div>
+
+          {/* Silver Tier */}
+          <div className="border border-gray-300 rounded-lg p-4 mb-4 shadow-lg">
+            <div className="flex items-center mb-2">
+              <img
+                src="src/assets/silver.png"
+                alt="Silver tier"
+                className="w-8 h-8 mr-2"
+              />
+              <h4 className="text-xl font-semibold font-poppins">
+                Silver Tier
+              </h4>
+            </div>
+            <TextFieldComponent
+              name="hadiah_silver"
+              label="Hadiah"
+              placeholder="Hadiah tier silver"
+              control={form.control}
+              required
+            />
+            <TextFieldDecimalComponent
+              name="minimal_eth_silver"
+              label="Minimal Eth"
+              control={form.control}
+              required
+              addOrmentText="ETH"
+            />
+          </div>
+
+          {/* Bronze Tier */}
+          <div className="border border-gray-300 rounded-lg p-4 shadow-lg">
+            <div className="flex items-center mb-2">
+              <img
+                src="src/assets/bronze.png"
+                alt="Bronze tier"
+                className="w-8 h-8 mr-2"
+              />
+              <h4 className="text-xl font-semibold font-poppins">
+                Bronze Tier
+              </h4>
+            </div>
+            <TextFieldComponent
+              name="hadiah_bronze"
+              label="Hadiah"
+              placeholder="Hadiah tier bronze"
+              control={form.control}
+              required
+            />
+            <TextFieldDecimalComponent
+              name="minimal_eth_bronze"
+              label="Minimal Eth"
+              control={form.control}
+              required
+              addOrmentText="ETH"
+            />
           </div>
         </div>
-      </div>
-      <button
-        type="submit"
-        className="bg-gray-300 font-bold rounded-full px-4 py-2 border-2 border-black"
-        style={{ fontSize: "1.2vh", margin: "1vh 0vw" }}
-      >
-        Buat Projek
-      </button>
+      </form>
     </div>
   );
 };

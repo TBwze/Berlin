@@ -35,7 +35,7 @@ const DatePickerComponent = ({ name, label, control, required }) => {
               }
               onBlur={field.onBlur}
               dateFormat="yyyy-MM-dd"
-              className="border border-gray-500 text-black text-sm rounded-lg block w-full pl-10 py-1.5"
+              className="border border-gray-500 text-black text-sm rounded block w-full pl-10 py-1.5"
               placeholderText="Select date"
             />
             <div
