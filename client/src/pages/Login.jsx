@@ -6,11 +6,13 @@ import TextFieldComponent from "../components/Textfield.component";
 import PageLoad from "../components/Loading.component";
 import { loginUser } from "../api/User/login.api";
 import Web3 from "web3";
+import AlertComponent from "../components/Alert.component";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
 
   const form = useForm({
     defaultValues: {
@@ -19,6 +21,7 @@ const Login = () => {
       account: "",
     },
   });
+
   const detectCurrentProvider = () => {
     let provider;
     if (window.ethereum) {
@@ -26,7 +29,11 @@ const Login = () => {
     } else if (window.web3) {
       provider = window.web3.currentProvider;
     } else {
-      alert("Non-ethereum browser detected. You should install MetaMask");
+      setAlert({
+        type: "error",
+        message: "Non-ethereum browser detected. You should install MetaMask.",
+        visible: true,
+      });
     }
     return provider;
   };
@@ -40,11 +47,15 @@ const Login = () => {
         const userAccount = await web3.eth.getAccounts();
         const account = userAccount[0];
         setIsConnected(true);
-
         form.setValue("account", account);
+        setAlert({
+          type: "success",
+          message: "MetaMask connected successfully!",
+          visible: true,
+        });
       }
     } catch (err) {
-      alert(err);
+      setAlert({ type: "error", message: err.message, visible: true });
     }
   };
 
@@ -56,11 +67,21 @@ const Login = () => {
 
     await loginUser(email, password, wallet)
       .then((response) => {
-        navigate("/");
-        alert("Login success!");
+        setAlert({
+          type: "success",
+          message: "Login successful! Redirecting...",
+          visible: true,
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       })
       .catch((error) => {
-        alert(error);
+        setAlert({
+          type: "error",
+          message: "Login failed. Please check your credentials.",
+          visible: true,
+        });
       });
     setIsLoading(false);
   };
@@ -76,6 +97,14 @@ const Login = () => {
         }}
       >
         <PageLoad loading={isLoading} />
+
+        <AlertComponent
+          type={alert.type}
+          message={alert.message}
+          visible={alert.visible}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        />
+
         <div
           className="Header"
           style={{ fontFamily: "Poppins", fontSize: "24px" }}
@@ -146,7 +175,7 @@ const Login = () => {
         </form>
         <div
           className="signup"
-          style={{ fontSize: "1.5vh", fontFamily: "Poppins", margin: "1vh 0" }}
+          style={{ fontSize: "2vh", fontFamily: "Poppins", margin: "1vh 0" }}
         >
           Don't have an account?{" "}
           <a href="/register" style={{ color: "#007AFF" }}>

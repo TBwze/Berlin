@@ -7,11 +7,17 @@ import PageLoad from "../components/Loading.component";
 import { getUserDetails } from "../api/User/getUserDetails.api";
 import { API_BASE_URL } from "../utils/api.utils";
 import { updateUserProfile } from "../api/User/updateUser.api";
+import AlertComponent from "../components/Alert.component";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [alert, setAlert] = useState({
+    visible: false,
+    message: "",
+    type: "",
+  });
 
   const form = useForm({
     defaultValues: {
@@ -41,7 +47,11 @@ const Profile = () => {
         }
       })
       .catch((error) => {
-        alert(error.message);
+        setAlert({
+          visible: true,
+          message: error.message,
+          type: "error",
+        });
       });
   }, []);
 
@@ -69,19 +79,28 @@ const Profile = () => {
     formData.append("email", form.getValues("email"));
 
     const password = form.getValues("password");
-    if (password != "") {
+    if (password !== "") {
       formData.append("password", password);
     }
 
     if (selectedFile) {
       formData.append("profilePicture", selectedFile);
     }
+
     try {
       await updateUserProfile(formData);
-      alert("Profile updated successfully!");
+      setAlert({
+        visible: true,
+        message: "Profile updated successfully!",
+        type: "success",
+      });
       navigate("/");
     } catch (error) {
-      alert("Error updating profile: " + error);
+      setAlert({
+        visible: true,
+        message: "Error updating profile: " + error.message,
+        type: "error",
+      });
     }
 
     setIsLoading(false);
@@ -110,6 +129,12 @@ const Profile = () => {
       style={{ fontFamily: "Poppins" }}
     >
       <PageLoad loading={isLoading} />
+      <AlertComponent
+        type={alert.type}
+        message={alert.message}
+        visible={alert.visible}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      />
       <div className="flex w-full">
         <div className="w-1/6 flex"></div>
         <div className="w-1/3 flex flex-col justify-center p-4 items-center">
@@ -166,7 +191,7 @@ const Profile = () => {
             />
             <TextFieldComponent
               name="password"
-              label="password"
+              label="Password"
               type="password"
               placeholder="Change password"
               control={form.control}
@@ -181,9 +206,7 @@ const Profile = () => {
                 btnType="button"
                 title="Cancel"
                 className="bg-gray-500 text-white"
-                handleClick={() => {
-                  navigate("/");
-                }}
+                handleClick={() => navigate("/")}
               />
             </div>
           </form>
