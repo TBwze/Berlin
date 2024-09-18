@@ -174,11 +174,10 @@ const Login = () => {
           </div>
           <div
             className="button flex justify-center items-center mt-3"
-            style={{ margin: "1vh 0vw" }}
           >
             <CustomButton
               btnType="submit"
-              className="font-bold w-full mt-4"
+              className="w-full mt-4"
               title="Login"
               bgColor="#2C7A5A"
               textColor="#ffffff"

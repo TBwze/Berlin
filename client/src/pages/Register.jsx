@@ -177,18 +177,21 @@ export const Register = () => {
               required
             />
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-start mt-4 w-full">
+              <label
+                htmlFor="profilePicture"
+                className="font-poppins text-black mb-1 text-xs"
+              >
+                Profile Picture
+              </label>
               <input
                 type="file"
-                id="upload-button"
+                id="profilePicture"
                 onChange={handleFileChange}
                 accept="image/*"
-                className="w-full text-sm text-gray-500
-                           file:mr-4 file:py-2 file:px-4
-                           file:rounded-full file:border-0
-                           file:text-sm file:font-semibold
-                           file:bg-blue-50 file:text-blue-700
-                           hover:file:bg-blue-100 mt-4"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+               file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+               hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               {selectedFile && (
                 <img
@@ -204,9 +207,10 @@ export const Register = () => {
             {!isConnected ? (
               <CustomButton
                 title="Connect MetaMask"
-                bgColor="bg-orange-700"
+                bgColor="#101E38"
+                textColor="#ffffff"
                 handleClick={onConnect}
-                styles="mt-5"
+                className="mt-5 px-4"
               />
             ) : (
               <div className="text-center">
@@ -226,13 +230,14 @@ export const Register = () => {
             <CustomButton
               btnType="submit"
               title="Register"
-              bgColor="bg-blue-500"
-              styles="mb-3 mt-1"
+              bgColor="#2C7A5A"
+              textColor="#ffffff"
+              className="mb-3 mt-1 px-6"
             />
           </div>
         </form>
 
-        <div className="text-sm font-poppins my-2">
+        <div className="text-xs font-poppins my-2">
           Sudah punya akun?{" "}
           <a href="/Login" className="text-blue-600">
             Login sekarang
