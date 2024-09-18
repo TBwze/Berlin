@@ -77,11 +77,19 @@ const Login = () => {
         }, 2000);
       })
       .catch((error) => {
-        setAlert({
-          type: "error",
-          message: "Login failed. Please check your credentials.",
-          visible: true,
-        });
+        if (wallet === "") {
+          setAlert({
+            type: "error",
+            message: "Please connect to MetaMask to login.",
+            visible: true,
+          });
+        } else {
+          setAlert({
+            type: "error",
+            message: error,
+            visible: true,
+          });
+        }
       });
     setIsLoading(false);
   };
@@ -136,9 +144,10 @@ const Login = () => {
               <div className="flex justify-center items-center mt-3">
                 <CustomButton
                   title="Connect MetaMask"
-                  bgColor="bg-orange-700"
+                  bgColor="#101E38"
                   handleClick={onConnect}
-                  styles="mt-3"
+                  textColor="#ffffff"
+                  className="mt-3 rounded p-2"
                 />
               </div>
             ) : (
@@ -163,13 +172,16 @@ const Login = () => {
               </div>
             )}
           </div>
-          <div className="button" style={{ margin: "1vh 0vw" }}>
+          <div
+            className="button flex justify-center items-center mt-3"
+            style={{ margin: "1vh 0vw" }}
+          >
             <CustomButton
               btnType="submit"
+              className="font-bold w-full mt-4"
               title="Login"
-              bgColor="bg-blue-500"
-              textColor="text-white"
-              styles="w-full mt-4"
+              bgColor="#2C7A5A"
+              textColor="#ffffff"
             />
           </div>
         </form>
