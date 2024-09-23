@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import TextFieldComponent from "../components/Textfield.component";
-import DatePickerComponent from "../components/DatePicker.component";
 import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
 import dayjs from "dayjs";
 import CustomButton from "../components/CustomButton.component";

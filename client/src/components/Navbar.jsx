@@ -8,6 +8,7 @@ import { API_BASE_URL } from "../utils/api.utils";
 import PageLoad from "./Loading.component";
 import Web3 from "web3";
 import { profile } from "../assets";
+import AlertComponent from "./Alert.component";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
   const web3 = new Web3(window.ethereum);
   useEffect(() => {
     const token = Cookies.get("token");
@@ -28,6 +30,7 @@ const Navbar = () => {
         .then((response) => {
           setUserDetails(response.username);
           getEthBalance(response.wallet);
+
           if (response.profilePicture !== null) {
             const originalPath = response.profilePicture;
             const startDirectory = "assets";
@@ -35,7 +38,13 @@ const Navbar = () => {
           }
         })
         .catch((error) => {
-          alert(error.message);
+          setAlert({
+            type: "error",
+            message: error,
+            visible: true,
+          });
+          setIsLoggedIn(false);
+          navigate("/login");
         });
     } else {
       setIsLoggedIn(false);
@@ -55,6 +64,11 @@ const Navbar = () => {
 
       setEthBalance(ethBalance);
     } catch (error) {
+      setAlert({
+        type: "error",
+        message: error,
+        visible: true,
+      });
       setEthBalance(0);
     }
   };
@@ -88,6 +102,12 @@ const Navbar = () => {
   return (
     <div className="w-full flex justify-between items-center bg-white border-b-2 border-black mb-4">
       <PageLoad loading={isLoading} />
+      <AlertComponent
+        type={alert.type}
+        message={alert.message}
+        visible={alert.visible}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      />
       {/* Logo and slogan */}
       <div className="flex items-center">
         <div className="ml-4 mb-4">
@@ -105,8 +125,8 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Jelajahi"
-            styles="bg-blue-300 font-bold px-4 rounded border-2 border-black drop-shadow-md"
-            textColor="text-black"
+            styles="rounded hover:underline"
+            textColor="#000000"
             handleClick={() => navigate("/campaign")}
           />
         </div>
@@ -116,8 +136,10 @@ const Navbar = () => {
         <CustomButton
           btnType="button"
           title="Create Campaign"
-          styles="bg-gray-300 font-bold rounded-full px-4 border-2 border-black drop-shadow-md"
-          textColor="text-black"
+          bgColor="bg-white"
+          styles="font-semibold rounded px-4 border-2"
+          textColor="#000000"
+          borderColor="#2E6950"
           handleClick={() => navigate("/create-campaign")}
         />
 
@@ -162,9 +184,10 @@ const Navbar = () => {
         ) : (
           <CustomButton
             btnType="button"
-            title="Login"
-            styles="ml-6 bg-green-700 font-bold rounded-full px-6 py-2"
-            textColor="text-white"
+            title="Log in"
+            styles="  rounded px-6 py-1.2"
+            bgColor="#2C7A5A"
+            textColor="#ffffff"
             handleClick={() => navigate("/login")}
           />
         )}
