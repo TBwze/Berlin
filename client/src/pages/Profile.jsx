@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton.component";
-import TextFieldComponent from "../components/textfield.component";
+import TextFieldComponent from "../components/Textfield.component";
 import PageLoad from "../components/Loading.component";
 import { getUserDetails } from "../api/User/getUserDetails.api";
 import { API_BASE_URL } from "../utils/api.utils";
@@ -139,45 +139,39 @@ const Profile = () => {
         <div className="w-1/3 p-4">
           <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="mb-4">
-              <TextFieldComponent
-                name="username"
-                label="Username"
-                control={form.control}
-                required
-              />
-              <TextFieldComponent
-                name="firstname"
-                label="First Name"
-                control={form.control}
-                required
-              />
-              <TextFieldComponent
-                name="lastname"
-                label="Last Name"
-                control={form.control}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <TextFieldComponent
-                name="email"
-                label="Email"
-                type="email"
-                control={form.control}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <TextFieldComponent
-                name="password"
-                label="password"
-                type="password"
-                placeholder="Change password"
-                control={form.control}
-              />
-            </div>
-            <div className="flex gap-4">
+            <TextFieldComponent
+              name="username"
+              label="Username"
+              control={form.control}
+              required
+            />
+            <TextFieldComponent
+              name="firstname"
+              label="First Name"
+              control={form.control}
+              required
+            />
+            <TextFieldComponent
+              name="lastname"
+              label="Last Name"
+              control={form.control}
+              required
+            />
+            <TextFieldComponent
+              name="email"
+              label="Email"
+              type="email"
+              control={form.control}
+              required
+            />
+            <TextFieldComponent
+              name="password"
+              label="password"
+              type="password"
+              placeholder="Change password"
+              control={form.control}
+            />
+            <div className="flex gap-4 mt-5">
               <CustomButton
                 btnType="submit"
                 title="Save Changes"

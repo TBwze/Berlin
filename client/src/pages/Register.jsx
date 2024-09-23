@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/User/register.api";
-import TextFieldComponent from "../components/textfield.component";
+import TextFieldComponent from "../components/Textfield.component";
 import CustomButton from "../components/CustomButton.component";
 import PageLoad from "../components/Loading.component";
 

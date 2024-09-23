@@ -11,7 +11,7 @@ const TextFieldComponent = ({
   required = false,
   disabled = false,
   rows = 3,
-  addOrmentString = "",
+  addOrmentText = "",
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -27,20 +27,18 @@ const TextFieldComponent = ({
       control={control}
       rules={{ required }}
       render={({ field }) => (
-        <div className="flex flex-col space-y-1 mt-3">
-          <div className="text-xs font-bold text-black font-poppins">
-            {label}
-          </div>
+        <div className="flex flex-col space-y-1 mt-3 mb-1">
+          {label && (
+            <div className="text-sm font-bold text-black font-poppins">
+              {label}
+            </div>
+          )}
           <div className="relative flex items-center">
             {type === "textarea" ? (
               <textarea
                 rows={rows}
                 placeholder={placeholder}
-                className="w-full p-2 text-xs bg-transparent rounded outline-1 border border-gray-500"
-                style={{
-                  fontFamily: "Poppins",
-                  width: "20rem",
-                }}
+                className="w-full p-2 text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium"
                 {...field}
                 required={required}
                 disabled={disabled}
@@ -50,12 +48,8 @@ const TextFieldComponent = ({
                 type={inputType}
                 placeholder={placeholder}
                 className={`w-full p-2 pr-${
-                  addOrmentString ? 16 : 10
-                } text-xs bg-transparent rounded outline-1 border border-gray-500`}
-                style={{
-                  fontFamily: "Poppins",
-                  width: "20rem",
-                }}
+                  addOrmentText ? 16 : 10
+                } text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium`}
                 {...field}
                 required={required}
                 disabled={disabled}
@@ -75,9 +69,9 @@ const TextFieldComponent = ({
                 )}
               </button>
             )}
-            {type === "text" && addOrmentString && (
+            {type === "text" && addOrmentText && (
               <div className="absolute right-2 text-xs text-black font-bold">
-                {addOrmentString}
+                {addOrmentText}
               </div>
             )}
           </div>

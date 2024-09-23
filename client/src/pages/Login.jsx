@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton.component";
-import TextFieldComponent from "../components/textfield.component";
+import TextFieldComponent from "../components/Textfield.component";
 import PageLoad from "../components/Loading.component";
 import { loginUser } from "../api/User/login.api";
 import Web3 from "web3";
@@ -85,7 +85,7 @@ const Login = () => {
           </b>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="w-1/4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="input-container mt-5">
             <TextFieldComponent
               name="email"
