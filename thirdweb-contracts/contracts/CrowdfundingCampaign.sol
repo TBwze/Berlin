@@ -148,6 +148,19 @@ contract CrowdfundingCampaign {
         );
     }
 
+    // Function to get all campaigns
+    function getAllCampaigns() public view returns (Campaign[] memory) {
+        // Create an array in memory to hold all the campaigns
+        Campaign[] memory allCampaigns = new Campaign[](campaignCount);
+
+        // Loop through each campaign and add it to the array
+        for (uint256 i = 1; i <= campaignCount; i++) {
+            allCampaigns[i - 1] = campaigns[i];
+        }
+
+        return allCampaigns;
+    }
+
     // Function to delete a campaign
     function deleteCampaign(
         uint256 _campaignId
