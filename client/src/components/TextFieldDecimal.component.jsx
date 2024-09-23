@@ -17,7 +17,7 @@ const TextFieldDecimalComponent = ({
       rules={{ required }}
       render={({ field }) => (
         <div className="flex flex-col space-y-1 mt-3">
-          <div className="text-sm font-bold text-black font-poppins">
+          <div className="text-xs text-black font-poppins">
             {label}
           </div>
           <div className="relative flex items-center">
@@ -37,8 +37,8 @@ const TextFieldDecimalComponent = ({
               disabled={disabled}
               customInput="input"
               thousandSeparator=","
-              decimalScale={2}
-              placeholder="0.00"
+              decimalScale={4}
+              placeholder="0.0000"
               required={required}
               value={field.value}
               fixedDecimalScale

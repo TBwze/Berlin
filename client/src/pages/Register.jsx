@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Web3 from "web3";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,14 @@ import { registerUser } from "../api/User/register.api";
 import TextFieldComponent from "../components/Textfield.component";
 import CustomButton from "../components/CustomButton.component";
 import PageLoad from "../components/Loading.component";
+import AlertComponent from "../components/Alert.component";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
+
   const form = useForm({
     defaultValues: {
       firstname: "",
@@ -31,7 +34,11 @@ export const Register = () => {
     } else if (window.web3) {
       provider = window.web3.currentProvider;
     } else {
-      alert("Non-ethereum browser detected. You should install MetaMask");
+      setAlert({
+        type: "error",
+        message: "Non-ethereum browser detected. You should install MetaMask.",
+        visible: true,
+      });
     }
     return provider;
   };
@@ -47,9 +54,14 @@ export const Register = () => {
         setIsConnected(true);
 
         form.setValue("account", account);
+        setAlert({
+          type: "success",
+          message: "MetaMask connected successfully!",
+          visible: true,
+        });
       }
     } catch (err) {
-      alert(err);
+      setAlert({ type: "error", message: err.message, visible: true });
     }
   };
 
@@ -72,15 +84,25 @@ export const Register = () => {
 
       try {
         await registerUser(formData);
-        alert("Register success!");
-        navigate("/login");
+        setAlert({
+          type: "success",
+          message: "Register success! Redirecting to login...",
+          visible: true,
+        });
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } catch (error) {
-        alert(error.message);
+        setAlert({ type: "error", message: error.message, visible: true });
       } finally {
         setIsLoading(false);
       }
     } else {
-      alert("Please connect to an Ethereum wallet to register");
+      setAlert({
+        type: "error",
+        message: "Please connect to an Ethereum wallet to register",
+        visible: true,
+      });
     }
   };
 
@@ -97,25 +119,20 @@ export const Register = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
-      <div
-        className="container"
-        style={{
-          flexDirection: "column",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      <div className="flex flex-col items-center">
         <PageLoad loading={isLoading} />
-        <div
-          className="Header"
-          style={{ fontFamily: "Poppins", fontWeight: "900" }}
-        >
-          <h3>
-            <b>Buat akun baru</b>
-          </h3>
+
+        <AlertComponent
+          type={alert.type}
+          message={alert.message}
+          visible={alert.visible}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        />
+
+        <div className="text-center font-poppins font-bold text-2xl mb-6">
+          <h3>Buat akun baru</h3>
         </div>
 
-        {/* Form Fields */}
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div>
             <TextFieldComponent
@@ -141,6 +158,7 @@ export const Register = () => {
               control={form.control}
               required
             />
+
             <TextFieldComponent
               type="email"
               name="email"
@@ -149,6 +167,7 @@ export const Register = () => {
               control={form.control}
               required
             />
+
             <TextFieldComponent
               name="password"
               label="Password"
@@ -157,52 +176,45 @@ export const Register = () => {
               control={form.control}
               required
             />
-            <div className="flex flex-col items-center">
+
+            <div className="flex flex-col items-start mt-4 w-full">
+              <label
+                htmlFor="profilePicture"
+                className="font-poppins text-black mb-1 text-xs"
+              >
+                Profile Picture
+              </label>
               <input
                 type="file"
-                id="upload-button"
+                id="profilePicture"
                 onChange={handleFileChange}
                 accept="image/*"
-                className="w-full text-sm text-gray-500
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded-full file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-blue-50 file:text-blue-700
-                       hover:file:bg-blue-100 mt-4"
+                className="w-full p-2 border border-gray-300 rounded-md text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+               file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+               hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               {selectedFile && (
                 <img
                   src={URL.createObjectURL(selectedFile)}
                   alt="Profile Preview"
-                  className="rounded-full object-cover mb-3 w-32 h-32 center mt-5"
+                  className="rounded-full object-cover mb-3 w-32 h-32 mt-5"
                 />
               )}
             </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-          >
+
+          <div className="flex flex-col items-center gap-4">
             {!isConnected ? (
               <CustomButton
                 title="Connect MetaMask"
-                bgColor="bg-orange-700"
+                bgColor="#101E38"
+                textColor="#ffffff"
                 handleClick={onConnect}
-                styles="mt-5"
+                className="mt-5 px-4"
               />
             ) : (
-              <div className="app-details">
-                <h2
-                  style={{
-                    fontFamily: "Poppins",
-                    fontWeight: "700",
-                    color: "green",
-                  }}
-                >
+              <div className="text-center">
+                <h2 className="font-poppins font-semibold text-green-500">
                   Connected with MetaMask
                 </h2>
                 <TextFieldComponent
@@ -215,22 +227,19 @@ export const Register = () => {
                 />
               </div>
             )}
-
             <CustomButton
               btnType="submit"
               title="Register"
-              bgColor="bg-blue-500"
-              styles="mb-3 mt-1"
+              bgColor="#2C7A5A"
+              textColor="#ffffff"
+              className="mb-3 mt-1 px-6"
             />
           </div>
         </form>
 
-        <div
-          className="Login"
-          style={{ fontSize: "2vh", fontFamily: "Poppins", margin: "1vh 0" }}
-        >
+        <div className="text-xs font-poppins my-2">
           Sudah punya akun?{" "}
-          <a href="/Login" style={{ color: "#007AFF" }}>
+          <a href="/Login" className="text-blue-600">
             Login sekarang
           </a>
         </div>

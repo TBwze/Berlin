@@ -20,9 +20,7 @@ const DropdownComponent = ({
       render={({ field, fieldState: { error } }) => (
         <div className="flex flex-col space-y-1 mt-3">
           {label && (
-            <label className="text-xs font-bold text-black font-poppins">
-              {label}
-            </label>
+            <label className="text-xs text-black font-poppins">{label}</label>
           )}
           <div className="relative">
             <select

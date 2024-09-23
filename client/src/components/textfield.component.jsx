@@ -27,9 +27,9 @@ const TextFieldComponent = ({
       control={control}
       rules={{ required }}
       render={({ field }) => (
-        <div className="flex flex-col space-y-1 mt-3 mb-1">
+        <div className="flex flex-col space-y-1 mt-3 mb-2">
           {label && (
-            <div className="text-sm font-bold text-black font-poppins">
+            <div className="text-xs text-black font-poppins">
               {label}
             </div>
           )}
