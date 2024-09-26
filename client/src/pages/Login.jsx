@@ -96,14 +96,7 @@ const Login = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
-      <div
-        className="container"
-        style={{
-          flexDirection: "column",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      <div className="flex flex-col items-center">
         <PageLoad loading={isLoading} />
 
         <AlertComponent
@@ -113,85 +106,78 @@ const Login = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
-        <div
-          className="Header"
-          style={{ fontFamily: "Poppins", fontSize: "24px" }}
-        >
-          <b>
-            <h3>Selamat Datang</h3>
-          </b>
-        </div>
-
-        <form className="w-1/4" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="input-container mt-5">
-            <TextFieldComponent
-              name="email"
-              label="Email"
-              placeholder="Email"
-              type="email"
-              control={form.control}
-              required
-            />
-            <TextFieldComponent
-              name="password"
-              label="Password"
-              placeholder="Password"
-              type="password"
-              control={form.control}
-              required
-            />
-            {!isConnected ? (
-              <div className="flex justify-center items-center mt-3">
+        <div className="w-full bg-white border border-lime-200 p-6 rounded-lg shadow-md w-full max-w-md mt-5">
+          <div className="text-center font-poppins font-bold text-2xl mt-3">
+            <b>
+              <h3>Selamat Datang</h3>
+            </b>
+          </div>
+          <form className="p-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="input-container mt-3">
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                placeholder="Email"
+                type="email"
+                control={form.control}
+                required
+              />
+              <TextFieldComponent
+                name="password"
+                label="Password"
+                placeholder="Password"
+                type="password"
+                control={form.control}
+                required
+              />
+              {!isConnected ? (
+                <div className="flex justify-center items-center mt-3">
+                  <CustomButton
+                    title="Connect MetaMask"
+                    bgColor="#101E38"
+                    handleClick={onConnect}
+                    textColor="#ffffff"
+                    className="mt-3 rounded p-2"
+                  />
+                </div>
+              ) : (
+                <div className="app-details mt-6">
+                  <h2
+                    style={{
+                      fontFamily: "Poppins",
+                      fontWeight: "700",
+                      color: "green",
+                    }}
+                  >
+                    Connected with MetaMask
+                  </h2>
+                  <TextFieldComponent
+                    name="account"
+                    label="Account"
+                    type="text"
+                    control={form.control}
+                    required
+                    disabled
+                  />
+                </div>
+              )}
+              <div className="flex justify-center">
                 <CustomButton
-                  title="Connect MetaMask"
-                  bgColor="#101E38"
-                  handleClick={onConnect}
+                  btnType="submit"
+                  className="mt-5 px-8"
+                  title="Login"
+                  bgColor="#2C7A5A"
                   textColor="#ffffff"
-                  className="mt-3 rounded p-2"
                 />
               </div>
-            ) : (
-              <div className="app-details mt-6">
-                <h2
-                  style={{
-                    fontFamily: "Poppins",
-                    fontWeight: "700",
-                    color: "green",
-                  }}
-                >
-                  Connected with MetaMask
-                </h2>
-                <TextFieldComponent
-                  name="account"
-                  label="Account"
-                  type="text"
-                  control={form.control}
-                  required
-                  disabled
-                />
-              </div>
-            )}
+            </div>
+          </form>
+          <div className="flex justify-center text-xs font-poppins">
+            Belum punya akun?{" "}
+            <a href="/register" className="text-blue-600 ml-1">
+              Register sekarang
+            </a>
           </div>
-          <div
-            className="button flex justify-center items-center mt-3"
-          >
-            <CustomButton
-              btnType="submit"
-              className="w-full mt-4"
-              title="Login"
-              bgColor="#2C7A5A"
-              textColor="#ffffff"
-            />
-          </div>
-        </form>
-        <div
-          className="signup"
-          style={{ fontSize: "2vh", fontFamily: "Poppins", margin: "1vh 0" }}
-        >
-          Don't have an account?{" "}
-          <a href="/register" style={{ color: "#007AFF" }}>
-            Sign up now
-          </a>
         </div>
       </div>
     </div>
