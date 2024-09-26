@@ -33,3 +33,28 @@ export const uploadImage = async (fileBuffer) => {
         );
     }
 };
+
+export const deleteImage = async (publicId) => {
+    try {
+        return new Promise((resolve, reject) => {
+            cloudinary.uploader.destroy(
+                publicId,
+                { resource_type: "image" },
+                (error, result) => {
+                    if (error) {
+                        return reject(
+                            new Error(
+                                `Failed to delete image from Cloudinary: ${error.message}`
+                            )
+                        );
+                    }
+                    resolve(result);
+                }
+            );
+        });
+    } catch (error) {
+        throw new Error(
+            `Failed to delete image from Cloudinary: ${error.message}`
+        );
+    }
+};

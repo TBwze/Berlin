@@ -32,9 +32,7 @@ const Navbar = () => {
           getEthBalance(response.wallet);
 
           if (response.profilePicture !== null) {
-            const originalPath = response.profilePicture;
-            const startDirectory = "assets";
-            setImageUrl(getFullUrl(originalPath, startDirectory));
+            setImageUrl(response.profilePicture);
           }
         })
         .catch((error) => {
@@ -84,19 +82,6 @@ const Navbar = () => {
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
-  };
-
-  const getFullUrl = (fullPath, startDirectory) => {
-    const startIndex = fullPath.indexOf(startDirectory);
-
-    if (startIndex === -1) {
-      return "";
-    }
-
-    const relativePath = fullPath.substring(startIndex);
-    const finalPath = relativePath.replace(/\\/g, "/");
-    const fullUrl = `${API_BASE_URL}/${finalPath}`;
-    return fullUrl;
   };
 
   return (

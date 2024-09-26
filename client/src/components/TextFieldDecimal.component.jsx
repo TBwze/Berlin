@@ -9,6 +9,7 @@ const TextFieldDecimalComponent = ({
   addOrmentText = "",
   required = false,
   disabled = false,
+  errorMessage = "",
 }) => {
   return (
     <Controller
@@ -17,9 +18,7 @@ const TextFieldDecimalComponent = ({
       rules={{ required }}
       render={({ field }) => (
         <div className="flex flex-col space-y-1 mt-3">
-          <div className="text-xs text-black font-poppins">
-            {label}
-          </div>
+          <div className="text-xs text-black font-poppins">{label}</div>
           <div className="relative flex items-center">
             <NumericFormat
               name={field.name}
@@ -56,6 +55,9 @@ const TextFieldDecimalComponent = ({
               </div>
             )}
           </div>
+          {errorMessage && (
+            <p className="text-red-500 text-xs">{errorMessage}</p>
+          )}
         </div>
       )}
     />

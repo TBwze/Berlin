@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton.component";
@@ -7,6 +7,7 @@ import PageLoad from "../components/Loading.component";
 import { loginUser } from "../api/User/login.api";
 import Web3 from "web3";
 import AlertComponent from "../components/Alert.component";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,6 +22,13 @@ const Login = () => {
       account: "",
     },
   });
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      navigate("/");
+    }
+  }, []);
 
   const detectCurrentProvider = () => {
     let provider;

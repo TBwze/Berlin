@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import TextFieldComponent from "../components/Textfield.component";
 import CustomButton from "../components/CustomButton.component";
 import PageLoad from "../components/Loading.component";
 import AlertComponent from "../components/Alert.component";
+import Cookies from "js-cookie";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -26,6 +27,13 @@ export const Register = () => {
       profilePicture: "",
     },
   });
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      navigate("/");
+    }
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -139,7 +147,7 @@ export const Register = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
-        <div className="w-full bg-white border border-lime-200 p-6 rounded-lg shadow-md w-full max-w-md">
+        <div className="w-full bg-white border border-lime-200 p-6 rounded-lg shadow-md w-full max-w-md mt-5">
           <div className="text-center font-poppins font-bold text-2xl mb-6 mt-5">
             <h3>Buat akun baru</h3>
           </div>

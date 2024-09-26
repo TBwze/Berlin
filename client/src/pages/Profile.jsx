@@ -40,10 +40,7 @@ const Profile = () => {
         form.setValue("lastname", response.lastname);
         form.setValue("email", response.email);
         if (response.profilePicture !== null) {
-          const originalPath = response.profilePicture;
-          const startDirectory = "assets";
-          const imageUrl = getFullUrl(originalPath, startDirectory);
-          form.setValue("image", imageUrl);
+          form.setValue("image", response.profilePicture);
         }
       })
       .catch((error) => {
@@ -54,20 +51,6 @@ const Profile = () => {
         });
       });
   }, []);
-
-  const getFullUrl = (fullPath, startDirectory) => {
-    const startIndex = fullPath.indexOf(startDirectory);
-
-    if (startIndex === -1) {
-      return "";
-    }
-
-    const relativePath = fullPath.substring(startIndex);
-    const finalPath = relativePath.replace(/\\/g, "/");
-    const fullUrl = `${API_BASE_URL}/${finalPath}`;
-
-    return fullUrl;
-  };
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -124,94 +107,99 @@ const Profile = () => {
   }, [form.watch("image")]);
 
   return (
-    <div
-      className="flex max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg my-2"
-      style={{ fontFamily: "Poppins" }}
-    >
-      <PageLoad loading={isLoading} />
-      <AlertComponent
-        type={alert.type}
-        message={alert.message}
-        visible={alert.visible}
-        onClose={() => setAlert({ ...alert, visible: false })}
-      />
-      <div className="flex w-full">
-        <div className="w-1/6 flex"></div>
-        <div className="w-1/3 flex flex-col justify-center p-4 items-center">
-          <img
-            src={
-              form.watch("image") !== ""
-                ? form.watch("image")
-                : "src/assets/ProfilePicture.png"
-            }
-            alt="Profile"
-            className="rounded-full object-cover mb-4 w-48 h-56"
-          />
-          <input
-            type="file"
-            id="upload-button"
-            onChange={handleFileChange}
-            accept="image/*"
-            className="w-full text-sm text-gray-500
+    <div>
+      <div className="flex flex-col justify-center items-center">
+        <AlertComponent
+          type={alert.type}
+          message={alert.message}
+          visible={alert.visible}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        />
+      </div>
+      <div className="flex max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg m-8">
+        <PageLoad loading={isLoading} />
+
+        <div className="flex w-full">
+          <div className="w-1/6 flex"></div>
+          <div className="w-1/3 flex flex-col justify-center p-4 items-center">
+            <img
+              src={
+                form.watch("image") !== ""
+                  ? form.watch("image")
+                  : "src/assets/ProfilePicture.png"
+              }
+              alt="Profile"
+              className="rounded-full object-cover mb-4 w-auto h-56"
+            />
+            <input
+              type="file"
+              id="upload-button"
+              onChange={handleFileChange}
+              accept="image/*"
+              className="w-full text-sm text-gray-500
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-full file:border-0
                         file:text-sm file:font-semibold
                         file:bg-blue-50 file:text-blue-700
                         hover:file:bg-blue-100"
-          />
-        </div>
-        <div className="w-1/6 flex"></div>
-        <div className="w-1/3 p-4">
-          <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <TextFieldComponent
-              name="username"
-              label="Username"
-              control={form.control}
-              required
             />
-            <TextFieldComponent
-              name="firstname"
-              label="First Name"
-              control={form.control}
-              required
-            />
-            <TextFieldComponent
-              name="lastname"
-              label="Last Name"
-              control={form.control}
-              required
-            />
-            <TextFieldComponent
-              name="email"
-              label="Email"
-              type="email"
-              control={form.control}
-              required
-            />
-            <TextFieldComponent
-              name="password"
-              label="Password"
-              type="password"
-              placeholder="Change password"
-              control={form.control}
-            />
-            <div className="flex gap-4 mt-5">
-              <CustomButton
-                btnType="submit"
-                title="Save Changes"
-                className="bg-green-500 text-white"
+          </div>
+          <div className="w-1/6 flex"></div>
+          <div className="w-1/3 p-4">
+            <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <TextFieldComponent
+                name="username"
+                label="Username"
+                control={form.control}
+                required
               />
-              <CustomButton
-                btnType="button"
-                title="Cancel"
-                className="bg-gray-500 text-white"
-                handleClick={() => navigate("/")}
+              <TextFieldComponent
+                name="firstname"
+                label="First Name"
+                control={form.control}
+                required
               />
-            </div>
-          </form>
+              <TextFieldComponent
+                name="lastname"
+                label="Last Name"
+                control={form.control}
+                required
+              />
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                type="email"
+                control={form.control}
+                required
+              />
+              <TextFieldComponent
+                name="password"
+                label="Password"
+                type="password"
+                placeholder="Change password"
+                control={form.control}
+              />
+              <div className="flex gap-4 mt-5">
+                <CustomButton
+                  btnType="submit"
+                  title="Save Changes"
+                  bgColor="#4CAF50"
+                  textColor="#ffffff"
+                  className="px-4 font-medium"
+                />
+                <CustomButton
+                  title="Cancel"
+                  bgColor="#C70000"
+                  handleClick={() => navigate("/")}
+                  textColor="#ffffff"
+                  className="px-4 font-medium"
+                />
+              </div>
+            </form>
+          </div>
+          <div className="w-1/6 flex"></div>
         </div>
-        <div className="w-1/6 flex"></div>
       </div>
     </div>
   );

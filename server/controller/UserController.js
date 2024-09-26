@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { uploadImage } from "../utils/Cloudinary.js";
+import { deleteImage, uploadImage } from "../utils/Cloudinary.js";
 
 export const create = async (request, response) => {
     try {
@@ -36,7 +36,7 @@ export const create = async (request, response) => {
             username: request.body.username,
             email: request.body.email,
             password: hashedPassword,
-            role: "user",
+            role: "Admin",
             wallet: request.body.wallet,
             profilePicture: profilePictureUrl,
         };
@@ -133,9 +133,7 @@ export const edit = async (request, response) => {
                     .split("/")
                     .pop()
                     .split(".")[0];
-                await cloudinary.v2.uploader.destroy(publicId, {
-                    resource_type: "image",
-                });
+                await deleteImage(publicId);
             }
 
             const uploadResult = await uploadImage(request.file.buffer);
