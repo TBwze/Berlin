@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { uploadImage } from "../utils/Cloudinary.js";
 
 export const create = async (request, response) => {
     try {
@@ -21,7 +22,13 @@ export const create = async (request, response) => {
         }
 
         const hashedPassword = await bcrypt.hash(request.body.password, 10);
-        const profilePicture = request.file ? request.file.path : "";
+
+        let profilePictureUrl = null;
+
+        if (request.file) {
+            const uploadResult = await uploadImage(request.file.buffer);
+            profilePictureUrl = uploadResult.url;
+        }
 
         const newUser = {
             firstname: request.body.firstname,
@@ -31,7 +38,7 @@ export const create = async (request, response) => {
             password: hashedPassword,
             role: "user",
             wallet: request.body.wallet,
-            profilePicture: profilePicture || null,
+            profilePicture: profilePictureUrl,
         };
 
         const user = await User.create(newUser);
@@ -99,9 +106,6 @@ export const getAccountInfo = async (request, response) => {
     }
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 export const edit = async (request, response) => {
     try {
         const userId = request.user.id;
@@ -125,24 +129,19 @@ export const edit = async (request, response) => {
 
         if (request.file) {
             if (user.profilePicture) {
-                const oldFilePath = path.resolve(
-                    __dirname,
-                    "..",
-                    user.profilePicture
-                );
-
-                fs.unlink(oldFilePath, (err) => {
-                    if (err) {
-                        alert(
-                            "Error deleting old profile picture:",
-                            err.message
-                        );
-                    }
+                const publicId = user.profilePicture
+                    .split("/")
+                    .pop()
+                    .split(".")[0];
+                await cloudinary.v2.uploader.destroy(publicId, {
+                    resource_type: "image",
                 });
             }
 
-            user.profilePicture = request.file.path;
+            const uploadResult = await uploadImage(request.file.buffer);
+            user.profilePicture = uploadResult.url;
         }
+
         await user.save();
 
         return response.status(200).json(user);
