@@ -106,6 +106,15 @@ export const getAccountInfo = async (request, response) => {
     }
 };
 
+export const getAllUsers = async (request, response) => {
+    try {
+        const users = await User.find({ role: "user" });
+        return response.status(200).json(users);
+    } catch (error) {
+        return response.status(500).json({ message: "Error fetching users" });
+    }
+};
+
 export const edit = async (request, response) => {
     try {
         const userId = request.user.id;
