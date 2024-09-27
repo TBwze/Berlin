@@ -37,6 +37,10 @@ const router = createBrowserRouter([
         path: "profile",
         element: <ProtectedRoute element={<Profile />} />,
       },
+      {
+        path: "admin",
+        element: <ProtectedRoute element={<Admin />} requiredRole="admin" />,
+      },
     ],
   },
 ]);

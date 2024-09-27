@@ -36,7 +36,7 @@ export const create = async (request, response) => {
             username: request.body.username,
             email: request.body.email,
             password: hashedPassword,
-            role: "Admin",
+            role: "User",
             wallet: request.body.wallet,
             profilePicture: profilePictureUrl,
         };
