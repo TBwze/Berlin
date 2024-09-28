@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import TextFieldComponent from "../components/Textfield.component";
 import CustomButton from "../components/CustomButton.component";
 import PageLoad from "../components/Loading.component";
 import AlertComponent from "../components/Alert.component";
+import Cookies from "js-cookie";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -27,6 +28,17 @@ export const Register = () => {
     },
   });
 
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      navigate("/");
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const detectCurrentProvider = () => {
     let provider;
     if (window.ethereum) {
@@ -39,6 +51,7 @@ export const Register = () => {
         message: "Non-ethereum browser detected. You should install MetaMask.",
         visible: true,
       });
+      scrollToTop();
     }
     return provider;
   };
@@ -59,9 +72,11 @@ export const Register = () => {
           message: "MetaMask connected successfully!",
           visible: true,
         });
+        scrollToTop();
       }
     } catch (err) {
       setAlert({ type: "error", message: err.message, visible: true });
+      scrollToTop();
     }
   };
 
@@ -89,11 +104,13 @@ export const Register = () => {
           message: "Register success! Redirecting to login...",
           visible: true,
         });
+        scrollToTop();
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       } catch (error) {
         setAlert({ type: "error", message: error.message, visible: true });
+        scrollToTop();
       } finally {
         setIsLoading(false);
       }
@@ -103,6 +120,7 @@ export const Register = () => {
         message: "Please connect to an Ethereum wallet to register",
         visible: true,
       });
+      scrollToTop();
     }
   };
 
@@ -129,119 +147,119 @@ export const Register = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
-        <div className="text-center font-poppins font-bold text-2xl mb-6">
-          <h3>Buat akun baru</h3>
-        </div>
+        <div className="w-full bg-white border border-lime-200 p-6 rounded-lg shadow-md w-full max-w-md mt-5">
+          <div className="text-center font-poppins font-bold text-2xl mb-6 mt-5">
+            <h3>Buat akun baru</h3>
+          </div>
+          <form className="px-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <div>
+              <TextFieldComponent
+                name="firstname"
+                label="Nama depan"
+                placeholder="Masukan nama depan"
+                control={form.control}
+                required
+              />
 
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div>
-            <TextFieldComponent
-              name="firstname"
-              label="Nama depan"
-              placeholder="Masukan nama depan"
-              control={form.control}
-              required
-            />
+              <TextFieldComponent
+                name="lastname"
+                label="Nama belakang"
+                placeholder="Masukan nama belakang"
+                control={form.control}
+                required
+              />
 
-            <TextFieldComponent
-              name="lastname"
-              label="Nama belakang"
-              placeholder="Masukan nama belakang"
-              control={form.control}
-              required
-            />
+              <TextFieldComponent
+                name="username"
+                label="Username"
+                placeholder="Masukan username"
+                control={form.control}
+                required
+              />
 
-            <TextFieldComponent
-              name="username"
-              label="Username"
-              placeholder="Masukan username"
-              control={form.control}
-              required
-            />
+              <TextFieldComponent
+                type="email"
+                name="email"
+                label="Email"
+                placeholder="Masukan email"
+                control={form.control}
+                required
+              />
 
-            <TextFieldComponent
-              type="email"
-              name="email"
-              label="Email"
-              placeholder="Masukan email"
-              control={form.control}
-              required
-            />
+              <TextFieldComponent
+                name="password"
+                label="Password"
+                placeholder="Masukan password"
+                type="password"
+                control={form.control}
+                required
+              />
 
-            <TextFieldComponent
-              name="password"
-              label="Password"
-              placeholder="Masukan password"
-              type="password"
-              control={form.control}
-              required
-            />
-
-            <div className="flex flex-col items-start mt-4 w-full">
-              <label
-                htmlFor="profilePicture"
-                className="font-poppins text-black mb-1 text-xs"
-              >
-                Profile Picture
-              </label>
-              <input
-                type="file"
-                id="profilePicture"
-                onChange={handleFileChange}
-                accept="image/*"
-                className="w-full p-2 border border-gray-300 rounded-md text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-               file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+              <div className="flex flex-col items-start mt-4 w-full">
+                <label
+                  htmlFor="profilePicture"
+                  className="font-poppins text-black mb-1 text-xs"
+                >
+                  Profile Picture
+                </label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="w-full p-1 border border-gray-500 rounded-md text-xs text-gray-500 file:mr-4 file:py-2 file:px-4
+               file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700
                hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              {selectedFile && (
-                <img
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Profile Preview"
-                  className="rounded-full object-cover mb-3 w-32 h-32 mt-5"
                 />
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-4">
-            {!isConnected ? (
-              <CustomButton
-                title="Connect MetaMask"
-                bgColor="#101E38"
-                textColor="#ffffff"
-                handleClick={onConnect}
-                className="mt-5 px-4"
-              />
-            ) : (
-              <div className="text-center">
-                <h2 className="font-poppins font-semibold text-green-500">
-                  Connected with MetaMask
-                </h2>
-                <TextFieldComponent
-                  name="account"
-                  label="Account"
-                  type="text"
-                  control={form.control}
-                  required
-                  disabled
-                />
+                {selectedFile && (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Profile Preview"
+                    className="rounded-full object-cover mb-3 w-32 h-32 mt-5"
+                  />
+                )}
               </div>
-            )}
-            <CustomButton
-              btnType="submit"
-              title="Register"
-              bgColor="#2C7A5A"
-              textColor="#ffffff"
-              className="mb-3 mt-1 px-6"
-            />
-          </div>
-        </form>
+            </div>
 
-        <div className="text-xs font-poppins my-2">
-          Sudah punya akun?{" "}
-          <a href="/Login" className="text-blue-600">
-            Login sekarang
-          </a>
+            <div className="flex flex-col items-center gap-4">
+              {!isConnected ? (
+                <CustomButton
+                  title="Connect MetaMask"
+                  bgColor="#101E38"
+                  textColor="#ffffff"
+                  handleClick={onConnect}
+                  className="mt-5 px-4"
+                />
+              ) : (
+                <div className="text-center">
+                  <h2 className="font-poppins font-semibold text-green-500">
+                    Connected with MetaMask
+                  </h2>
+                  <TextFieldComponent
+                    name="account"
+                    label="Account"
+                    type="text"
+                    control={form.control}
+                    required
+                    disabled
+                  />
+                </div>
+              )}
+              <CustomButton
+                btnType="submit"
+                title="Register"
+                bgColor="#2C7A5A"
+                textColor="#ffffff"
+                className="mb-3 mt-1 px-6"
+              />
+            </div>
+            <div className="flex justify-center text-xs font-poppins my-2">
+              Sudah punya akun?{" "}
+              <a href="/Login" className="text-blue-600 ml-1">
+                Login sekarang
+              </a>
+            </div>
+          </form>
         </div>
       </div>
     </div>

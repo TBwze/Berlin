@@ -5,6 +5,63 @@ import TextFieldDecimalComponent from "../components/TextFieldDecimal.component"
 import dayjs from "dayjs";
 import CustomButton from "../components/CustomButton.component";
 import DropdownComponent from "../components/Dropdown.component";
+import AlertComponent from "../components/Alert.component";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const validationSchema = yup.object().shape({
+  target: yup
+    .number()
+    .nullable()
+    .required("Target is required")
+    .min(0.0001, "Minimum target is 0.0001"),
+  minimal_eth_bronze: yup
+    .number()
+    .nullable()
+    .required("Minimal ETH Bronze is required")
+    .test(
+      "min-eth-check-bronze",
+      "Minimal ETH must be less than the target",
+      function (value) {
+        const { target } = this.parent;
+        return value < target || !value;
+      }
+    ),
+
+  minimal_eth_silver: yup
+    .number()
+    .nullable()
+    .required("Minimal ETH Silver is required")
+    .moreThan(
+      yup.ref("minimal_eth_bronze"),
+      "Minimal ETH must be greater than minimal ETH value in bronze tier"
+    )
+    .test(
+      "min-eth-check-silver",
+      "Minimal ETH must be less than the target",
+      function (value) {
+        const { target } = this.parent;
+        return value < target || !value;
+      }
+    ),
+
+  minimal_eth_gold: yup
+    .number()
+    .nullable()
+    .required("Minimal ETH Gold is required")
+    .moreThan(
+      yup.ref("minimal_eth_silver"),
+      "Minimal ETH Value must be greater than Minimal ETH value in silver tier"
+    )
+    .test(
+      "min-eth-check-gold",
+      "Minimal ETH must be less than the target",
+      function (value) {
+        const { target } = this.parent;
+        return value < target || !value;
+      }
+    ),
+});
 
 const CreateCampaign = () => {
   const form = useForm({
@@ -22,9 +79,12 @@ const CreateCampaign = () => {
       minimal_eth_silver: null,
       minimal_eth_gold: null,
     },
+    resolver: yupResolver(validationSchema),
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -35,11 +95,50 @@ const CreateCampaign = () => {
     }
   };
 
+  const handleSaveButton = async () => {
+    // setIsLoading(true);
+    console.log(form.getValues());
+    const tiers = [
+      {
+        minAmount: form.getValues("minimal_eth_bronze"),
+        description: form.getValues("hadiah_bronze"),
+      },
+      {
+        minAmount: form.getValues("minimal_eth_silver"),
+        description: form.getValues("hadiah_silver"),
+      },
+      {
+        minAmount: form.getValues("minimal_eth_gold"),
+        description: form.getValues("hadiah_gold"),
+      },
+    ];
+    console.log(tiers);
+    setAlert({
+      type: "success",
+      message: " nih bos",
+      visible: true,
+    });
+    scrollToTop();
+    // setIsLoading(false);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
+      <div className="flex flex-col justify-center items-center py-2 mb-4">
+        <AlertComponent
+          type={alert.type}
+          message={alert.message}
+          visible={alert.visible}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        />
+      </div>
       <form
         className="flex flex-row items-center justify-around"
-        onSubmit={form.handleSubmit()}
+        onSubmit={form.handleSubmit(handleSaveButton)}
       >
         <div className="flex flex-col w-1/3">
           <div className="Header font-bold text-2xl font-poppins mb-7">
@@ -79,11 +178,12 @@ const CreateCampaign = () => {
           </div>
           <div className="mt-2">
             <TextFieldDecimalComponent
-              name="decimalField"
-              label="Decimal Field"
+              name="target"
+              label="Target Amount"
               control={form.control}
               required
               addOrmentText="ETH"
+              errorMessage={form.formState.errors.target?.message}
             />
           </div>
           {/* Target */}
@@ -127,9 +227,10 @@ const CreateCampaign = () => {
           </div>
           <CustomButton
             btnType="submit"
-            title="Register"
-            bgColor="bg-blue-500"
-            styles="mb-3 mt-7"
+            title="Create"
+            bgColor="#4CAF50"
+            textColor="#ffffff"
+            className="font-medium mb-3 mt-7"
           />
         </div>
         <div className="flex flex-col w-1/3">
@@ -161,6 +262,7 @@ const CreateCampaign = () => {
               control={form.control}
               required
               addOrmentText="ETH"
+              errorMessage={form.formState.errors.minimal_eth_gold?.message}
             />
           </div>
 
@@ -189,6 +291,7 @@ const CreateCampaign = () => {
               control={form.control}
               required
               addOrmentText="ETH"
+              errorMessage={form.formState.errors.minimal_eth_silver?.message}
             />
           </div>
 
@@ -217,6 +320,7 @@ const CreateCampaign = () => {
               control={form.control}
               required
               addOrmentText="ETH"
+              errorMessage={form.formState.errors.minimal_eth_bronze?.message}
             />
           </div>
         </div>

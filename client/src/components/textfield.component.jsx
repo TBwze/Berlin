@@ -12,6 +12,7 @@ const TextFieldComponent = ({
   disabled = false,
   rows = 3,
   addOrmentText = "",
+  errorMessage = "",
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -27,11 +28,9 @@ const TextFieldComponent = ({
       control={control}
       rules={{ required }}
       render={({ field }) => (
-        <div className="flex flex-col space-y-1 mt-3 mb-2">
+        <div className="flex flex-col space-y-1 mt-5 mb-2">
           {label && (
-            <div className="text-xs text-black font-poppins">
-              {label}
-            </div>
+            <div className="text-xs text-black font-poppins">{label}</div>
           )}
           <div className="relative flex items-center">
             {type === "textarea" ? (
@@ -75,6 +74,10 @@ const TextFieldComponent = ({
               </div>
             )}
           </div>
+          {/* Display the error message here */}
+          {errorMessage && (
+            <p className="text-red-500 text-xs">{errorMessage}</p>
+          )}
         </div>
       )}
     />

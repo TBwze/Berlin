@@ -7,6 +7,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
 import ProtectedRoute from "../components/ProtectedRoute.component";
+import Admin from "../pages/admin/AdminPage";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <ProtectedRoute element={<Profile />} />,
+      },
+      {
+        path: "admin",
+        element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />,
       },
     ],
   },
