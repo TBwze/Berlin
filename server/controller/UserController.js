@@ -36,7 +36,7 @@ export const create = async (request, response) => {
             username: request.body.username,
             email: request.body.email,
             password: hashedPassword,
-            role: "Admin",
+            role: "User",
             wallet: request.body.wallet,
             profilePicture: profilePictureUrl,
         };
@@ -103,6 +103,15 @@ export const getAccountInfo = async (request, response) => {
         response.json(user);
     } catch (error) {
         response.status(500).json({ message: "An error occurred" });
+    }
+};
+
+export const getAllUsers = async (request, response) => {
+    try {
+        const users = await User.find({ role: "user" });
+        return response.status(200).json(users);
+    } catch (error) {
+        return response.status(500).json({ message: "Error fetching users" });
     }
 };
 
