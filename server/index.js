@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
+import campaignRoute from "./routes/CampaignRoute.js";
 import cors from "cors";
 import { ATLAS_URI, PORT } from "./config.js";
 import dotenv from "dotenv";
@@ -22,6 +23,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.use("/user", userRoute);
+app.use("/campaign", campaignRoute);
 
 mongoose
     .connect(ATLAS_URI, {

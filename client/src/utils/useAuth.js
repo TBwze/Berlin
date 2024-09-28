@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-import { getUserDetails } from "../api/User/getUserDetails.api";
+import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { getUserDetails } from '../api/User/getUserDetails.api';
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isloading, setIsLoading] = useState(true);
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState('');
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const token = Cookies.get("token");
+      const token = Cookies.get('token');
 
       if (token) {
         try {
@@ -17,12 +17,12 @@ const useAuth = () => {
           setRole(response.role);
           setIsAuthenticated(true);
         } catch (error) {
-          console.error("Failed to fetch user details:", error);
+          console.error('Failed to fetch user details:', error);
           setIsAuthenticated(false);
         }
       } else {
         setIsAuthenticated(false);
-        setRole("");
+        setRole('');
       }
       setIsLoading(false);
     };

@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
+
+contract RewardContract {
+    struct Reward {
+        uint256 bronzeMin;
+        uint256 silverMin;
+        uint256 goldMin;
+        string bronzeDescription;
+        string silverDescription;
+        string goldDescription;
+    }
+
+    mapping(uint256 => Reward) public rewards;
+    mapping(uint256 => mapping(address => bool)) rewardClaimed;
+
+    function createReward(
+        uint256 _campaignId,
+        uint256 _bronzeMin,
+        uint256 _silverMin,
+        uint256 _goldMin,
+        string memory _bronzeDescription,
+        string memory _silverDescription,
+        string memory _goldDescription
+    ) public {
+        rewards[_campaignId] = Reward({
+            bronzeMin: _bronzeMin,
+            silverMin: _silverMin,
+            goldMin: _goldMin,
+            bronzeDescription: _bronzeDescription,
+            silverDescription: _silverDescription,
+            goldDescription: _goldDescription
+        });
+    }
+
+    function getReward(
+        uint256 _campaignId
+    ) public view returns (Reward memory) {
+        return rewards[_campaignId];
+    }
+
+    function claimReward(
+        uint256 _campaignId,
+        address donor,
+        uint256 donationAmount
+    ) external {
+        Reward storage reward = rewards[_campaignId];
+        require(!rewardClaimed[_campaignId][donor], "Reward already claimed.");
+
+        if (donationAmount >= reward.goldMin) {
+            emit RewardClaimed(donor, reward.goldDescription);
+        } else if (donationAmount >= reward.silverMin) {
+            emit RewardClaimed(donor, reward.silverDescription);
+        } else if (donationAmount >= reward.bronzeMin) {
+            emit RewardClaimed(donor, reward.bronzeDescription);
+        } else {
+            revert("Donation not sufficient for any reward.");
+        }
+
+        rewardClaimed[_campaignId][donor] = true;
+    }
+
+    event RewardClaimed(address indexed donator, string rewardDescription);
+}
