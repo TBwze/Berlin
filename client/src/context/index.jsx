@@ -1,4 +1,4 @@
-import React, { useContext, createContext, Children, useState } from "react";
+import React, { useContext, createContext } from "react";
 import {
   useAddress,
   useContract,
@@ -6,58 +6,55 @@ import {
   useContractWrite,
 } from "@thirdweb-dev/react";
 import ethers from "ethers";
-// import { getUserDetails } from "../api/User/getUserDetails.api";
-import axios from "axios";
+import dayjs from "dayjs";
 
 const stateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
-  // const { contract } = useContract(
-  //   "0x4eA9C780e9F3e25f62122D56B53DccC5186E01f3"
-  // );
-  // const { mutateAsync = createCampaign } = useContractWrite(
-  //   contract,
-  //   "createCampaign"
-  // );
+  const { contract } = useContract(
+    "(contract key)"
+  );
+  const { mutateAsync = createCampaignWrite } = useContractWrite(
+    contract,
+    "(write function)"
+  );
 
   const address = useAddress();
   const connect = useConnect();
 
-  // const[id, setId] = useState(null);
-
   const publishCampaign = async (form) => {
-    // getUserDetails().then((Response) => {
-    //   setId(Response._id);
-    // })
-
-    if(!address) {
-      console.log("Wallet not connected!")
-      return;
-    }
-
     try {
-      const response = await axios.post("/campaign/create", {
-        address,
-        title: form.title,
-        description: form.description,
-        information: form.information,
-        target: form.target,
-        deadline: new Date(form.deadline).getTime(),
-        image: form.image,
+      const { title, description, targetAmount, deadline, image, rewards } = form;
+  
+      if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
+        throw new Error("Fill in all fields!");
+      }
+  
+      const targetInWei = ethers.utils.parseEther(targetAmount);
+      const deadlineTimestamp = dayjs().add(deadline, "day").format("YYYY-MM-DD")
+  
+      const formattedRewards = rewards.map((reward) => ({
+        minAmount: ethers.utils.parseEther(reward.minAmount),
+        description: reward.description
+      }));
+  
+      const data = await createCampaignWrite({
+        args: [
+          title,
+          description,
+          targetInWei,
+          deadlineTimestamp,
+          image,
+          formattedRewards, // Pass array of rewards into contract
+        ]
       });
-
-      // const data = await createCampaign([
-      //   address,
-      //   form.title,
-      //   form.description,
-      //   form.target,
-      //   new Date(form.deadline).getTime(),
-      //   form.image,
-      // ]);
+  
       console.log("Contract call success!", data);
     } catch (error) {
-      console.log("Contract call failed!", error);
+      console.error("Contract call failed!", error);
+      throw new Error("Failed to create campaign");
     }
+
   };
 
   return (
