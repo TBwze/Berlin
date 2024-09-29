@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import TextFieldComponent from "../components/Textfield.component";
 import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
-import dayjs from "dayjs";
 import CustomButton from "../components/CustomButton.component";
 import DropdownComponent from "../components/Dropdown.component";
 import AlertComponent from "../components/Alert.component";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from "react-router-dom";
+import { useStateContext } from "../context";
 
 const validationSchema = yup.object().shape({
   target: yup
@@ -69,22 +70,23 @@ const CreateCampaign = () => {
       judul_proyek: "",
       deskripsi_proyek: "",
       informasi_proyek: "",
-      target: null,
+      target: "",
       deadline: "",
       image: "",
       hadiah_bronze: "",
       hadiah_silver: "",
       hadiah_gold: "",
-      minimal_eth_bronze: null,
-      minimal_eth_silver: null,
-      minimal_eth_gold: null,
+      minimal_eth_bronze: "",
+      minimal_eth_silver: "",
+      minimal_eth_gold: "",
     },
     resolver: yupResolver(validationSchema),
   });
 
+  const { createCampaign } = useStateContext();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -96,30 +98,44 @@ const CreateCampaign = () => {
   };
 
   const handleSaveButton = async () => {
-    // setIsLoading(true);
+    setIsLoading(true);
     console.log(form.getValues());
+
     const tiers = [
       {
-        minAmount: form.getValues("minimal_eth_bronze"),
+        minAmount: form.getValues("minimal_eth_bronze").toString(),
         description: form.getValues("hadiah_bronze"),
       },
       {
-        minAmount: form.getValues("minimal_eth_silver"),
+        minAmount: form.getValues("minimal_eth_silver").toString(),
         description: form.getValues("hadiah_silver"),
       },
       {
-        minAmount: form.getValues("minimal_eth_gold"),
+        minAmount: form.getValues("minimal_eth_gold").toString(),
         description: form.getValues("hadiah_gold"),
       },
     ];
-    console.log(tiers);
-    setAlert({
-      type: "success",
-      message: " nih bos",
-      visible: true,
-    });
+
+    const FormData = {
+      title: form.getValues("judul_proyek"),
+      description: form.getValues("deskripsi_proyek"),
+      targetAmount: form.getValues("target").toString(),
+      deadline: form.getValues("deadline"),
+      image: selectedFile,
+      rewards: tiers,
+    }
+
+    try {
+      await createCampaign(FormData)
+      alert("Campaign created successfully");
+      navigate("/");
+    } catch(error) {
+      console.error('Error creating campaign', error);
+      alert('Failed to create campaign');
+    }
+
     scrollToTop();
-    // setIsLoading(false);
+    setIsLoading(false);
   };
 
   const scrollToTop = () => {
@@ -128,14 +144,6 @@ const CreateCampaign = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
-      <div className="flex flex-col justify-center items-center py-2 mb-4">
-        <AlertComponent
-          type={alert.type}
-          message={alert.message}
-          visible={alert.visible}
-          onClose={() => setAlert({ ...alert, visible: false })}
-        />
-      </div>
       <form
         className="flex flex-row items-center justify-around"
         onSubmit={form.handleSubmit(handleSaveButton)}

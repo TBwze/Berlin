@@ -2,25 +2,27 @@ import React, { useContext, createContext } from "react";
 import {
   useAddress,
   useContract,
-  useConnect,
+  useMetamask,
   useContractWrite,
+  useSigner,
 } from "@thirdweb-dev/react";
-import ethers from "ethers";
+import { ethers } from "ethers";
 import dayjs from "dayjs";
 
 const stateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract(
-    "(contract key)"
+    "0x4AdeDAe205840c757e5824682c8F82537C6ECB8f"
   );
-  const { mutateAsync = createCampaignWrite } = useContractWrite(
+  const { mutateAsync: createCampaignWrite } = useContractWrite(
     contract,
-    "(write function)"
+    "createCampaign"
   );
 
   const address = useAddress();
-  const connect = useConnect();
+  const connect = useMetamask();
+  const signer = useSigner();
 
   const publishCampaign = async (form) => {
     try {
@@ -31,7 +33,7 @@ export const StateContextProvider = ({ children }) => {
       }
   
       const targetInWei = ethers.utils.parseEther(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").format("YYYY-MM-DD")
+      const deadlineTimestamp = dayjs().add(deadline, "day").format("YYYY-MM-DD");
   
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethers.utils.parseEther(reward.minAmount),
@@ -46,7 +48,8 @@ export const StateContextProvider = ({ children }) => {
           deadlineTimestamp,
           image,
           formattedRewards, // Pass array of rewards into contract
-        ]
+        ],
+        signer: signer,
       });
   
       console.log("Contract call success!", data);
@@ -54,7 +57,6 @@ export const StateContextProvider = ({ children }) => {
       console.error("Contract call failed!", error);
       throw new Error("Failed to create campaign");
     }
-
   };
 
   return (
@@ -62,7 +64,9 @@ export const StateContextProvider = ({ children }) => {
       value={{
         address,
         contract,
+        connect,
         createCampaign: publishCampaign,
+
       }}
     >
       {children}

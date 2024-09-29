@@ -20,6 +20,7 @@ contract CrowdfundingCampaign {
     }
 
     mapping(uint256 => Campaign) public campaigns;
+    mapping(uint256 => mapping(address => uint256)) public donations;
     uint256 public campaignCount;
 
     // Event emitted when a new campaign is created
@@ -177,8 +178,8 @@ contract CrowdfundingCampaign {
         require(msg.value > 0, "Donation must be greater than zero.");
 
         campaign.amountCollected += msg.value;
+        donations[_campaignId][msg.sender] += msg.value; // Track donor's contribution
 
-        // Emit event
         emit DonationReceived(_campaignId, msg.sender, msg.value);
     }
 
@@ -200,6 +201,26 @@ contract CrowdfundingCampaign {
             }
         }
         return rewardDescription;
+    }
+
+    function refundDonation(
+        uint256 _campaignId
+    ) public campaignExists(_campaignId) {
+        Campaign storage campaign = campaigns[_campaignId];
+        require(
+            block.timestamp >= campaign.deadline,
+            "Campaign is still active."
+        );
+        require(
+            campaign.amountCollected < campaign.targetAmount,
+            "Campaign reached its goal."
+        );
+
+        uint256 donatedAmount = donations[_campaignId][msg.sender];
+        require(donatedAmount > 0, "No donation to refund.");
+
+        donations[_campaignId][msg.sender] = 0; // Reset the donor's contribution
+        payable(msg.sender).transfer(donatedAmount); // Refund the donor
     }
 
     // Withdraw funds from a successful campaign
