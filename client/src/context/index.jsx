@@ -3,6 +3,8 @@ import {
   useAddress,
   useContract,
   useMetamask,
+  useConnect,
+  metamaskWallet,
   useContractWrite,
   useSigner,
 } from "@thirdweb-dev/react";
@@ -10,6 +12,7 @@ import { ethers } from "ethers";
 import dayjs from "dayjs";
 
 const stateContext = createContext();
+const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract(
@@ -21,7 +24,7 @@ export const StateContextProvider = ({ children }) => {
   );
 
   const address = useAddress();
-  const connect = useMetamask();
+  const connect = useConnect();
   const signer = useSigner();
 
   const publishCampaign = async (form) => {
@@ -31,9 +34,18 @@ export const StateContextProvider = ({ children }) => {
       if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
         throw new Error("Fill in all fields!");
       }
+
+      if (!signer || !address) {
+        console.log("Wallet not connected, connecting now...");
+        await connect(metamaskConfig, connectOptions);
+      }
+
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
   
       const targetInWei = ethers.utils.parseEther(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").format("YYYY-MM-DD");
+      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
   
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethers.utils.parseEther(reward.minAmount),
