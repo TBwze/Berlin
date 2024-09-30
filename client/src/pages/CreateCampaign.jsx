@@ -1,86 +1,75 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import TextFieldComponent from "../components/Textfield.component";
-import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
-import CustomButton from "../components/CustomButton.component";
-import DropdownComponent from "../components/Dropdown.component";
-import AlertComponent from "../components/Alert.component";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate } from "react-router-dom";
-import { useStateContext } from "../context";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import TextFieldComponent from '../components/Textfield.component';
+import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
+import CustomButton from '../components/CustomButton.component';
+import DropdownComponent from '../components/Dropdown.component';
+import AlertComponent from '../components/Alert.component';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigate } from 'react-router-dom';
+import { useStateContext } from '../context';
+import PageLoad from '../components/Loading.component';
 
 const validationSchema = yup.object().shape({
   target: yup
     .number()
     .nullable()
-    .required("Target is required")
-    .min(0.0001, "Minimum target is 0.0001"),
+    .required('Target is required')
+    .min(0.0001, 'Minimum target is 0.0001'),
   minimal_eth_bronze: yup
     .number()
     .nullable()
-    .required("Minimal ETH Bronze is required")
-    .test(
-      "min-eth-check-bronze",
-      "Minimal ETH must be less than the target",
-      function (value) {
-        const { target } = this.parent;
-        return value < target || !value;
-      }
-    ),
+    .required('Minimal ETH Bronze is required')
+    .test('min-eth-check-bronze', 'Minimal ETH must be less than the target', function (value) {
+      const { target } = this.parent;
+      return value < target || !value;
+    }),
 
   minimal_eth_silver: yup
     .number()
     .nullable()
-    .required("Minimal ETH Silver is required")
+    .required('Minimal ETH Silver is required')
     .moreThan(
-      yup.ref("minimal_eth_bronze"),
-      "Minimal ETH must be greater than minimal ETH value in bronze tier"
+      yup.ref('minimal_eth_bronze'),
+      'Minimal ETH must be greater than minimal ETH value in bronze tier'
     )
-    .test(
-      "min-eth-check-silver",
-      "Minimal ETH must be less than the target",
-      function (value) {
-        const { target } = this.parent;
-        return value < target || !value;
-      }
-    ),
+    .test('min-eth-check-silver', 'Minimal ETH must be less than the target', function (value) {
+      const { target } = this.parent;
+      return value < target || !value;
+    }),
 
   minimal_eth_gold: yup
     .number()
     .nullable()
-    .required("Minimal ETH Gold is required")
+    .required('Minimal ETH Gold is required')
     .moreThan(
-      yup.ref("minimal_eth_silver"),
-      "Minimal ETH Value must be greater than Minimal ETH value in silver tier"
+      yup.ref('minimal_eth_silver'),
+      'Minimal ETH Value must be greater than Minimal ETH value in silver tier'
     )
-    .test(
-      "min-eth-check-gold",
-      "Minimal ETH must be less than the target",
-      function (value) {
-        const { target } = this.parent;
-        return value < target || !value;
-      }
-    ),
+    .test('min-eth-check-gold', 'Minimal ETH must be less than the target', function (value) {
+      const { target } = this.parent;
+      return value < target || !value;
+    })
 });
 
 const CreateCampaign = () => {
   const form = useForm({
     defaultValues: {
-      judul_proyek: "",
-      deskripsi_proyek: "",
-      informasi_proyek: "",
-      target: "",
-      deadline: "",
-      image: "",
-      hadiah_bronze: "",
-      hadiah_silver: "",
-      hadiah_gold: "",
-      minimal_eth_bronze: "",
-      minimal_eth_silver: "",
-      minimal_eth_gold: "",
+      judul_proyek: '',
+      deskripsi_proyek: '',
+      informasi_proyek: '',
+      target: '',
+      deadline: '',
+      image: '',
+      hadiah_bronze: '',
+      hadiah_silver: '',
+      hadiah_gold: '',
+      minimal_eth_bronze: '',
+      minimal_eth_silver: '',
+      minimal_eth_gold: ''
     },
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema)
   });
 
   const { createCampaign } = useStateContext();
@@ -99,56 +88,59 @@ const CreateCampaign = () => {
 
   const handleSaveButton = async () => {
     setIsLoading(true);
-    console.log(form.getValues());
 
     const tiers = [
       {
-        minAmount: form.getValues("minimal_eth_bronze").toString(),
-        description: form.getValues("hadiah_bronze"),
+        minAmount: form.getValues('minimal_eth_bronze').toString(),
+        description: form.getValues('hadiah_bronze')
       },
       {
-        minAmount: form.getValues("minimal_eth_silver").toString(),
-        description: form.getValues("hadiah_silver"),
+        minAmount: form.getValues('minimal_eth_silver').toString(),
+        description: form.getValues('hadiah_silver')
       },
       {
-        minAmount: form.getValues("minimal_eth_gold").toString(),
-        description: form.getValues("hadiah_gold"),
-      },
+        minAmount: form.getValues('minimal_eth_gold').toString(),
+        description: form.getValues('hadiah_gold')
+      }
     ];
 
+    // const imageUrl = await uploadImageToCloudinary(selectedFile);
+    // console.log(imageUrl);
+
     const FormData = {
-      title: form.getValues("judul_proyek"),
-      description: form.getValues("deskripsi_proyek"),
-      targetAmount: form.getValues("target").toString(),
-      deadline: form.getValues("deadline"),
+      title: form.getValues('judul_proyek'),
+      description: form.getValues('deskripsi_proyek'),
+      targetAmount: form.getValues('target').toString(),
+      deadline: form.getValues('deadline'),
       image: selectedFile,
-      rewards: tiers,
-    }
+      rewards: tiers
+    };
 
-    try {
-      await createCampaign(FormData)
-      alert("Campaign created successfully");
-      navigate("/");
-    } catch(error) {
-      console.error('Error creating campaign', error);
-      alert('Failed to create campaign');
-    }
-
-    scrollToTop();
+    await createCampaign(FormData)
+      .then(() => {
+        alert('Campaign created successfully');
+        navigate('/');
+      })
+      .catch((error) => {
+        alert('Failed to create campaign');
+      });
+    // try {
+    //   await createCampaign(FormData);
+    //   alert('Campaign created successfully');
+    //   navigate('/');
+    // } catch (error) {
+    //   alert('Failed to create campaign');
+    // }
     setIsLoading(false);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
       <form
         className="flex flex-row items-center justify-around"
-        onSubmit={form.handleSubmit(handleSaveButton)}
-      >
+        onSubmit={form.handleSubmit(handleSaveButton)}>
         <div className="flex flex-col w-1/3">
+          <PageLoad isLoading={isLoading} />
           <div className="Header font-bold text-2xl font-poppins mb-7">
             <h3>Mulai Kampanye untuk Projek Baru</h3>
           </div>
@@ -201,9 +193,9 @@ const CreateCampaign = () => {
               name="deadline"
               label="Durasi Proyek"
               optionData={[
-                { deadline: 30, days: "30 hari" },
-                { deadline: 60, days: "60 hari" },
-                { deadline: 90, days: "90 hari" },
+                { deadline: 30, days: '30 hari' },
+                { deadline: 60, days: '60 hari' },
+                { deadline: 90, days: '90 hari' }
               ]}
               optionId="deadline"
               optionLabel="days"
@@ -250,11 +242,7 @@ const CreateCampaign = () => {
           {/* Gold Tier */}
           <div className="border border-gray-300 rounded-lg p-4 mb-7 shadow-lg">
             <div className="flex items-center mb-2">
-              <img
-                src="src/assets/gold.png"
-                alt="Gold tier"
-                className="w-8 h-8 mr-2"
-              />
+              <img src="src/assets/gold.png" alt="Gold tier" className="w-8 h-8 mr-2" />
               <h4 className="text-xl font-semibold font-poppins">Gold Tier</h4>
             </div>
             <TextFieldComponent
@@ -277,14 +265,8 @@ const CreateCampaign = () => {
           {/* Silver Tier */}
           <div className="border border-gray-300 rounded-lg p-4 mb-4 shadow-lg">
             <div className="flex items-center mb-2">
-              <img
-                src="src/assets/silver.png"
-                alt="Silver tier"
-                className="w-8 h-8 mr-2"
-              />
-              <h4 className="text-xl font-semibold font-poppins">
-                Silver Tier
-              </h4>
+              <img src="src/assets/silver.png" alt="Silver tier" className="w-8 h-8 mr-2" />
+              <h4 className="text-xl font-semibold font-poppins">Silver Tier</h4>
             </div>
             <TextFieldComponent
               name="hadiah_silver"
@@ -306,14 +288,8 @@ const CreateCampaign = () => {
           {/* Bronze Tier */}
           <div className="border border-gray-300 rounded-lg p-4 shadow-lg">
             <div className="flex items-center mb-2">
-              <img
-                src="src/assets/bronze.png"
-                alt="Bronze tier"
-                className="w-8 h-8 mr-2"
-              />
-              <h4 className="text-xl font-semibold font-poppins">
-                Bronze Tier
-              </h4>
+              <img src="src/assets/bronze.png" alt="Bronze tier" className="w-8 h-8 mr-2" />
+              <h4 className="text-xl font-semibold font-poppins">Bronze Tier</h4>
             </div>
             <TextFieldComponent
               name="hadiah_bronze"
