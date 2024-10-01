@@ -175,3 +175,43 @@ export const destroy = async (request, response) => {
         });
     }
 };
+
+export const uploadProfilePicture = async (request, response) => {
+    try {
+        if (!request.file) {
+            return response.status(400).json({ message: "No file uploaded" });
+        }
+
+        const result = await uploadImage(request.file.buffer);
+
+        return response.status(200).json({
+            message: "Image uploaded successfully",
+            url: result.url,
+        });
+    } catch (error) {
+        return response
+            .status(500)
+            .json({ message: "Image upload failed", error: error.message });
+    }
+};
+
+
+export const getAccountByWallet = async (request, response) => {
+    try {
+        const { wallet } = request.query;
+
+        if (!wallet) {
+            return response.status(400).json({ message: "Wallet address is required" });
+        }
+
+        const user = await User.findOne({ wallet });
+
+        if (!user) {
+            return response.status(404).json({ message: "User not found" });
+        }
+
+        response.json(user);
+    } catch (error) {
+        response.status(500).json({ message: "An error occurred" });
+    }
+};

@@ -1,6 +1,8 @@
-import express from "express";
-import { create } from "../controller/CampaignController.js";
+// import express from "express";
+// import { create } from "../controller/CampaignController.js";
 
-const router = express.Router();
+// const router = express.Router();
 
-router.post("/create", create);
+// router.post("/create", create);
+
+// export default router;

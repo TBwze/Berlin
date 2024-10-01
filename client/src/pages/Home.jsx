@@ -1,102 +1,117 @@
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import CardComponent from "../components/Card.component";
+import React, { useEffect, useState } from 'react';
+import { useContract } from '@thirdweb-dev/react';
+import CardComponent from '../components/Card.component';
+import { ethers } from 'ethers'; // to format amounts from Wei to Ether
+import { getAccountByWallet } from '../api/User/getUserByWallet.api';
+import { formatDate } from '../utils/date.utils';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-  const form = useForm({
-    defaultValues: {
-      campaign_id: 1,
-      campaign_title: "adsf",
-      campaign_creator: "asfd",
-      campaign_backers: 21,
-      campaign_funded: 55,
-      campaign_total_fund: 111,
-      campaign_images: "http://localhost:8000/assets/1725893454284.jpg",
-    },
-  });
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
+  const { contract } = useContract('0x4AdeDAe205840c757e5824682c8F82537C6ECB8f');
 
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        title: form.getValues("campaign_title"),
-        creator: "TechCrunch",
-        backers: 21,
-        funded: 25,
-        totalFunding: 111,
-        imageUrl: form.getValues("campaign_images"),
-      },
-    ]);
-  }, []);
+    const fetchCampaigns = async () => {
+      try {
+        const campaigns = await contract.call('getAllCampaigns');
+
+        const formattedCampaigns = await Promise.all(
+          campaigns.map(async (campaign, index) => {
+            const ownerWallet = campaign.owner;
+            let ownerUsername = ownerWallet;
+
+            try {
+              const accountInfo = await getAccountByWallet(ownerWallet);
+              if (accountInfo && accountInfo.username) {
+                ownerUsername = accountInfo.username;
+              }
+            } catch (error) {
+              console.error(`Failed to fetch username for wallet: ${ownerWallet}`, error);
+            }
+
+            return {
+              id: index + 1,
+              owner: ownerUsername, // Now includes the username instead of just the wallet
+              title: campaign.title,
+              targetAmount: ethers.utils.formatEther(campaign.targetAmount),
+              amountCollected: ethers.utils.formatEther(campaign.amountCollected),
+              deadline: formatDate(campaign.deadline),
+              imageUrl: campaign.image || 'default-image-url.jpg'
+            };
+          })
+        );
+
+        setData(formattedCampaigns);
+      } catch (error) {
+        setData([]);
+        console.error('Failed to fetch campaigns:', error);
+      }
+    };
+
+    fetchCampaigns();
+  }, [contract]);
+
+  // Sort campaigns for "Projek Populer" by percentage of amount collected from target amount
+  const popularProjects = [...data]
+    .sort((a, b) => {
+      const percentageA = parseFloat(a.amountCollected) / parseFloat(a.targetAmount) || 0;
+      const percentageB = parseFloat(b.amountCollected) / parseFloat(b.targetAmount) || 0;
+      return percentageB - percentageA; // Descending order
+    })
+    .slice(0, 3);
+
+  // Sort campaigns for "Projek Terbaru" by ID descending
+  const latestProjects = [...data].sort((a, b) => b.id - a.id).slice(0, 3); // Only take the latest 3
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
       {/* Projek Populer Section */}
       <section className="mb-12">
         <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {/* Large Project Card */}
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <CardComponent
-                key={index}
-                id={item.id}
-                title={item.title}
-                creator={item.creator}
-                backers={item.backers}
-                funded={item.funded}
-                totalFunding={item.totalFunding}
-                imageUrl={item.imageUrl}
-                control={form.control}
-              />
-            ))
-          ) : (
-            <p>Loading...</p>
-          )}
-
-          {/* Small Project Cards */}
-          {Array(5)
-            .fill("")
-            .map((_, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center p-4 bg-gray-200 rounded-lg"
-              >
-                <div className="w-24 h-24 mb-2 bg-gray-300 rounded-lg"></div>
-                <h3 className="mb-1 text-sm font-bold text-black truncate">
-                  Lorem ipsum...
-                </h3>
-                <p className="text-xs text-gray-600">Creator</p>
-                <p className="text-xs text-gray-600">100 Backers</p>
-                <p className="text-xs text-gray-600">10 / 50 Funded</p>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {popularProjects.map((campaign) => (
+            <CardComponent
+              key={campaign.id}
+              id={campaign.id}
+              creator={campaign.owner}
+              title={campaign.title}
+              targetAmount={campaign.targetAmount}
+              amountCollected={campaign.amountCollected}
+              deadline={campaign.deadline}
+              imageUrl={campaign.imageUrl}
+            />
+          ))}
         </div>
+        <button
+          className="mt-4 text-blue-500 hover:underline"
+          onClick={() => navigate('/campaign')}>
+          See More
+        </button>
       </section>
 
       {/* Projek Terbaru Section */}
       <section className="mb-12">
         <h2 className="mb-6 text-xl font-bold">Projek Terbaru</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {Array(3)
-            .fill("")
-            .map((_, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center p-4 bg-gray-200 rounded-lg"
-              >
-                <div className="w-24 h-24 mb-2 bg-gray-300 rounded-lg"></div>
-                <h3 className="mb-1 text-sm font-bold text-black truncate">
-                  Lorem ipsum...
-                </h3>
-                <p className="text-xs text-gray-600">Creator</p>
-                <p className="text-xs text-gray-600">100 Backers</p>
-                <p className="text-xs text-gray-600">10 / 50 Funded</p>
-              </div>
-            ))}
+          {latestProjects.map((campaign) => (
+            <CardComponent
+              key={campaign.id}
+              id={campaign.id}
+              creator={campaign.owner}
+              title={campaign.title}
+              targetAmount={campaign.targetAmount}
+              amountCollected={campaign.amountCollected}
+              deadline={campaign.deadline}
+              imageUrl={campaign.imageUrl}
+            />
+          ))}
         </div>
+        <button
+          className="mt-4 text-blue-500 hover:underline"
+          onClick={() => navigate('/campaign')}>
+          See More
+        </button>
       </section>
 
       {/* Tutorial dan Tips Section */}
@@ -104,15 +119,12 @@ const Home = () => {
         <h2 className="mb-6 text-xl font-bold">Tutorial dan Tips</h2>
         <div className="space-y-6">
           {Array(2)
-            .fill("")
+            .fill('')
             .map((_, index) => (
-              <div
-                key={index}
-                className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300"
-              >
+              <div key={index} className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300">
                 <p className="text-sm text-gray-700">
-                  Neque porro quisquam est qui dolorem ipsum quia dolor sit
-                  amet, consectetur, adipisci velit.
+                  Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur,
+                  adipisci velit.
                 </p>
               </div>
             ))}
