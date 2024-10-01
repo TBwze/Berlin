@@ -6,6 +6,8 @@ import {
     destroy,
     getAccountInfo,
     getAllUsers,
+    uploadProfilePicture,
+    getAccountByWallet,
 } from "../controller/UserController.js";
 import { authenticateToken } from "../middleware/AuthMiddleware.js";
 import { uploadSingle } from "../middleware/MulterMiddleware.js";
@@ -29,5 +31,11 @@ router.put("/update", uploadSingle, authenticateToken, edit);
 
 // Delete one
 router.delete("/:id", destroy);
+
+//upload image only
+router.post("/upload", uploadSingle, uploadProfilePicture);
+
+//get account by wallet
+router.get("/by-wallet", getAccountByWallet);
 
 export default router;

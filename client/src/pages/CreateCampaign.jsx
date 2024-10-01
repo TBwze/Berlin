@@ -58,7 +58,6 @@ const CreateCampaign = () => {
     defaultValues: {
       judul_proyek: '',
       deskripsi_proyek: '',
-      informasi_proyek: '',
       target: '',
       deadline: '',
       image: '',
@@ -104,15 +103,20 @@ const CreateCampaign = () => {
       }
     ];
 
-    // const imageUrl = await uploadImageToCloudinary(selectedFile);
-    // console.log(imageUrl);
+    await uploadProfilePicture(selectedFile)
+      .then((response) => {
+        form.setValue('image', response.image);
+      })
+      .catch((error) => {
+        alert(error);
+      });
 
     const FormData = {
       title: form.getValues('judul_proyek'),
       description: form.getValues('deskripsi_proyek'),
       targetAmount: form.getValues('target').toString(),
       deadline: form.getValues('deadline'),
-      image: selectedFile,
+      image: form.getValues('image'),
       rewards: tiers
     };
 

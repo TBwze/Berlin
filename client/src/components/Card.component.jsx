@@ -1,8 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FaArrowRight } from 'react-icons/fa6';
 import { ethers } from 'ethers';
 
-const CardComponent = ({ id, title, targetAmount, amountCollected, deadline, imageUrl }) => {
+const CardComponent = ({
+  id,
+  title,
+  targetAmount,
+  amountCollected,
+  deadline,
+  imageUrl,
+  creator
+}) => {
   // Calculate the funding percentage
   const fundingPercentage = Math.min((amountCollected / targetAmount) * 100, 100).toFixed(1);
 
@@ -21,6 +29,11 @@ const CardComponent = ({ id, title, targetAmount, amountCollected, deadline, ima
             {title}
           </h5>
         </a>
+
+        {/* Display creator's name or wallet address */}
+        <p className="text-xs text-gray-200 dark:text-gray-200 mb-3 truncate font-poppins">
+          by: {creator}
+        </p>
 
         {/* Progress bar showing the funding percentage */}
         <div className="relative w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700 mb-2">
