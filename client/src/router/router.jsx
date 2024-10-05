@@ -1,54 +1,54 @@
-import { createBrowserRouter } from "react-router-dom";
-import App from "../App";
-import Home from "../pages/Home";
-import CreateCampaign from "../pages/CreateCampaign";
-import Campaign from "../pages/Campaign";
-import CampaignDetail from "../pages/CampaignDetail";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import Profile from "../pages/Profile";
-import ProtectedRoute from "../components/ProtectedRoute.component";
-import Admin from "../pages/admin/AdminPage";
+import { createBrowserRouter } from 'react-router-dom';
+import App from '../App';
+import Home from '../pages/Home';
+import CreateCampaign from '../pages/CreateCampaign';
+import Campaign from '../pages/Campaign';
+import CampaignDetail from '../pages/CampaignDetail';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
+import Profile from '../pages/Profile';
+import ProtectedRoute from '../components/ProtectedRoute.component';
+import Admin from '../pages/admin/AdminPage';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <App />,
     children: [
       {
-        path: "",
-        element: <Home />,
+        path: '',
+        element: <Home />
       },
       {
-        path: "create-campaign",
-        element: <ProtectedRoute element={<CreateCampaign />} />,
+        path: 'create-campaign',
+        element: <ProtectedRoute element={<CreateCampaign />} />
       },
       {
-        path: "campaign",
-        element: <ProtectedRoute element={<Campaign />} />,
+        path: 'campaign',
+        element: <ProtectedRoute element={<Campaign />} />
       },
       {
-        path: "CampaignDetail",
-        element: <ProtectedRoute element={<CampaignDetail />} />,
+        path: 'campaign/:id',
+        element: <ProtectedRoute element={<CampaignDetail />} />
       },
       {
-        path: "login",
-        element: <Login />,
+        path: 'login',
+        element: <Login />
       },
       {
-        path: "register",
-        element: <Register />,
+        path: 'register',
+        element: <Register />
       },
       {
-        path: "profile",
-        element: <ProtectedRoute element={<Profile />} />,
+        path: 'profile',
+        element: <ProtectedRoute element={<Profile />} />
       },
       {
-        path: "admin",
-        element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />,
-      },
-    ],
-  },
+        path: 'admin',
+        element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />
+      }
+    ]
+  }
 ]);
 
 export default router;

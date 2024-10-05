@@ -1,58 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useContract } from '@thirdweb-dev/react';
 import CardComponent from '../components/Card.component';
-import { ethers } from 'ethers'; // to format amounts from Wei to Ether
+import { ethers } from 'ethers';
 import { getAccountByWallet } from '../api/User/getUserByWallet.api';
 import { formatDate } from '../utils/date.utils';
 import { useNavigate } from 'react-router-dom';
+import PageLoad from '../components/Loading.component';
+import { useStateContext } from '../context';
 
 const Home = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
-  const { contract } = useContract('0x4AdeDAe205840c757e5824682c8F82537C6ECB8f');
+  const { address, contract, getCampaigns } = useStateContext();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCampaigns = async () => {
+    const data = await getCampaigns();
+    setData(data);
+  };
 
   useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        const campaigns = await contract.call('getAllCampaigns');
+    if (contract) {
+      setIsLoading(true);
+      fetchCampaigns();
+      setIsLoading(false);
+    }
+  }, [address, contract]);
 
-        const formattedCampaigns = await Promise.all(
-          campaigns.map(async (campaign, index) => {
-            const ownerWallet = campaign.owner;
-            let ownerUsername = ownerWallet;
-
-            try {
-              const accountInfo = await getAccountByWallet(ownerWallet);
-              if (accountInfo && accountInfo.username) {
-                ownerUsername = accountInfo.username;
-              }
-            } catch (error) {
-              console.error(`Failed to fetch username for wallet: ${ownerWallet}`, error);
-            }
-
-            return {
-              id: index + 1,
-              owner: ownerUsername, // Now includes the username instead of just the wallet
-              title: campaign.title,
-              targetAmount: ethers.utils.formatEther(campaign.targetAmount),
-              amountCollected: ethers.utils.formatEther(campaign.amountCollected),
-              deadline: formatDate(campaign.deadline),
-              imageUrl: campaign.image || 'default-image-url.jpg'
-            };
-          })
-        );
-
-        setData(formattedCampaigns);
-      } catch (error) {
-        setData([]);
-        console.error('Failed to fetch campaigns:', error);
-      }
-    };
-
-    fetchCampaigns();
-  }, [contract]);
-
-  // Sort campaigns for "Projek Populer" by percentage of amount collected from target amount
   const popularProjects = [...data]
     .sort((a, b) => {
       const percentageA = parseFloat(a.amountCollected) / parseFloat(a.targetAmount) || 0;
@@ -67,6 +41,7 @@ const Home = () => {
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
       {/* Projek Populer Section */}
+      <PageLoad loading={isLoading} />
       <section className="mb-12">
         <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">

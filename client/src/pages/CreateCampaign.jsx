@@ -159,16 +159,6 @@ const CreateCampaign = () => {
             <TextFieldComponent
               name="deskripsi_proyek"
               label="Deskripsi Proyek"
-              placeholder="Deskripsi singkat projek yang ditampilkan"
-              control={form.control}
-              required
-            />
-          </div>
-          {/* Informasi Projek */}
-          <div className="mt-2">
-            <TextFieldComponent
-              name="informasi_proyek"
-              label="Informasi Proyek"
               placeholder="Informasi untuk memperjelas intensi projek dan kampanye"
               control={form.control}
               required
