@@ -3,6 +3,7 @@ import App from "../App";
 import Home from "../pages/Home";
 import CreateCampaign from "../pages/CreateCampaign";
 import Campaign from "../pages/Campaign";
+import CampaignDetail from "../pages/CampaignDetail";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "campaign",
         element: <ProtectedRoute element={<Campaign />} />,
+      },
+      {
+        path: "CampaignDetail",
+        element: <ProtectedRoute element={<CampaignDetail />} />,
       },
       {
         path: "login",
