@@ -182,11 +182,13 @@ export const uploadProfilePicture = async (request, response) => {
             return response.status(400).json({ message: "No file uploaded" });
         }
 
+        let profilePictureUrl = null;
         const result = await uploadImage(request.file.buffer);
+        profilePictureUrl = result.url;
 
         return response.status(200).json({
             message: "Image uploaded successfully",
-            url: result.url,
+            url: profilePictureUrl,
         });
     } catch (error) {
         return response
@@ -195,13 +197,14 @@ export const uploadProfilePicture = async (request, response) => {
     }
 };
 
-
 export const getAccountByWallet = async (request, response) => {
     try {
         const { wallet } = request.query;
 
         if (!wallet) {
-            return response.status(400).json({ message: "Wallet address is required" });
+            return response
+                .status(400)
+                .json({ message: "Wallet address is required" });
         }
 
         const user = await User.findOne({ wallet });

@@ -1,5 +1,5 @@
 const CONFIG = {
-  thirdwebClientId: '41de40e3032681b61cd1402c3f9fa3d9',
+  thirdwebClientId: '876cc762d834965398869fa049959013',
   activeChain: 'sepolia'
 };
 

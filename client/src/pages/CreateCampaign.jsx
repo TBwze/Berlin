@@ -10,6 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '../context';
 import PageLoad from '../components/Loading.component';
+import { uploadProfilePicture } from '../api/User/uploadImage.api';
 
 const validationSchema = yup.object().shape({
   target: yup
@@ -60,7 +61,7 @@ const CreateCampaign = () => {
       deskripsi_proyek: '',
       target: '',
       deadline: '',
-      image: '',
+      profilePicture: '',
       hadiah_bronze: '',
       hadiah_silver: '',
       hadiah_gold: '',
@@ -103,24 +104,26 @@ const CreateCampaign = () => {
       }
     ];
 
-    await uploadProfilePicture(selectedFile)
+    const picture = new FormData();
+    picture.append('profilePicture', selectedFile);
+
+    await uploadProfilePicture(picture)
       .then((response) => {
-        form.setValue('image', response.image);
+        form.setValue('profilePicture', response.url);
       })
       .catch((error) => {
         alert(error);
       });
 
-    const FormData = {
+    const formDataRequest = {
       title: form.getValues('judul_proyek'),
       description: form.getValues('deskripsi_proyek'),
       targetAmount: form.getValues('target').toString(),
       deadline: form.getValues('deadline'),
-      image: form.getValues('image'),
+      image: form.getValues('profilePicture'),
       rewards: tiers
     };
-
-    await createCampaign(FormData)
+    await createCampaign(formDataRequest)
       .then(() => {
         alert('Campaign created successfully');
         navigate('/');
@@ -128,13 +131,6 @@ const CreateCampaign = () => {
       .catch((error) => {
         alert('Failed to create campaign');
       });
-    // try {
-    //   await createCampaign(FormData);
-    //   alert('Campaign created successfully');
-    //   navigate('/');
-    // } catch (error) {
-    //   alert('Failed to create campaign');
-    // }
     setIsLoading(false);
   };
 
@@ -211,7 +207,7 @@ const CreateCampaign = () => {
           <div className="flex flex-col items-center mt-2">
             <input
               type="file"
-              id="upload-button"
+              id="profilePicture"
               onChange={handleFileChange}
               accept="image/*"
               className="w-full text-sm text-gray-500
