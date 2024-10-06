@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import CustomButton from '../components/CustomButton.component';
 import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
-import TextFieldComponent from '../components/Textfield.component';
+import { getAccountByWallet } from "../api/User/getUserByWallet.api";
 import { useParams } from 'react-router-dom';
 import { useStateContext } from '../context';
+import silverBadge from '../assets/silver.png';
+import goldBadge from '../assets/gold.png';
+import bronzeBadge from '../assets/bronze.png';
 import PageLoad from '../components/Loading.component';
 
 const CampaignDetail = () => {
@@ -13,6 +15,8 @@ const CampaignDetail = () => {
   const [data, setData] = useState([]);
   const { address, contract, getCampaignById } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [NewProfilePict, setNewProfilePict] = useState(null);
 
   const form = useForm({
     defaultValues: {
@@ -21,10 +25,15 @@ const CampaignDetail = () => {
     }
   });
 
+  // Calculate the funding percentage
+  const fundingPercentage = Math.min((data.amountCollected/ data.targetAmount) * 100, 100).toFixed(1);
+  const percentage = Number(fundingPercentage);
+
   const fetchCampaign = async () => {
     try {
       const campaignData = await getCampaignById(id);
       setData(campaignData);
+      setProfilePicture(campaignData.owner)
       console.log('Fetched campaign data:', campaignData);
     } catch (error) {
       alert('Error fetching campaign:', error);
@@ -39,18 +48,26 @@ const CampaignDetail = () => {
     setIsLoading(false);
   }, [address, contract, id]);
 
+  useEffect(() => {
+  if (profilePicture !== null) {
+    getAccountByWallet(profilePicture)
+      .then((response) => {
+        console.log(response)
+        setNewProfilePict(response.profilePicture);
+      })
+      .catch((err) => {
+        console.error('Error fetching user by wallet:', err);
+      });
+  }
+  }, [profilePicture]);
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <div className="flex flex-col text-center pb-4">
         <PageLoad loading={isLoading} />
         {/* title Section */}
         <div className="Header font-bold text-xl pb-4">
-          <h3>Lorem ipsum dolor sit amet</h3>
-        </div>
-        <div className="items-center text-center">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ultrices pellentesque
-          pellentesque. Proin venenatis euismod interdum. Integer faucibus lobortis nulla, nec
-          eleifend ante rutrum non. Integer vehicula mi et justo convallis ultricies.
+           <h3>{data.title}</h3>
         </div>
       </div>
       <div className="flex flex-row justify-around">
@@ -58,61 +75,50 @@ const CampaignDetail = () => {
         <div className="flex flex-col gap-8 w-1/2">
           {/* Galery section */}
           <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
-            <div className="row-span-2 col-span-2 w-auto">
+            <div className="row-span-4 col-span-4 w-full">
+              <img src={data.imageUrl} alt="test" />
+            </div>
+            {/* <div className="row-span-2 col-span-2 w-auto">
               <img src="src/assets/dummy.jpg" alt="test" />
             </div>
             <img className="size-full" src="src/assets/dummy.jpg" alt="test" />
             <img className="size-full" src="src/assets/dummy.jpg" alt="test" />
             <img className="size-full" src="src/assets/dummy.jpg" alt="test" />
-            <img className="size-full" src="src/assets/dummy.jpg" alt="test" />
+            <img className="size-full" src="src/assets/dummy.jpg" alt="test" /> */}
           </div>
-          {/* Badge Section*/}
+          {/* Badge Section */}
           <div className="flex flex-col gap-4">
-            {/*Gold Badge */}
-            <div className="flex flex-row gap-10 p-4 border border-gray-300 rounded-lg shadow-lg">
-              <div className="flex flex-col items-center">
-                <img className="w-10" src="src/assets/gold.png" alt="Gold Badge" />
-                <h3 className="text-center text-sm font-bold">Gold</h3>
-              </div>
-              <ol className="list-decimal text-xs">
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ultrices
-                  pellentesque pellentesque.
-                </li>
-                <li>Sed pretium ut nunc sed dapibus.</li>
-                <li>Morbi tortor neque, fringilla sed convallis sit amet, mollis id arcu.</li>
-              </ol>
-            </div>
-            {/*Silver Badge */}
-            <div className="flex flex-row gap-10 p-4 border border-gray-300 rounded-lg shadow-lg">
-              <div className="flex flex-col items-center">
-                <img className="w-10 items-center" src="src/assets/silver.png" alt="Silver Badge" />
-                <h3 className="text-center text-sm font-bold">Silver</h3>
-              </div>
-              <ol className="list-decimal text-xs">
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ultrices
-                  pellentesque pellentesque.
-                </li>
-                <li>Sed pretium ut nunc sed dapibus.</li>
-                <li>Morbi tortor neque, fringilla sed convallis sit amet, mollis id arcu.</li>
-              </ol>
-            </div>
-            {/*Bronze Badge */}
-            <div className="flex flex-row gap-10 p-4 border border-gray-300 rounded-lg  shadow-lg">
-              <div className="flex flex-col items-center">
-                <img className="w-10 items-center" src="src/assets/bronze.png" alt="Bronze Badge" />
-                <h3 className="text-center text-sm font-bold">Bronze</h3>
-              </div>
-              <ol className="list-decimal text-xs">
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ultrices
-                  pellentesque pellentesque.
-                </li>
-                <li>Sed pretium ut nunc sed dapibus.</li>
-                <li>Morbi tortor neque, fringilla sed convallis sit amet, mollis id arcu.</li>
-              </ol>
-            </div>
+            {data.rewards?.slice().reverse().map((reward, index) => {
+              let badgeImage;
+              let badgeName;
+
+              // Determine badge based on the reward tier
+              if (data.rewards.length - index === 3) {
+                badgeImage = goldBadge;  // image path for Gold badge
+                badgeName = "Gold";
+              } else if (data.rewards.length - index === 2) {
+                badgeImage = silverBadge;  // image path for Silver badge
+                badgeName = "Silver";
+              } else if (data.rewards.length - index === 1) {
+                badgeImage = bronzeBadge;  // image path for Bronze badge
+                badgeName = "Bronze";
+              } 
+
+              return (
+                <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-lg">
+                  <div className='flex flex-row gap-4'>
+                    <div className="flex flex-col items-center text-center">
+                      <img src={badgeImage} alt={badgeName} className="w-10 h-10 mr-2" />
+                      <h3 className="text-l font-bold items-center">{badgeName}</h3>
+                    </div>
+                    <div className='flex flex-col'>
+                      <h3 className='text-sm font-bold'>Desciption:</h3>
+                      <p className='text-sm'>{reward.description}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
           {/* Comment Section */}
           <div className="flex flex-col gap-2">
@@ -174,46 +180,37 @@ const CampaignDetail = () => {
         <div className="flex flex-col w-1/2 pl-10 gap-4 ">
           <div className="flex flex-row items-center">
             <img
-              src="src/assets/ProfilePicture.png"
+              src={NewProfilePict}
               alt="ProfilePicture"
               className="w-20 h-20 mr-2"
             />
-            <h4 className="text-xl font-semibold">Creator</h4>
+            <h4 className="text-xl font-semibold">{data.username}</h4>
           </div>
-          <p className="font-bold text-right">60 / 100 Tercapai</p>
+          <p className="font-bold text-right">{data.amountCollected} / {data.targetAmount} Tercapai</p>
           {/* Progress Bar */}
-          <div class="w-full  bg-gray-300 rounded-3xl h-3.5 ">
+          <div className='flex flex-row items-center gap-3'>
+            <div class="w-full  bg-gray-300 rounded-3xl h-3.5 ">
             <div
-              class="bg-green-500 h-3.5 rounded-3xl text-xs text-white text-center shadow-lg w-3/5"
+              class="bg-green-500 h-3.5 rounded-3xl text-xs text-white text-center shadow-lg"
+              style={{ width: `${fundingPercentage}%` }}
               role="progressbar"
               aria-valuenow="60"
               aria-valuemin="0"
               aria-valuemax="100">
-              60%
             </div>
+          </div>
+          {percentage}%
           </div>
           <div className="flex flex-row justify-between">
             <h3 className="font-bold">100 Donatur</h3>
             <div className="flex flex-col">
               <h3 className="font-bold">Deadline :</h3>
-              <p className="text-sm">20 Desember 2024</p>
+              <p>{data.deadline}</p>
             </div>
           </div>
           {/* Informasi Proyek */}
           <h3 className="font-bold">Informasi Proyek</h3>
-          <p className="text-balance text-left text-sm">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ultrices pellentesque
-            pellentesque. Proin venenatis euismod interdum. Integer faucibus lobortis nulla, nec
-            eleifend ante rutrum non. Integer vehicula mi et justo convallis ultricies. Duis sed
-            sodales neque. Aenean at quam et metus rhoncus feugiat. Sed pretium ut nunc sed dapibus.
-            Curabitur tincidunt posuere sapien ut eleifend. Morbi ac libero ac risus tincidunt
-            tempor. Morbi tortor neque, fringilla sed convallis sit amet, mollis id arcu.
-            Pellentesque consectetur arcu quis nisl gravida, a placerat nibh lacinia. Quisque ligula
-            metus, lacinia sit amet felis a, gravida maximus felis. Sed sollicitudin, ligula nec
-            efficitur scelerisque, quam nisi aliquet mauris, et ornare risus mauris ut lorem. Fusce
-            vel suscipit orci. Nulla nec augue quis elit tempus venenatis vel ut quam. Vestibulum
-            eget odio elit.
-          </p>
+          <p className="text-balance text-left text-sm">{data.description}</p>
           {/* Share Button */}
           <CustomButton
             className="w-40"

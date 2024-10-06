@@ -110,7 +110,8 @@ export const StateContextProvider = ({ children }) => {
         response;
       const username = await getAccountUsername(owner);
       const formattedCampaign = {
-        owner: username,
+        owner: owner,
+        username: username,
         title: title,
         description: description,
         targetAmount: ethers.utils.formatEther(targetAmount),
