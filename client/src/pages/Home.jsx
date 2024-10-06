@@ -12,18 +12,23 @@ const Home = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const { address, contract, getCampaigns } = useStateContext();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Set initial loading state to true
 
   const fetchCampaigns = async () => {
-    const data = await getCampaigns();
-    setData(data);
+    try {
+      setIsLoading(true); // Show loading spinner while fetching data
+      const data = await getCampaigns();
+      setData(data);
+    } catch (error) {
+      console.error('Failed to fetch campaigns:', error);
+    } finally {
+      setIsLoading(false); // Hide loading spinner once data is fetched
+    }
   };
 
   useEffect(() => {
     if (contract) {
-      setIsLoading(true);
       fetchCampaigns();
-      setIsLoading(false);
     }
   }, [address, contract]);
 
@@ -40,71 +45,77 @@ const Home = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
-      {/* Projek Populer Section */}
+      {/* Show the loading spinner */}
       <PageLoad loading={isLoading} />
-      <section className="mb-12">
-        <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {popularProjects.map((campaign) => (
-            <CardComponent
-              key={campaign.id}
-              id={campaign.id}
-              creator={campaign.owner}
-              title={campaign.title}
-              targetAmount={campaign.targetAmount}
-              amountCollected={campaign.amountCollected}
-              deadline={campaign.deadline}
-              imageUrl={campaign.imageUrl}
-            />
-          ))}
-        </div>
-        <button
-          className="mt-4 text-blue-500 hover:underline"
-          onClick={() => navigate('/campaign')}>
-          See More
-        </button>
-      </section>
 
-      {/* Projek Terbaru Section */}
-      <section className="mb-12">
-        <h2 className="mb-6 text-xl font-bold">Projek Terbaru</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {latestProjects.map((campaign) => (
-            <CardComponent
-              key={campaign.id}
-              id={campaign.id}
-              creator={campaign.owner}
-              title={campaign.title}
-              targetAmount={campaign.targetAmount}
-              amountCollected={campaign.amountCollected}
-              deadline={campaign.deadline}
-              imageUrl={campaign.imageUrl}
-            />
-          ))}
-        </div>
-        <button
-          className="mt-4 text-blue-500 hover:underline"
-          onClick={() => navigate('/campaign')}>
-          See More
-        </button>
-      </section>
+      {/* Projek Populer Section */}
+      {!isLoading && (
+        <>
+          <section className="mb-12">
+            <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {popularProjects.map((campaign) => (
+                <CardComponent
+                  key={campaign.id}
+                  id={campaign.id}
+                  creator={campaign.owner}
+                  title={campaign.title}
+                  targetAmount={campaign.targetAmount}
+                  amountCollected={campaign.amountCollected}
+                  deadline={campaign.deadline}
+                  imageUrl={campaign.imageUrl}
+                />
+              ))}
+            </div>
+            <button
+              className="mt-4 text-blue-500 hover:underline"
+              onClick={() => navigate('/campaign')}>
+              See More
+            </button>
+          </section>
 
-      {/* Tutorial dan Tips Section */}
-      <section>
-        <h2 className="mb-6 text-xl font-bold">Tutorial dan Tips</h2>
-        <div className="space-y-6">
-          {Array(2)
-            .fill('')
-            .map((_, index) => (
-              <div key={index} className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300">
-                <p className="text-sm text-gray-700">
-                  Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur,
-                  adipisci velit.
-                </p>
-              </div>
-            ))}
-        </div>
-      </section>
+          {/* Projek Terbaru Section */}
+          <section className="mb-12">
+            <h2 className="mb-6 text-xl font-bold">Projek Terbaru</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {latestProjects.map((campaign) => (
+                <CardComponent
+                  key={campaign.id}
+                  id={campaign.id}
+                  creator={campaign.owner}
+                  title={campaign.title}
+                  targetAmount={campaign.targetAmount}
+                  amountCollected={campaign.amountCollected}
+                  deadline={campaign.deadline}
+                  imageUrl={campaign.imageUrl}
+                />
+              ))}
+            </div>
+            <button
+              className="mt-4 text-blue-500 hover:underline"
+              onClick={() => navigate('/campaign')}>
+              See More
+            </button>
+          </section>
+
+          {/* Tutorial dan Tips Section */}
+          <section>
+            <h2 className="mb-6 text-xl font-bold">Tutorial dan Tips</h2>
+            <div className="space-y-6">
+              {Array(2)
+                .fill('')
+                .map((_, index) => (
+                  <div key={index} className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    <p className="text-sm text-gray-700">
+                      Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur,
+                      adipisci velit.
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 };

@@ -86,6 +86,7 @@ export const StateContextProvider = ({ children }) => {
           const owner = await getAccountUsername(campaign.owner);
           return {
             id: index + 1,
+            wallet: campaign.owner,
             owner,
             title: campaign.title,
             targetAmount: ethers.utils.formatEther(campaign.targetAmount),
