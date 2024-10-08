@@ -10,14 +10,16 @@ import goldBadge from '../assets/gold.png';
 import bronzeBadge from '../assets/bronze.png';
 import PageLoad from '../components/Loading.component';
 import { getUserDetails } from '../api/User/getUserDetails.api';
+import PopupComponent from '../components/PopUp.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
-  const { address, contract, getCampaignById } = useStateContext();
-  const [isLoading, setIsLoading] = useState(true); // Set initial loading state to true
+  const { address, contract, getCampaignById, donateToCampaign } = useStateContext();
+  const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [newProfilePict, setNewProfilePict] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -27,7 +29,6 @@ const CampaignDetail = () => {
     }
   });
 
-  // Calculate the funding percentage
   const fundingPercentage = Math.min((data.amountCollected / data.targetAmount) * 100, 100).toFixed(
     1
   );
@@ -50,6 +51,17 @@ const CampaignDetail = () => {
     }
   };
 
+  const handleDonation = async () => {
+    try {
+      const donationAmount = form.watch('minimal_eth');
+      await donateToCampaign(id, donationAmount);
+      setPopupVisible(true);
+      fetchCampaign();
+    } catch (error) {
+      alert('Error donating to campaign: ' + error.message);
+    }
+  };
+
   useEffect(() => {
     if (contract) {
       fetchCampaign();
@@ -68,25 +80,25 @@ const CampaignDetail = () => {
     }
   }, [wallet]);
 
+  const closePopup = () => {
+    setPopupVisible(false);
+  };
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading} />
-      {!isLoading && ( // Render only when loading is complete
+      <PopupComponent message="Donation Successful!" visible={popupVisible} onClose={closePopup} />
+      {!isLoading && (
         <div className="flex flex-col text-center pb-4">
-          {/* title Section */}
           <div className="Header font-bold text-xl pb-4">
             <h3>{data.title}</h3>
           </div>
           <div className="flex flex-row justify-around">
-            {/* left section */}
             <div className="flex flex-col gap-8 w-1/2">
-              {/* Gallery section */}
               <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
                 <div className="row-span-4 col-span-4 w-full">
                   <img src={data.imageUrl} alt="test" />
                 </div>
               </div>
-              {/* Badge Section */}
               <div className="flex flex-col gap-4">
                 {data.rewards
                   ?.slice()
@@ -95,15 +107,14 @@ const CampaignDetail = () => {
                     let badgeImage;
                     let badgeName;
 
-                    // Determine badge based on the reward tier
                     if (data.rewards.length - index === 3) {
-                      badgeImage = goldBadge; // Image path for Gold badge
+                      badgeImage = goldBadge;
                       badgeName = 'Gold';
                     } else if (data.rewards.length - index === 2) {
-                      badgeImage = silverBadge; // Image path for Silver badge
+                      badgeImage = silverBadge;
                       badgeName = 'Silver';
                     } else if (data.rewards.length - index === 1) {
-                      badgeImage = bronzeBadge; // Image path for Bronze badge
+                      badgeImage = bronzeBadge;
                       badgeName = 'Bronze';
                     }
 
@@ -123,11 +134,8 @@ const CampaignDetail = () => {
                     );
                   })}
               </div>
-              {/* Comment Section */}
               <div className="flex flex-col gap-2">
-                {/* Header */}
                 <h2 className="font-bold text-xl mb-4">Komentar</h2>
-                {/* Textbox Comment */}
                 <div className="flex flex-row border border-gray-300 rounded-lg shadow-lg p-2 items-center gap-4">
                   <img className="w-20" src="src/assets/ProfilePicture.png" alt="ProfilePicture" />
                   <textarea
@@ -143,7 +151,6 @@ const CampaignDetail = () => {
                 </div>
               </div>
             </div>
-            {/* Right section */}
             <div className="flex flex-col w-1/2 pl-10 gap-4 ">
               <div className="flex flex-row items-center">
                 <img src={newProfilePict} alt="ProfilePicture" className="w-20 h-20 mr-2" />
@@ -152,7 +159,6 @@ const CampaignDetail = () => {
               <p className="font-bold text-right">
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
-              {/* Progress Bar */}
               <div className="flex flex-row items-center gap-3">
                 <div className="w-full bg-gray-300 rounded-3xl h-3.5 ">
                   <div
@@ -172,12 +178,10 @@ const CampaignDetail = () => {
                   </h3>
                 </div>
               </div>
-              {/* Informasi Proyek */}
               <div>
-                <h3 className="font-bold">Informasi Proyek</h3>
+                <h3 className="font-bold mt-3">Informasi Proyek</h3>
                 <p className="text-balance text-left text-sm mt-0">{data.description}</p>
               </div>
-              {/* Share Button */}
               <CustomButton
                 className="w-40"
                 btnType="button"
@@ -187,11 +191,11 @@ const CampaignDetail = () => {
                 textColor="white"
                 borderColor="#2E6950"
               />
-              {/* Nominal Donasi */}
-              {/* Check if the user is not the owner before rendering the input and button */}
               {!form.watch('is_owner') && (
-                <>
-                  <div className="flex flex-col mb-2">
+                <form
+                  onSubmit={form.handleSubmit(handleDonation)}
+                  className="flex flex-col mb-2">
+                  <div className="mb-3">
                     <TextFieldDecimalComponent
                       name="minimal_eth"
                       label="Masukkan Nominal Donasi"
@@ -207,7 +211,7 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                     bgColor="#4CAF50"
                   />
-                </>
+                </form>
               )}
             </div>
           </div>
