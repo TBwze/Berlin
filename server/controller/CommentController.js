@@ -1,4 +1,6 @@
 import { Comment } from "../model/Comment.js";
+import { User } from "../model/User.js";
+import { getAccountByWallet } from "./UserController.js";
 
 export const createComment = async (request, response) => {
     try {
@@ -30,8 +32,23 @@ export const createComment = async (request, response) => {
 export const getComments = async (request, response) => {
     try {
         const { campaignId } = request.params;
-        const comments = await Comment.find({ campaignId });
-        return response.status(200).json(comments);
+
+        const comments = await Comment.find({ campaignId }).lean();
+
+        const commentsWithUserDetails = await Promise.all(
+            comments.map(async (comment) => {
+                const user = await User.findOne({
+                    wallet: comment.user,
+                }).lean();
+                return {
+                    ...comment,
+                    username: user ? user.username : "Unknown User",
+                    profilePicture: user ? user.profilePicture : "default.png",
+                };
+            })
+        );
+
+        return response.status(200).json(commentsWithUserDetails);
     } catch (error) {
         return response
             .status(500)

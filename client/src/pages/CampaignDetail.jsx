@@ -17,6 +17,7 @@ import { likeComment } from '../api/Comment/likeComment.api';
 import { postReply } from '../api/Comment/postReply.api';
 import { postComment } from '../api/Comment/postComment.api';
 import { deleteReply } from '../api/Comment/deleteReply.api';
+import TextFieldComponent from '../components/textfield.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
@@ -33,6 +34,7 @@ const CampaignDetail = () => {
     defaultValues: {
       minimal_eth: '',
       comment: '', // Updated field name to 'comment'
+      content: '',
       is_owner: false
     }
   });
@@ -41,6 +43,14 @@ const CampaignDetail = () => {
     1
   );
   const percentage = Number(fundingPercentage);
+  const [showReplies, setShowReplies] = useState({});
+
+  const toggleReplies = (commentId) => {
+    setShowReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
+  };
 
   const fetchCampaign = async () => {
     try {
@@ -166,16 +176,21 @@ const CampaignDetail = () => {
                     );
                   })}
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 mt-4">
                 <h2 className="font-bold text-xl mb-4">Komentar</h2>
                 <form
                   onSubmit={form.handleSubmit(handleCommentSubmit)}
-                  className="flex flex-row border border-gray-300 rounded-lg shadow-lg p-2 items-center gap-4 mb-4">
-                  <img className="w-20" src="src/assets/ProfilePicture.png" alt="ProfilePicture" />
-                  <textarea
-                    {...form.register('comment')} // Register textarea for form
-                    className="w-full border border-gray-300 rounded-lg shadow-lg p-2 text-sm"
-                    placeholder="Masukkan Komentar Anda"></textarea>
+                  className="flex flex-col gap-4">
+                  <TextFieldComponent
+                    name="content"
+                    label="Add a Comment"
+                    placeholder="Enter your comment here"
+                    control={form.control}
+                    type="textarea"
+                    rows={4}
+                    required={true}
+                    errorMessage={form.formState.errors.content?.message}
+                  />
                   <CustomButton
                     btnType="submit"
                     title="POST"
@@ -185,90 +200,24 @@ const CampaignDetail = () => {
                   />
                 </form>
 
-                {loadingComments ? (
-                  <p>Loading comments...</p>
-                ) : (
-                  comments.map((comment) => (
-                    <div key={comment._id} className="border border-gray-200 rounded-lg p-4 mb-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-bold">{comment.user}</h3>
-                        <p className="text-gray-500">
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                      <p className="mt-2">{comment.content}</p>
-                      <div className="flex gap-2 mt-2">
-                        <CustomButton
-                          btnType="button"
-                          title={`Like (${comment.likes.length})`}
-                          bgColor="#4169E1"
-                          styles="font-semibold rounded px-2 border-2"
-                          textColor="#ffffff"
-                          onClick={async () => {
-                            await likeComment(comment._id, 'userId'); // Replace "userId" with actual userId
-                            fetchCommentsData(); // Refresh comments after liking
-                          }}
+                {/* Display comments */}
+                <div className="flex flex-col gap-2 mt-4">
+                  {comments.map((comment, index) => (
+                    <div key={index} className="border border-gray-300 rounded-lg shadow-lg p-2">
+                      <div className="flex items-center gap-4">
+                        <img
+                          className="w-10 h-10 rounded-full"
+                          src={comment.profilePicture || 'src/assets/ProfilePicture.png'}
+                          alt="Profile"
                         />
-                        <CustomButton
-                          btnType="button"
-                          title="Delete"
-                          bgColor="#f44336"
-                          styles="font-semibold rounded px-2 border-2"
-                          textColor="#ffffff"
-                          onClick={async () => {
-                            await deleteComment(comment._id);
-                            fetchCommentsData(); // Refresh comments after deleting
-                          }}
-                        />
-                      </div>
-                      <div className="mt-4">
-                        <h4 className="font-semibold">Replies:</h4>
-                        {comment.replies.map((reply) => (
-                          <div
-                            key={reply._id}
-                            className="flex justify-between border border-gray-300 rounded-lg p-2 mb-2">
-                            <p>{reply.content}</p>
-                            <div className="flex gap-2">
-                              <CustomButton
-                                btnType="button"
-                                title="Delete Reply"
-                                bgColor="#f44336"
-                                styles="font-semibold rounded px-2 border-2"
-                                textColor="#ffffff"
-                                onClick={async () => {
-                                  await deleteReply(reply._id);
-                                  fetchCommentsData(); // Refresh comments after deleting
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                        <form
-                          onSubmit={async (e) => {
-                            e.preventDefault();
-                            const replyContent = e.target.reply.value; // Get reply content
-                            await postReply(comment._id, replyContent);
-                            fetchCommentsData(); // Refresh comments after posting reply
-                          }}
-                          className="flex gap-2 mt-2">
-                          <input
-                            name="reply"
-                            type="text"
-                            className="border border-gray-300 rounded-lg p-2 w-full"
-                            placeholder="Reply..."
-                          />
-                          <CustomButton
-                            btnType="submit"
-                            title="Reply"
-                            bgColor="#4CAF50"
-                            styles="font-semibold rounded px-2 border-2"
-                            textColor="#ffffff"
-                          />
-                        </form>
+                        <div className="flex-1">
+                          <h4 className="font-bold">{comment.username}</h4>
+                          <p className="text-sm">{comment.content}</p>
+                        </div>
                       </div>
                     </div>
-                  ))
-                )}
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex flex-col w-1/2 pl-10 gap-4 ">
