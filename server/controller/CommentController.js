@@ -1,54 +1,54 @@
-
-export const createComment = async (req, res) => {
+import { Comment } from "../model/Comment.js";
+export const createComment = async (request, response) => {
     try {
-        const { campaignId, user, content } = req.body;
+        const { campaignId, user, content } = request.body;
         const newComment = new Comment({ campaignId, user, content });
         await newComment.save();
-        return res.status(201).json(newComment);
+        return response.status(201).json(newComment);
     } catch (error) {
-        return res.status(500).json({ message: "Error creating comment" });
+        return response.status(500).json({ message: "Error creating comment" });
     }
 };
 
 // Get all comments for a campaign
-export const getComments = async (req, res) => {
+export const getComments = async (request, response) => {
     try {
-        const { campaignId } = req.params;
+        const { campaignId } = request.params;
         const comments = await Comment.find({ campaignId });
-        return res.status(200).json(comments);
+        return response.status(200).json(comments);
     } catch (error) {
-        return res.status(500).json({ message: "Error fetching comments" });
+        return response.status(500).json({ message: "Error fetching comments" });
     }
 };
 
 // Add a reply to a comment
-export const addReply = async (req, res) => {
+export const addReply = async (request, response) => {
     try {
-        const { commentId } = req.params;
-        const { user, content } = req.body;
+        const { commentId } = request.params;
+        const { user, content } = request.body;
         const comment = await Comment.findById(commentId);
 
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return response.status(404).json({ message: "Comment not found" });
         }
 
         comment.replies.push({ user, content });
         await comment.save();
-        return res.status(201).json(comment);
+        return response.status(201).json(comment);
     } catch (error) {
-        return res.status(500).json({ message: "Error adding reply" });
+        return response.status(500).json({ message: "Error adding reply" });
     }
 };
 
 // Like a comment
-export const likeComment = async (req, res) => {
+export const likeComment = async (request, response) => {
     try {
-        const { commentId } = req.params;
-        const { userId } = req.body; // User ID or username
+        const { commentId } = request.params;
+        const { userId } = request.body; // User ID or username
 
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return response.status(404).json({ message: "Comment not found" });
         }
 
         if (!comment.likes.includes(userId)) {
@@ -56,26 +56,26 @@ export const likeComment = async (req, res) => {
             await comment.save();
         }
 
-        return res.status(200).json(comment);
+        return response.status(200).json(comment);
     } catch (error) {
-        return res.status(500).json({ message: "Error liking comment" });
+        return response.status(500).json({ message: "Error liking comment" });
     }
 };
 
 // Like a reply
-export const likeReply = async (req, res) => {
+export const likeReply = async (request, response) => {
     try {
-        const { commentId, replyId } = req.params;
-        const { userId } = req.body;
+        const { commentId, replyId } = request.params;
+        const { userId } = request.body;
 
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return response.status(404).json({ message: "Comment not found" });
         }
 
         const reply = comment.replies.id(replyId);
         if (!reply) {
-            return res.status(404).json({ message: "Reply not found" });
+            return response.status(404).json({ message: "Reply not found" });
         }
 
         if (!reply.likes.includes(userId)) {
@@ -83,41 +83,41 @@ export const likeReply = async (req, res) => {
             await comment.save();
         }
 
-        return res.status(200).json(comment);
+        return response.status(200).json(comment);
     } catch (error) {
-        return res.status(500).json({ message: "Error liking reply" });
+        return response.status(500).json({ message: "Error liking reply" });
     }
 };
 
 // Delete a comment
-export const deleteComment = async (req, res) => {
+export const deleteComment = async (request, response) => {
     try {
-        const { commentId } = req.params;
+        const { commentId } = request.params;
         await Comment.findByIdAndDelete(commentId);
-        return res
+        return response
             .status(200)
             .json({ message: "Comment deleted successfully" });
     } catch (error) {
-        return res.status(500).json({ message: "Error deleting comment" });
+        return response.status(500).json({ message: "Error deleting comment" });
     }
 };
 
 // Delete a reply
-export const deleteReply = async (req, res) => {
+export const deleteReply = async (request, response) => {
     try {
-        const { commentId, replyId } = req.params;
+        const { commentId, replyId } = request.params;
         const comment = await Comment.findById(commentId);
 
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return response.status(404).json({ message: "Comment not found" });
         }
 
         comment.replies = comment.replies.filter(
             (reply) => !reply._id.equals(replyId)
         );
         await comment.save();
-        return res.status(200).json(comment);
+        return response.status(200).json(comment);
     } catch (error) {
-        return res.status(500).json({ message: "Error deleting reply" });
+        return response.status(500).json({ message: "Error deleting reply" });
     }
 };
