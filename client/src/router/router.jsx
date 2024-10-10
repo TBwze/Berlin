@@ -29,7 +29,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'campaign/:id',
-        element: <ProtectedRoute element={<CampaignDetail />} />
+        element: <CampaignDetail />
       },
       {
         path: 'login',

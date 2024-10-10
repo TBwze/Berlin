@@ -1,12 +1,28 @@
 import { Comment } from "../model/Comment.js";
+
 export const createComment = async (request, response) => {
     try {
         const { campaignId, user, content } = request.body;
-        const newComment = new Comment({ campaignId, user, content });
-        await newComment.save();
-        return response.status(201).json(newComment);
+
+        if (!campaignId || !user || !content) {
+            return response.status(400).send({
+                message: "Send all required fields!",
+            });
+        }
+
+        const newComment = {
+            campaignId,
+            user,
+            content,
+        };
+
+        const comment = await Comment.create(newComment);
+
+        return response.status(201).send(comment);
     } catch (error) {
-        return response.status(500).json({ message: "Error creating comment" });
+        return response.status(500).send({
+            message: error.message,
+        });
     }
 };
 
@@ -17,7 +33,9 @@ export const getComments = async (request, response) => {
         const comments = await Comment.find({ campaignId });
         return response.status(200).json(comments);
     } catch (error) {
-        return response.status(500).json({ message: "Error fetching comments" });
+        return response
+            .status(500)
+            .json({ message: "Error fetching comments" });
     }
 };
 
@@ -44,11 +62,14 @@ export const addReply = async (request, response) => {
 export const likeComment = async (request, response) => {
     try {
         const { commentId } = request.params;
-        const { userId } = request.body; // User ID or username
+        const { userId } = request.body;
 
         const comment = await Comment.findById(commentId);
         if (!comment) {
             return response.status(404).json({ message: "Comment not found" });
+        }
+        if (!userId) {
+            return response.status(404).json({ message: "User not found" });
         }
 
         if (!comment.likes.includes(userId)) {

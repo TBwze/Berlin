@@ -1,8 +1,8 @@
-import { getApiInstance } from "../../utils/api.utils";
+import { getApiInstance, USER_URL } from '../../utils/api.utils';
 
 export async function deleteUser(userId) {
   return getApiInstance()
-    .delete(`/user/${userId}`)
+    .delete(`${USER_URL}/${userId}`)
     .then((response) => {
       return response.data;
     })

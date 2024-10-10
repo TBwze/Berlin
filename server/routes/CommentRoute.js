@@ -1,19 +1,27 @@
-// routes/commentRoutes.js
-const express = require('express');
+import express from "express";
+import {
+    addReply,
+    createComment,
+    deleteComment,
+    deleteReply,
+    getComments,
+    likeComment,
+    likeReply,
+} from "../controller/CommentController.js";
+
 const router = express.Router();
-const commentController = require('../controllers/commentController');
 
 // Routes for managing comments
-router.post('/comments', commentController.createComment);
-router.get('/comments/:campaignId', commentController.getComments);
-router.delete('/comments/:commentId', commentController.deleteComment);
+router.post("/", createComment);
+router.get("/:campaignId", getComments);
+router.delete("/:commentId", deleteComment);
 
 // Routes for managing replies
-router.post('/comments/:commentId/replies', commentController.addReply);
-router.delete('/comments/:commentId/replies/:replyId', commentController.deleteReply);
+router.post("/:commentId/replies", addReply);
+router.delete("/:commentId/replies/:replyId", deleteReply);
 
 // Routes for liking comments and replies
-router.post('/comments/:commentId/like', commentController.likeComment);
-router.post('/comments/:commentId/replies/:replyId/like', commentController.likeReply);
+router.post("/:commentId/like", likeComment);
+router.post("/:commentId/replies/:replyId/like", likeReply);
 
-module.exports = router;
+export default router;
