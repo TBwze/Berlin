@@ -1,10 +1,6 @@
 import { User } from "../model/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { deleteImage, uploadImage } from "../utils/Cloudinary.js";
 
 export const create = async (request, response) => {
