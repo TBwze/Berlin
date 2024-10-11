@@ -2,6 +2,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 export const API_BASE_URL = 'http://localhost:5000';
+export const USER_URL = '/user'
+export const COMMENT_URL = '/comment'
 
 export function getApiInstance() {
   const instance = axios.create({

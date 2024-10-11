@@ -50,14 +50,7 @@ export const StateContextProvider = ({ children }) => {
       }));
 
       const data = await createCampaignWrite({
-        args: [
-          title,
-          description,
-          targetInWei,
-          deadlineTimestamp,
-          image,
-          formattedRewards // Pass array of rewards into contract
-        ],
+        args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards],
         signer: signer
       });
 
@@ -129,6 +122,30 @@ export const StateContextProvider = ({ children }) => {
       throw new Error('Error fetching campaign by ID');
     }
   };
+
+  const donateToCampaign = async (campaignId, amount) => {
+    try {
+      if (!signer || !address) {
+        console.log('Wallet not connected, connecting now...');
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error('Wallet not connected. Please try connecting again.');
+      }
+
+      const transaction = await contract.call('donateToCampaign', campaignId, {
+        value: amount,
+        signer: signer
+      });
+
+      console.log('Donation successful!', transaction);
+    } catch (error) {
+      console.error('Donation failed!', error);
+      throw new Error('Failed to donate to campaign');
+    }
+  };
+
   return (
     <stateContext.Provider
       value={{
@@ -137,7 +154,8 @@ export const StateContextProvider = ({ children }) => {
         connect,
         createCampaign: publishCampaign,
         getCampaigns,
-        getCampaignById
+        getCampaignById,
+        donateToCampaign
       }}>
       {children}
     </stateContext.Provider>

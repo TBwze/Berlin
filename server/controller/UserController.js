@@ -1,10 +1,6 @@
 import { User } from "../model/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { deleteImage, uploadImage } from "../utils/Cloudinary.js";
 
 export const create = async (request, response) => {
@@ -108,7 +104,7 @@ export const getAccountInfo = async (request, response) => {
 
 export const getAllUsers = async (request, response) => {
     try {
-        const users = await User.find({ role: "user" });
+        const users = await User.find({ role: "User" });
         return response.status(200).json(users);
     } catch (error) {
         return response.status(500).json({ message: "Error fetching users" });

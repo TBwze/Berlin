@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import CustomButton from '../components/CustomButton.component';
-import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
+import TextFieldComponent from '../components/Textfield.component';
 import { getAccountByWallet } from '../api/User/getUserByWallet.api';
 import { useParams } from 'react-router-dom';
 import { useStateContext } from '../context';
@@ -10,24 +10,34 @@ import goldBadge from '../assets/gold.png';
 import bronzeBadge from '../assets/bronze.png';
 import PageLoad from '../components/Loading.component';
 import { getUserDetails } from '../api/User/getUserDetails.api';
+import PopupComponent from '../components/PopUp.component';
+import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
+import { getAllComments } from '../api/Comment/getAllComment.api';
+import CommentSection from '../components/Comment.component';
+import { UserWallet } from '@thirdweb-dev/react';
+import { postComment } from '../api/Comment/postComment.api';
 
 const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
-  const { address, contract, getCampaignById } = useStateContext();
-  const [isLoading, setIsLoading] = useState(true); // Set initial loading state to true
+  const [comments, setComments] = useState([]);
+  const { address, contract, getCampaignById, donateToCampaign } = useStateContext();
+  const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [newProfilePict, setNewProfilePict] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(true);
 
   const form = useForm({
     defaultValues: {
       minimal_eth: '',
-      Komentar: '',
-      is_owner: false
+      content: '',
+      is_owner: false,
+      comments: ''
     }
   });
 
-  // Calculate the funding percentage
   const fundingPercentage = Math.min((data.amountCollected / data.targetAmount) * 100, 100).toFixed(
     1
   );
@@ -40,6 +50,7 @@ const CampaignDetail = () => {
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
+      setUserId(userDetails.wallet);
       if (userDetails.wallet === campaignData.owner) {
         form.setValue('is_owner', true);
       }
@@ -50,9 +61,45 @@ const CampaignDetail = () => {
     }
   };
 
+  const fetchCommentsData = async () => {
+    setLoadingComments(true);
+    try {
+      const fetchedComments = await getAllComments(id);
+      setComments(fetchedComments);
+    } catch (error) {
+      alert('Error fetching comments:', error.message);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    try {
+      setLoadingComments(true);
+      await postComment(id, wallet, form.watch('content'));
+      fetchCommentsData();
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleDonation = async () => {
+    try {
+      const donationAmount = form.watch('minimal_eth');
+      await donateToCampaign(id, donationAmount);
+      setPopupVisible(true);
+      fetchCampaign();
+    } catch (error) {
+      alert('Error donating to campaign: ' + error.message);
+    }
+  };
+
   useEffect(() => {
     if (contract) {
       fetchCampaign();
+      fetchCommentsData();
     }
   }, [address, contract, id]);
 
@@ -68,25 +115,26 @@ const CampaignDetail = () => {
     }
   }, [wallet]);
 
+  const closePopup = () => {
+    setPopupVisible(false);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
-      <PageLoad loading={isLoading} />
-      {!isLoading && ( // Render only when loading is complete
+      <PageLoad loading={isLoading || loadingComments} />
+      <PopupComponent message="Donation Successful!" visible={popupVisible} onClose={closePopup} />
+      {!isLoading && (
         <div className="flex flex-col text-center pb-4">
-          {/* title Section */}
           <div className="Header font-bold text-xl pb-4">
             <h3>{data.title}</h3>
           </div>
           <div className="flex flex-row justify-around">
-            {/* left section */}
             <div className="flex flex-col gap-8 w-1/2">
-              {/* Gallery section */}
               <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
                 <div className="row-span-4 col-span-4 w-full">
-                  <img src={data.imageUrl} alt="test" />
+                  <img src={data.imageUrl} alt="Campaign" />
                 </div>
               </div>
-              {/* Badge Section */}
               <div className="flex flex-col gap-4">
                 {data.rewards
                   ?.slice()
@@ -95,15 +143,14 @@ const CampaignDetail = () => {
                     let badgeImage;
                     let badgeName;
 
-                    // Determine badge based on the reward tier
                     if (data.rewards.length - index === 3) {
-                      badgeImage = goldBadge; // Image path for Gold badge
+                      badgeImage = goldBadge;
                       badgeName = 'Gold';
                     } else if (data.rewards.length - index === 2) {
-                      badgeImage = silverBadge; // Image path for Silver badge
+                      badgeImage = silverBadge;
                       badgeName = 'Silver';
                     } else if (data.rewards.length - index === 1) {
-                      badgeImage = bronzeBadge; // Image path for Bronze badge
+                      badgeImage = bronzeBadge;
                       badgeName = 'Bronze';
                     }
 
@@ -123,27 +170,48 @@ const CampaignDetail = () => {
                     );
                   })}
               </div>
-              {/* Comment Section */}
-              <div className="flex flex-col gap-2">
-                {/* Header */}
-                <h2 className="font-bold text-xl mb-4">Komentar</h2>
-                {/* Textbox Comment */}
-                <div className="flex flex-row border border-gray-300 rounded-lg shadow-lg p-2 items-center gap-4">
-                  <img className="w-20" src="src/assets/ProfilePicture.png" alt="ProfilePicture" />
-                  <textarea
-                    className="w-full border border-gray-300 rounded-lg shadow-lg p-2 text-sm"
-                    placeholder="Masukkan Komentar Anda"></textarea>
+              <div className="flex flex-col gap-2 mt-3">
+                <h2 className="font-bold text-xl">Komentar</h2>
+                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4">
+                  <TextFieldComponent
+                    name="content"
+                    label=""
+                    placeholder="Enter your comment here"
+                    control={form.control}
+                    type="textarea"
+                    rows={4}
+                    required={true}
+                    errorMessage={form.formState.errors.content?.message}
+                  />
                   <CustomButton
-                    btnType="button"
-                    title="POST"
+                    btnType="submit"
+                    title="add Comment"
                     bgColor="#4CAF50"
                     styles="font-semibold rounded px-4 border-2"
                     textColor="#ffffff"
                   />
+                </form>
+
+                {/* Render comments with nested replies */}
+                <div className="flex flex-col gap-2 mt-4">
+                  <div>
+                    {loadingComments ? (
+                      <p>Loading comments...</p>
+                    ) : (
+                      comments.map((comment) => (
+                        <CommentSection
+                          key={comment._id}
+                          comment={comment}
+                          userId={userId}
+                          campaignId={id}
+                          refreshComments={fetchCommentsData}
+                        />
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-            {/* Right section */}
             <div className="flex flex-col w-1/2 pl-10 gap-4 ">
               <div className="flex flex-row items-center">
                 <img src={newProfilePict} alt="ProfilePicture" className="w-20 h-20 mr-2" />
@@ -152,7 +220,6 @@ const CampaignDetail = () => {
               <p className="font-bold text-right">
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
-              {/* Progress Bar */}
               <div className="flex flex-row items-center gap-3">
                 <div className="w-full bg-gray-300 rounded-3xl h-3.5 ">
                   <div
@@ -172,12 +239,10 @@ const CampaignDetail = () => {
                   </h3>
                 </div>
               </div>
-              {/* Informasi Proyek */}
               <div>
-                <h3 className="font-bold">Informasi Proyek</h3>
+                <h3 className="font-bold mt-3">Informasi Proyek</h3>
                 <p className="text-balance text-left text-sm mt-0">{data.description}</p>
               </div>
-              {/* Share Button */}
               <CustomButton
                 className="w-40"
                 btnType="button"
@@ -187,11 +252,9 @@ const CampaignDetail = () => {
                 textColor="white"
                 borderColor="#2E6950"
               />
-              {/* Nominal Donasi */}
-              {/* Check if the user is not the owner before rendering the input and button */}
               {!form.watch('is_owner') && (
-                <>
-                  <div className="flex flex-col mb-2">
+                <form onSubmit={form.handleSubmit(handleDonation)} className="flex flex-col mb-2">
+                  <div className="mb-3">
                     <TextFieldDecimalComponent
                       name="minimal_eth"
                       label="Masukkan Nominal Donasi"
@@ -207,7 +270,7 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                     bgColor="#4CAF50"
                   />
-                </>
+                </form>
               )}
             </div>
           </div>
