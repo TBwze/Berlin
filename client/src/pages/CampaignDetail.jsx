@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import CustomButton from '../components/CustomButton.component';
-import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
+import TextFieldComponent from '../components/Textfield.component';
 import { getAccountByWallet } from '../api/User/getUserByWallet.api';
 import { useParams } from 'react-router-dom';
 import { useStateContext } from '../context';
@@ -11,31 +11,30 @@ import bronzeBadge from '../assets/bronze.png';
 import PageLoad from '../components/Loading.component';
 import { getUserDetails } from '../api/User/getUserDetails.api';
 import PopupComponent from '../components/PopUp.component';
-import { getAllComment } from '../api/Comment/getAllComment.api';
-import { deleteComment } from '../api/Comment/deleteComment.api';
-import { likeComment } from '../api/Comment/likeComment.api';
-import { postReply } from '../api/Comment/postReply.api';
+import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
+import { getAllComments } from '../api/Comment/getAllComment.api';
+import CommentSection from '../components/Comment.component';
+import { UserWallet } from '@thirdweb-dev/react';
 import { postComment } from '../api/Comment/postComment.api';
-import { deleteReply } from '../api/Comment/deleteReply.api';
-import TextFieldComponent from '../components/textfield.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
-  const [comments, setComments] = useState([]); // State for comments
+  const [comments, setComments] = useState([]);
   const { address, contract, getCampaignById, donateToCampaign } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [newProfilePict, setNewProfilePict] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [loadingComments, setLoadingComments] = useState(true); // State for loading comments
+  const [loadingComments, setLoadingComments] = useState(true);
 
   const form = useForm({
     defaultValues: {
       minimal_eth: '',
-      comment: '', // Updated field name to 'comment'
       content: '',
-      is_owner: false
+      is_owner: false,
+      comments: ''
     }
   });
 
@@ -43,14 +42,6 @@ const CampaignDetail = () => {
     1
   );
   const percentage = Number(fundingPercentage);
-  const [showReplies, setShowReplies] = useState({});
-
-  const toggleReplies = (commentId) => {
-    setShowReplies((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId]
-    }));
-  };
 
   const fetchCampaign = async () => {
     try {
@@ -59,6 +50,7 @@ const CampaignDetail = () => {
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
+      setUserId(userDetails.wallet);
       if (userDetails.wallet === campaignData.owner) {
         form.setValue('is_owner', true);
       }
@@ -70,24 +62,26 @@ const CampaignDetail = () => {
   };
 
   const fetchCommentsData = async () => {
-    setLoadingComments(true); // Start loading comments
+    setLoadingComments(true);
     try {
-      const fetchedComments = await getAllComment(id); // Fetch comments for the campaign
+      const fetchedComments = await getAllComments(id);
       setComments(fetchedComments);
     } catch (error) {
       alert('Error fetching comments:', error.message);
     } finally {
-      setLoadingComments(false); // Stop loading comments
+      setLoadingComments(false);
     }
   };
 
-  const handleCommentSubmit = async (data) => {
+  const handleCommentSubmit = async () => {
     try {
-      await postComment(id, data.user, data.comment);
-      form.reset(); // Reset the form
-      await fetchCommentsData(); // Refresh comments after posting
+      setLoadingComments(true);
+      await postComment(id, wallet, form.watch('content'));
+      fetchCommentsData();
     } catch (error) {
-      alert('Error creating comment: ' + error.message);
+      alert(error);
+    } finally {
+      setLoadingComments(false);
     }
   };
 
@@ -105,7 +99,7 @@ const CampaignDetail = () => {
   useEffect(() => {
     if (contract) {
       fetchCampaign();
-      fetchCommentsData(); // Fetch comments when the campaign is fetched
+      fetchCommentsData();
     }
   }, [address, contract, id]);
 
@@ -176,14 +170,12 @@ const CampaignDetail = () => {
                     );
                   })}
               </div>
-              <div className="flex flex-col gap-2 mt-4">
-                <h2 className="font-bold text-xl mb-4">Komentar</h2>
-                <form
-                  onSubmit={form.handleSubmit(handleCommentSubmit)}
-                  className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2 mt-3">
+                <h2 className="font-bold text-xl">Komentar</h2>
+                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4">
                   <TextFieldComponent
                     name="content"
-                    label="Add a Comment"
+                    label=""
                     placeholder="Enter your comment here"
                     control={form.control}
                     type="textarea"
@@ -193,30 +185,30 @@ const CampaignDetail = () => {
                   />
                   <CustomButton
                     btnType="submit"
-                    title="POST"
+                    title="add Comment"
                     bgColor="#4CAF50"
                     styles="font-semibold rounded px-4 border-2"
                     textColor="#ffffff"
                   />
                 </form>
 
-                {/* Display comments */}
+                {/* Render comments with nested replies */}
                 <div className="flex flex-col gap-2 mt-4">
-                  {comments.map((comment, index) => (
-                    <div key={index} className="border border-gray-300 rounded-lg shadow-lg p-2">
-                      <div className="flex items-center gap-4">
-                        <img
-                          className="w-10 h-10 rounded-full"
-                          src={comment.profilePicture || 'src/assets/ProfilePicture.png'}
-                          alt="Profile"
+                  <div>
+                    {loadingComments ? (
+                      <p>Loading comments...</p>
+                    ) : (
+                      comments.map((comment) => (
+                        <CommentSection
+                          key={comment._id}
+                          comment={comment}
+                          userId={userId}
+                          campaignId={id}
+                          refreshComments={fetchCommentsData}
                         />
-                        <div className="flex-1">
-                          <h4 className="font-bold">{comment.username}</h4>
-                          <p className="text-sm">{comment.content}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

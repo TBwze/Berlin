@@ -5,6 +5,7 @@ export const deleteComment = async (commentId) => {
     const response = await getApiInstance().delete(`${COMMENT_URL}/${commentId}`);
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    console.error('Error deleting comment:', error);
+    throw error;
   }
 };

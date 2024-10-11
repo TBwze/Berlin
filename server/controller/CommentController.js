@@ -1,161 +1,156 @@
 import { Comment } from "../model/Comment.js";
 import { User } from "../model/User.js";
-import { getAccountByWallet } from "./UserController.js";
 
-export const createComment = async (request, response) => {
+export const postComment = async (req, res) => {
     try {
-        const { campaignId, user, content } = request.body;
+        const { campaignId, user, content, parentId } = req.body;
 
-        if (!campaignId || !user || !content) {
-            return response.status(400).send({
-                message: "Send all required fields!",
-            });
-        }
-
-        const newComment = {
+        const newComment = new Comment({
             campaignId,
             user,
             content,
-        };
-
-        const comment = await Comment.create(newComment);
-
-        return response.status(201).send(comment);
-    } catch (error) {
-        return response.status(500).send({
-            message: error.message,
+            parentId: parentId || null,
         });
+
+        await newComment.save();
+        res.status(201).json(newComment);
+    } catch (error) {
+        res.status(500).json({ message: "Error posting comment" });
     }
 };
 
 // Get all comments for a campaign
-export const getComments = async (request, response) => {
+const buildNestedComments = (comments, parentId = null) => {
+    const nestedComments = [];
+
+    // Filter comments based on parentId
+    const filteredComments = comments.filter((comment) => {
+        return parentId === null
+            ? !comment.parentId
+            : comment.parentId?.toString() === parentId.toString();
+    });
+
+    // For each comment, recursively build its nested replies
+    for (const comment of filteredComments) {
+        nestedComments.push({
+            ...comment.toObject(),
+            replies: buildNestedComments(comments, comment._id),
+        });
+    }
+
+    return nestedComments;
+};
+
+export const getComments = async (req, res) => {
     try {
-        const { campaignId } = request.params;
+        const { campaignId } = req.params;
 
-        const comments = await Comment.find({ campaignId }).lean();
+        // Fetch comments for the specified campaign
+        const comments = await Comment.find({ campaignId });
 
+        // Function to get user details and include them in comments and replies
+        const attachUserDetails = async (comment) => {
+            const user = await User.findOne({ wallet: comment.user });
+            const userDetails = user
+                ? {
+                      profilePicture: user.profilePicture,
+                      username: user.username,
+                  }
+                : { profilePicture: null, username: null };
+
+            const repliesWithUserDetails = await Promise.all(
+                comment.replies.map(attachUserDetails)
+            );
+
+            return {
+                ...comment,
+                ...userDetails,
+                replies: repliesWithUserDetails,
+            };
+        };
+
+        const nestedComments = buildNestedComments(comments);
         const commentsWithUserDetails = await Promise.all(
-            comments.map(async (comment) => {
-                const user = await User.findOne({
-                    wallet: comment.user,
-                }).lean();
-                return {
-                    ...comment,
-                    username: user ? user.username : "Unknown User",
-                    profilePicture: user ? user.profilePicture : "default.png",
-                };
-            })
+            nestedComments.map(attachUserDetails)
         );
 
-        return response.status(200).json(commentsWithUserDetails);
+        return res.status(200).json(commentsWithUserDetails);
     } catch (error) {
-        return response
-            .status(500)
-            .json({ message: "Error fetching comments" });
+        console.error(error);
+        return res.status(500).json({ message: "Error fetching comments" });
     }
 };
 
-// Add a reply to a comment
-export const addReply = async (request, response) => {
+export const likeComment = async (req, res) => {
     try {
-        const { commentId } = request.params;
-        const { user, content } = request.body;
-        const comment = await Comment.findById(commentId);
+        const { commentId } = req.params;
+        const { userId } = req.body; // Expecting a userId (wallet address or username) in the request body
 
-        if (!comment) {
-            return response.status(404).json({ message: "Comment not found" });
-        }
-
-        comment.replies.push({ user, content });
-        await comment.save();
-        return response.status(201).json(comment);
-    } catch (error) {
-        return response.status(500).json({ message: "Error adding reply" });
-    }
-};
-
-// Like a comment
-export const likeComment = async (request, response) => {
-    try {
-        const { commentId } = request.params;
-        const { userId } = request.body;
-
+        // Find the comment by its ID
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return response.status(404).json({ message: "Comment not found" });
-        }
-        if (!userId) {
-            return response.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "Comment not found" });
         }
 
+        // Check if the user has already liked the comment
         if (!comment.likes.includes(userId)) {
             comment.likes.push(userId);
             await comment.save();
         }
 
-        return response.status(200).json(comment);
+        return res.status(200).json(comment);
     } catch (error) {
-        return response.status(500).json({ message: "Error liking comment" });
+        return res.status(500).json({ message: "Error liking the comment" });
     }
 };
-
-// Like a reply
-export const likeReply = async (request, response) => {
+export const unlikeComment = async (req, res) => {
     try {
-        const { commentId, replyId } = request.params;
-        const { userId } = request.body;
+        const { commentId } = req.params;
+        const { userId } = req.body;
 
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return response.status(404).json({ message: "Comment not found" });
+            return res.status(404).json({ message: "Comment not found" });
         }
 
-        const reply = comment.replies.id(replyId);
-        if (!reply) {
-            return response.status(404).json({ message: "Reply not found" });
+        const index = comment.likes.indexOf(userId);
+        if (index === -1) {
+            return res
+                .status(400)
+                .json({ message: "User has not liked this comment" });
         }
 
-        if (!reply.likes.includes(userId)) {
-            reply.likes.push(userId);
-            await comment.save();
-        }
-
-        return response.status(200).json(comment);
-    } catch (error) {
-        return response.status(500).json({ message: "Error liking reply" });
-    }
-};
-
-// Delete a comment
-export const deleteComment = async (request, response) => {
-    try {
-        const { commentId } = request.params;
-        await Comment.findByIdAndDelete(commentId);
-        return response
-            .status(200)
-            .json({ message: "Comment deleted successfully" });
-    } catch (error) {
-        return response.status(500).json({ message: "Error deleting comment" });
-    }
-};
-
-// Delete a reply
-export const deleteReply = async (request, response) => {
-    try {
-        const { commentId, replyId } = request.params;
-        const comment = await Comment.findById(commentId);
-
-        if (!comment) {
-            return response.status(404).json({ message: "Comment not found" });
-        }
-
-        comment.replies = comment.replies.filter(
-            (reply) => !reply._id.equals(replyId)
-        );
+        comment.likes.splice(index, 1);
         await comment.save();
-        return response.status(200).json(comment);
+        return res.status(200).json({
+            message: "Comment unliked successfully",
+            likes: comment.likes,
+        });
     } catch (error) {
-        return response.status(500).json({ message: "Error deleting reply" });
+        console.error(error);
+        return res.status(500).json({ message: "Error unliking comment" });
+    }
+};
+
+export const deleteComment = async (req, res) => {
+    try {
+        const { commentId } = req.params;
+
+        // Find the comment by its ID
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({ message: "Comment not found" });
+        }
+
+        // Delete the comment and all its nested replies using a single query
+        await Comment.deleteMany({
+            $or: [{ _id: commentId }, { parentId: commentId }],
+        });
+
+        return res
+            .status(200)
+            .json({ message: "Comment and its replies deleted successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: "Error deleting the comment" });
     }
 };
