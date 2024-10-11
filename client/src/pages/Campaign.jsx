@@ -10,10 +10,14 @@ const Campaign = () => {
   const [myCampaigns, setMyCampaigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const campaignsPerPage = 4; // Change this value for different number of campaigns per page
 
   const fetchData = async () => {
-    setIsLoading(true); // Start loading before fetching data
+    setIsLoading(true);
     try {
       const userDetails = await getUserDetails();
       setWallet(userDetails.wallet);
@@ -31,7 +35,7 @@ const Campaign = () => {
     } catch (error) {
       alert('Failed to fetch data:', error);
     } finally {
-      setIsLoading(false); // Stop loading after fetching data
+      setIsLoading(false);
     }
   };
 
@@ -39,15 +43,30 @@ const Campaign = () => {
     fetchData();
   }, [getCampaigns, contract, address]);
 
-  // Handle search input changes
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
+    setCurrentPage(1); // Reset to first page on new search
   };
 
-  // Filtered campaigns based on the search query
+  // Filter campaigns based on the search query
   const filteredCampaigns = campaigns.filter((campaign) =>
     campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredCampaigns.length / campaignsPerPage);
+  const indexOfLastCampaign = currentPage * campaignsPerPage;
+  const indexOfFirstCampaign = indexOfLastCampaign - campaignsPerPage;
+  const currentCampaigns = filteredCampaigns.slice(indexOfFirstCampaign, indexOfLastCampaign);
+
+  // Handle page navigation
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
@@ -59,7 +78,7 @@ const Campaign = () => {
           type="text"
           placeholder="Cari Projek"
           className="flex-1 p-2 border border-gray-300 rounded-l-full outline-none"
-          onChange={handleSearch} // Handle input changes
+          onChange={handleSearch}
         />
         <button className="bg-gray-300 p-2 rounded-r-full hover:bg-gray-400">
           <svg
@@ -106,7 +125,7 @@ const Campaign = () => {
           <span className="text-blue-500 cursor-pointer">{filteredCampaigns.length} Projek</span>
         </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-          {filteredCampaigns.map((campaign) => (
+          {currentCampaigns.map((campaign) => (
             <CardComponent
               key={campaign.id}
               id={campaign.id}
@@ -118,6 +137,25 @@ const Campaign = () => {
               imageUrl={campaign.imageUrl}
             />
           ))}
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            className="bg-gray-300 p-2 rounded hover:bg-gray-400">
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={nextPage}
+            disabled={currentPage === totalPages}
+            className="bg-gray-300 p-2 rounded hover:bg-gray-400">
+            Next
+          </button>
         </div>
       </section>
     </div>
