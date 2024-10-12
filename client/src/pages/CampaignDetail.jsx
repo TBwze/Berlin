@@ -14,7 +14,6 @@ import PopupComponent from '../components/PopUp.component';
 import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
 import { getAllComments } from '../api/Comment/getAllComment.api';
 import CommentSection from '../components/Comment.component';
-import { UserWallet } from '@thirdweb-dev/react';
 import { postComment } from '../api/Comment/postComment.api';
 import CheckDonationAndReward from '../components/CheckDonationAndReward.component';
 
@@ -29,13 +28,14 @@ const CampaignDetail = () => {
   const [newProfilePict, setNewProfilePict] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [username, setUsername] = useState(null);
+  const [userPicture, setUserPicture] = useState(null);
 
   const form = useForm({
     defaultValues: {
       minimal_eth: '',
       content: '',
-      is_owner: false,
-      comments: ''
+      is_owner: false
     }
   });
 
@@ -52,6 +52,8 @@ const CampaignDetail = () => {
 
       const userDetails = await getUserDetails();
       setUserId(userDetails.wallet);
+      setUsername(userDetails.username);
+      setUserPicture(userDetails.profilePicture);
       if (userDetails.wallet === campaignData.owner) {
         form.setValue('is_owner', true);
       }
@@ -195,9 +197,6 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                   />
                 </form>
-                <div>
-                  <CheckDonationAndReward campaignId={ id }/>
-                </div>
                 {/* Render comments with nested replies */}
                 <div className="flex flex-col gap-2 mt-4">
                   <div>
@@ -227,9 +226,9 @@ const CampaignDetail = () => {
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
               <div className="flex flex-row items-center gap-3">
-                <div className="w-full bg-gray-300 rounded-3xl h-3.5 ">
+                <div className="w-full bg-gray-300 h-3.5 ">
                   <div
-                    className="bg-green-500 h-3.5 rounded-3xl text-xs text-white text-center shadow-lg"
+                    className="bg-green-500 h-3.5 text-xs text-white text-center shadow-lg"
                     style={{ width: `${fundingPercentage}%` }}
                     role="progressbar"
                     aria-valuenow="60"
@@ -278,6 +277,13 @@ const CampaignDetail = () => {
                   />
                 </form>
               )}
+              <div>
+                <CheckDonationAndReward
+                  campaignId={id}
+                  username={username}
+                  profilePicture={userPicture}
+                />
+              </div>
             </div>
           </div>
         </div>
