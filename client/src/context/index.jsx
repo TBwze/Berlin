@@ -18,7 +18,10 @@ const metamaskConfig = metamaskWallet();
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract('0x4AdeDAe205840c757e5824682c8F82537C6ECB8f');
   const { mutateAsync: createCampaignWrite } = useContractWrite(contract, 'createCampaign');
+  
   const [username, setUsername] = useState('');
+  const [donationAmount, setDonationAmount] = useState(null);
+  const [reward, setReward] = useState('');
 
   const address = useAddress();
   const connect = useConnect();
@@ -145,6 +148,48 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  // Function to fetch the user's donation amount for a specific campaign
+  const fetchUserDonation = async (campaignId) => {
+    if (!contract || !address) return 0;
+
+    try {
+      // Using ethers.js to directly call the donations mapping with campaignId and user's address
+      const donation = await contract["donations"](campaignId, address);
+  
+      // Ensure donation is in BigNumber format and convert it to ETH
+      const formattedDonation = ethers.utils.formatEther(donation);
+      setDonationAmount(formattedDonation);
+      return formattedDonation;
+    } catch (error) {
+      console.error('Error fetching donation:', error);
+      return 0;
+    }
+  };
+
+  // Function to fetch the user's reward based on their donation amount
+  const fetchUserReward = async (campaignId, donation) => {
+    if (!contract || !address || donation <= 0) {
+      setReward('No reward available');
+      return;
+    }
+
+    try {
+      // Call getRewardTier to fetch the reward description
+      const rewardDescription = await contract.call('getRewardTier', campaignId, ethers.utils.parseEther(donation.toString()));
+      setReward(rewardDescription);
+    } catch (error) {
+      console.error('Error fetching reward:', error);
+    }
+  };
+
+  // Example function to handle checking both donation and reward for a campaign
+  const checkDonationAndReward = async (campaignId) => {
+    console.log(campaignId)
+
+    const donation = await fetchUserDonation(campaignId); // Fetch the donation first
+    await fetchUserReward(campaignId, donation); // Then calculate the reward
+  };
+
   return (
     <stateContext.Provider
       value={{
@@ -154,7 +199,10 @@ export const StateContextProvider = ({ children }) => {
         createCampaign: publishCampaign,
         getCampaigns,
         getCampaignById,
-        donateToCampaign
+        donateToCampaign,
+        checkDonationAndReward,
+        donationAmount,
+        reward
       }}>
       {children}
     </stateContext.Provider>

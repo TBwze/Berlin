@@ -16,6 +16,7 @@ import { getAllComments } from '../api/Comment/getAllComment.api';
 import CommentSection from '../components/Comment.component';
 import { UserWallet } from '@thirdweb-dev/react';
 import { postComment } from '../api/Comment/postComment.api';
+import CheckDonationAndReward from '../components/CheckDonationAndReward.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
@@ -194,7 +195,9 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                   />
                 </form>
-
+                <div>
+                  <CheckDonationAndReward campaignId={ id }/>
+                </div>
                 {/* Render comments with nested replies */}
                 <div className="flex flex-col gap-2 mt-4">
                   <div>
