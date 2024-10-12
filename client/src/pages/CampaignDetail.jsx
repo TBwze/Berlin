@@ -73,11 +73,13 @@ const CampaignDetail = () => {
     }
   };
 
-  const handleCommentSubmit = async () => {
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
     try {
       setLoadingComments(true);
-      await postComment(id, wallet, form.watch('content'));
+      await postComment(id, userId, form.watch('content'));
       fetchCommentsData();
+      form.reset({ content: '' });
     } catch (error) {
       alert(error);
     } finally {
@@ -85,7 +87,9 @@ const CampaignDetail = () => {
     }
   };
 
-  const handleDonation = async () => {
+  const handleDonation = async (e) => {
+    e.preventDefault();
+
     try {
       const donationAmount = form.watch('minimal_eth');
       await donateToCampaign(id, donationAmount);
@@ -95,7 +99,6 @@ const CampaignDetail = () => {
       alert('Error donating to campaign: ' + error.message);
     }
   };
-
   useEffect(() => {
     if (contract) {
       fetchCampaign();
@@ -253,7 +256,7 @@ const CampaignDetail = () => {
                 borderColor="#2E6950"
               />
               {!form.watch('is_owner') && (
-                <form onSubmit={form.handleSubmit(handleDonation)} className="flex flex-col mb-2">
+                <form onSubmit={handleDonation} className="flex flex-col mb-2">
                   <div className="mb-3">
                     <TextFieldDecimalComponent
                       name="minimal_eth"

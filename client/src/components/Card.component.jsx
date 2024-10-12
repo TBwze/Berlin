@@ -36,10 +36,8 @@ const CardComponent = ({
         </p>
 
         {/* Progress bar showing the funding percentage */}
-        <div className="relative w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700 mb-2">
-          <div
-            className="bg-green-700 h-full rounded-full"
-            style={{ width: `${fundingPercentage}%` }}></div>
+        <div className="relative w-full bg-gray-200 h-4 dark:bg-gray-700 mb-2">
+          <div className="bg-green-700 h-full" style={{ width: `${fundingPercentage}%` }}></div>
           <span className="absolute inset-0 flex justify-center items-center text-xs text-white font-poppins-500">
             {fundingPercentage}%
           </span>

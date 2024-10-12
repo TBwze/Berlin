@@ -133,10 +133,9 @@ export const StateContextProvider = ({ children }) => {
       if (!signer || !address) {
         throw new Error('Wallet not connected. Please try connecting again.');
       }
-
+      // Convert amount to a string
       const transaction = await contract.call('donateToCampaign', campaignId, {
-        value: amount,
-        signer: signer
+        value: ethers.utils.parseEther(amount.toString()) // Convert amount to string here
       });
 
       console.log('Donation successful!', transaction);

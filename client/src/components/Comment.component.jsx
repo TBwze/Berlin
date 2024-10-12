@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import TextFieldComponent from '../components/Textfield.component'; 
+import TextFieldComponent from '../components/Textfield.component';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { likeComment } from '../api/Comment/likeComment.api';
@@ -64,11 +64,12 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
     setShowReplyInput(!showReplyInput);
   };
 
-  const onSubmitReply = async () => {
+  const onSubmitReply = async (e) => {
+    e.preventDefault(); // Prevent the default form submission
     try {
       await postComment(campaignId, userId, form.watch('reply'), comment._id);
       refreshComments();
-      form.reset();
+      form.reset({ reply: '' });
       setShowReplyInput(false);
     } catch (error) {
       alert('Error posting the reply:', error);
