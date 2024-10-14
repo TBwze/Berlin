@@ -126,24 +126,26 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
       </div>
 
       {showReplyInput && (
-        <form onSubmit={onSubmitReply} className="mt-2">
+        <form onSubmit={onSubmitReply} className="mt-2 ml-10">
           <TextFieldComponent
             name="reply"
             label=""
-            placeholder="Add reply"
+            placeholder="Add a reply..."
             control={form.control}
             type="textarea"
             rows={3}
             required={true}
             errorMessage={form.formState.errors.content?.message}
           />
-          <CustomButton
+          <div className='flex justify-end'>
+            <CustomButton
             btnType="submit"
-            className="mt-5 px-8"
-            title="Post Reply"
+            className="mt-2 px-8"
+            title="Reply"
             bgColor="#2C7A5A"
             textColor="#ffffff"
           />
+          </div>
         </form>
       )}
 
