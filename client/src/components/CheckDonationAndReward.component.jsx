@@ -92,7 +92,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
             <img src={badgeImage} alt={badgeName} className="w-10 h-10 mr-2" />
           </div>
         ) : (
-          <p className="text-gray-600">Your donation isn't enough to get a reward tier.</p>
+          <p className="text-gray-600">Your donation isn't enough for a reward.</p>
         )}
       </div>
     </div>
