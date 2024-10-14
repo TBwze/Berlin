@@ -165,8 +165,8 @@ const CampaignDetail = () => {
                             <h3 className="text-lg font-bold">{badgeName}</h3>
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-sm font-bold mb-2">Description:</h3>
-                            <p className="text-sm">{reward.description}</p>
+                            <h3 className="text-sm font-bold mb-2 text-left">Description:</h3>
+                            <p className="text-sm text-left">{reward.description}</p>
                           </div>
                         </div>
                       </div>
@@ -174,25 +174,29 @@ const CampaignDetail = () => {
                   })}
               </div>
               <div className="flex flex-col gap-2 mt-3">
-                <h2 className="font-bold text-xl">Komentar</h2>
-                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4">
+                <h2 className="font-bold text-xl text-left">Comments</h2>
+                <hr className="border-t border-gray-400 my-2" />
+                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4 border border-2 p-4 rounded-lg shadow-lg bg-gray-100">
                   <TextFieldComponent
                     name="content"
                     label=""
-                    placeholder="Enter your comment here"
+                    placeholder="Add a Comment..."
                     control={form.control}
                     type="textarea"
                     rows={4}
                     required={true}
                     errorMessage={form.formState.errors.content?.message}
                   />
-                  <CustomButton
+                  <div className='flex justify-end'>
+                    <CustomButton
                     btnType="submit"
-                    title="add Comment"
+                    title="Post"
                     bgColor="#4CAF50"
                     styles="font-semibold rounded px-4 border-2"
                     textColor="#ffffff"
+                    className='w-1/4'
                   />
+                  </div>
                 </form>
 
                 {/* Render comments with nested replies */}
@@ -251,7 +255,7 @@ const CampaignDetail = () => {
                 btnType="button"
                 title="Share"
                 bgColor="#4169E1"
-                styles="font-semibold rounded px-4 border-2"
+                styles="font-semibold rounded px-4"
                 textColor="white"
                 borderColor="#2E6950"
               />

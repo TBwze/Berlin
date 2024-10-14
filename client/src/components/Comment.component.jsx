@@ -7,6 +7,9 @@ import { likeComment } from '../api/Comment/likeComment.api';
 import { unlikeComment } from '../api/Comment/unlikeComment.api';
 import { deleteComment } from '../api/Comment/deleteComment.api';
 import { postComment } from '../api/Comment/postComment.api';
+import likeIcon from '../assets/like-icon.png';
+import unlikeIcon from '../assets/unlike-icon.png';
+import dropDown from '../assets/downArrow.png';
 import CustomButton from './CustomButton.component';
 
 dayjs.extend(relativeTime);
@@ -78,38 +81,47 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
 
   return (
     <div className="m-2 p-4 border border-gray-300 rounded-md shadow-sm bg-white">
-      <div className="flex justify-between mb-2">
+      <div className="flex justify-between mb-2 items-center">
         <div className="flex items-center">
           <img src={comment.profilePicture} alt="Profile" className="w-8 h-8 rounded-full mr-2" />
           <strong className="text-sm text-gray-700">{comment.username}</strong>
         </div>
         <span className="text-xs text-gray-500">{dayjs(comment.createdAt).fromNow()}</span>
       </div>
-      <p className="text-gray-800 mb-2 text-left">{comment.content}</p>
-      <div className="flex space-x-2 mb-2">
+      <p className="text-gray-800 mb-4 ml-10 text-left text-sm">{comment.content}</p>
+      <div className="flex space-x mb-2 ml-10">
         <button
           onClick={handleLike}
-          className={`px-2 py-1 ${liked ? 'bg-red-500' : 'bg-blue-500'} text-white rounded hover:${
-            liked ? 'bg-red-600' : 'bg-blue-600'
+          className={`px-2 py-1 flex flex-row gap-2 items-center text-xs hover:text-blue-500
           }`}>
-          {liked ? 'Unlike' : 'Like'} {likes}
+           <img
+            src={liked ? unlikeIcon : likeIcon} 
+            alt={liked ? 'Unlike' : 'Like'}
+            className="w-4 h-4"
+          />
+          {/* {liked ? 'Unlike' : 'Like'} */} {likes}
+        </button>
+        <button
+          onClick={toggleReplyInput}
+          className="px-2 py-1 hover:text-blue-600">
+          Reply
         </button>
         {comment.user === userId && (
           <button
             onClick={handleDelete}
-            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+             className="px-2 py-1 hover:text-red-600">
             Delete
           </button>
         )}
+      </div>
+      <div className='flex justify-start ml-10'>
         <button
           onClick={handleShowReplies}
-          className="px-2 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
-          Show Replies ({comment.replies.length})
-        </button>
-        <button
-          onClick={toggleReplyInput}
-          className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">
-          Reply
+          className="px-2 py-1 text-sm">
+          <div className='flex flex-row'>
+            <img src={dropDown} className='w-4 h-4"'/>
+            {comment.replies.length} Replies 
+          </div>
         </button>
       </div>
 
