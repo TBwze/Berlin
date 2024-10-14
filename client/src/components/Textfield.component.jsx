@@ -35,7 +35,7 @@ const TextFieldComponent = ({
               <textarea
                 rows={rows}
                 placeholder={placeholder}
-                className="w-full p-2 text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium"
+                className="w-full p-2 text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium bg-white"
                 {...field}
                 required={required}
                 disabled={disabled}
@@ -46,7 +46,7 @@ const TextFieldComponent = ({
                 placeholder={placeholder}
                 className={`w-full p-2 pr-${
                   addOrmentText ? 16 : 10
-                } text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium`}
+                } text-xs bg-transparent rounded border border-gray-500 outline-none font-poppins font-medium bg-white`}
                 {...field}
                 required={required}
                 disabled={disabled}
