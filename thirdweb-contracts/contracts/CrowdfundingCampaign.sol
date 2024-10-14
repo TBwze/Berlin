@@ -3,20 +3,21 @@ pragma solidity ^0.8.0;
 
 contract CrowdfundingCampaign {
     struct Reward {
-        uint256 minAmount; // Minimum donation amount for this reward
-        string description; // Description of the reward
+        uint256 minAmount;
+        string description;
     }
 
     struct Campaign {
-        address owner; // Creator of the campaign
-        string title; // Title of the campaign
-        string description; // Description of the campaign
-        uint256 targetAmount; // Target amount to be raised
-        uint256 deadline; // Campaign deadline as a timestamp
-        uint256 amountCollected; // Total amount collected
-        string image; // Image URL for the campaign
-        Reward[] rewards; // Dynamic array of rewards
-        bool exists; // To check if the campaign exists (for deletion logic)
+        address owner;
+        string title;
+        string description;
+        uint256 targetAmount;
+        uint256 deadline;
+        uint256 amountCollected;
+        string image;
+        Reward[] rewards;
+        address[] donors;
+        bool exists; // For deletion logic
     }
 
     mapping(uint256 => Campaign) public campaigns;
@@ -183,6 +184,30 @@ contract CrowdfundingCampaign {
         emit DonationReceived(_campaignId, msg.sender, msg.value);
     }
 
+    // Function to get all donors and their eligible rewards for a specific campaign
+    function getEligibleRewardsForCampaign(
+        uint256 _campaignId
+    )
+        public
+        view
+        campaignExists(_campaignId)
+        onlyOwner(_campaignId)
+        returns (address[] memory, string[] memory)
+    {
+        Campaign storage campaign = campaigns[_campaignId];
+        address[] memory donorAddresses = campaign.donors;
+        string[] memory rewardDescriptions = new string[](
+            donorAddresses.length
+        );
+
+        for (uint256 i = 0; i < donorAddresses.length; i++) {
+            uint256 donationAmount = donations[_campaignId][donorAddresses[i]];
+            rewardDescriptions[i] = getRewardTier(_campaignId, donationAmount); // Get the eligible reward
+        }
+
+        return (donorAddresses, rewardDescriptions);
+    }
+
     // Function to get the reward tier for a donation amount
     function getRewardTier(
         uint256 _campaignId,
@@ -203,6 +228,7 @@ contract CrowdfundingCampaign {
         return rewardDescription;
     }
 
+    // Refund donations from an unsuccessful campaign
     function refundDonation(
         uint256 _campaignId
     ) public campaignExists(_campaignId) {
