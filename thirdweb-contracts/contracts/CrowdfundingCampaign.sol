@@ -2,20 +2,12 @@
 pragma solidity ^0.8.0;
 
 contract CrowdfundingCampaign {
-    struct Reward {
-        uint256 minAmount;
-        string description;
-    }
-
     struct Campaign {
         address owner;
-        string title;
-        string description;
+        string metadataURI; // Store off-chain references (IPFS or MongoDB URI)
         uint256 targetAmount;
         uint256 deadline;
         uint256 amountCollected;
-        string image;
-        Reward[] rewards;
         address[] donors;
         bool exists; // For deletion logic
     }
@@ -27,11 +19,15 @@ contract CrowdfundingCampaign {
     // Event emitted when a new campaign is created
     event CampaignCreated(uint256 indexed campaignId, address indexed owner);
 
-    // Event emitted when a campaign is updated
-    event CampaignUpdated(uint256 indexed campaignId);
-
     // Event emitted when a donation is made
     event DonationReceived(
+        uint256 indexed campaignId,
+        address indexed donor,
+        uint256 amount
+    );
+
+    // Event emitted when donator refunded donation from a failed campaign
+    event DonationRefunded(
         uint256 indexed campaignId,
         address indexed donor,
         uint256 amount
@@ -41,82 +37,40 @@ contract CrowdfundingCampaign {
     modifier onlyOwner(uint256 _campaignId) {
         require(
             campaigns[_campaignId].owner == msg.sender,
-            "Only the campaign owner can perform this action."
+            "Only campaign owner can perform this action"
         );
         _;
     }
 
     // Modifier to check if the campaign exists
     modifier campaignExists(uint256 _campaignId) {
-        require(campaigns[_campaignId].exists, "Campaign does not exist.");
+        require(campaigns[_campaignId].exists, "Campaign is unavailable");
         _;
     }
 
     // Function to create a new campaign
     function createCampaign(
-        string memory _title,
-        string memory _description,
+        string memory _metadataURI,
         uint256 _targetAmount,
-        uint256 _deadline,
-        string memory _image,
-        Reward[] memory _rewards
+        uint256 _deadline
     ) public {
         require(
             _deadline > block.timestamp,
             "Deadline should be in the future."
         );
-        require(_rewards.length <= 3, "Maximum of 3 rewards allowed."); // Ensure only 3 rewards
 
         campaignCount++;
-        campaigns[campaignCount].owner = msg.sender;
-        campaigns[campaignCount].title = _title;
-        campaigns[campaignCount].description = _description;
-        campaigns[campaignCount].targetAmount = _targetAmount;
-        campaigns[campaignCount].deadline = _deadline;
-        campaigns[campaignCount].amountCollected = 0;
-        campaigns[campaignCount].image = _image;
-        campaigns[campaignCount].exists = true;
-
-        // Copy rewards from memory to storage
-        for (uint256 i = 0; i < _rewards.length; i++) {
-            campaigns[campaignCount].rewards.push(_rewards[i]);
-        }
+        campaigns[campaignCount] = Campaign({
+            owner: msg.sender,
+            targetAmount: _targetAmount,
+            deadline: _deadline,
+            amountCollected: 0,
+            metadataURI: _metadataURI,
+            donors: new address[](0),
+            exists: true
+        });
 
         emit CampaignCreated(campaignCount, msg.sender);
-    }
-
-    // Function to update a campaign
-    function updateCampaign(
-        uint256 _campaignId,
-        string memory _title,
-        string memory _description,
-        uint256 _targetAmount,
-        uint256 _deadline,
-        string memory _image,
-        Reward[] memory _rewards
-    ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
-        require(
-            _deadline > block.timestamp,
-            "Deadline should be in the future."
-        );
-        require(_rewards.length <= 3, "Maximum of 3 rewards allowed."); // Ensure only 3 rewards
-
-        Campaign storage campaign = campaigns[_campaignId];
-        campaign.title = _title;
-        campaign.description = _description;
-        campaign.targetAmount = _targetAmount;
-        campaign.deadline = _deadline;
-        campaign.image = _image;
-
-        // Clear existing rewards
-        delete campaign.rewards;
-
-        // Copy new rewards from memory to storage
-        for (uint256 i = 0; i < _rewards.length; i++) {
-            campaign.rewards.push(_rewards[i]);
-        }
-
-        emit CampaignUpdated(_campaignId);
     }
 
     // Function to view a campaign
@@ -128,25 +82,19 @@ contract CrowdfundingCampaign {
         campaignExists(_campaignId)
         returns (
             address owner,
-            string memory title,
-            string memory description,
             uint256 targetAmount,
             uint256 deadline,
             uint256 amountCollected,
-            string memory image,
-            Reward[] memory rewards
+            string memory metadataURI
         )
     {
         Campaign memory campaign = campaigns[_campaignId];
         return (
             campaign.owner,
-            campaign.title,
-            campaign.description,
             campaign.targetAmount,
             campaign.deadline,
             campaign.amountCollected,
-            campaign.image,
-            campaign.rewards
+            campaign.metadataURI
         );
     }
 
@@ -163,69 +111,19 @@ contract CrowdfundingCampaign {
         return allCampaigns;
     }
 
-    // Function to delete a campaign
-    function deleteCampaign(
-        uint256 _campaignId
-    ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
-        delete campaigns[_campaignId];
-    }
-
     // Function to donate to a campaign
     function donateToCampaign(
         uint256 _campaignId
     ) public payable campaignExists(_campaignId) {
         Campaign storage campaign = campaigns[_campaignId];
-        require(block.timestamp < campaign.deadline, "Campaign has ended.");
-        require(msg.value > 0, "Donation must be greater than zero.");
+        require(block.timestamp < campaign.deadline, "Campaign ended");
+        require(msg.value > 0, "Donation must be greater than 0");
 
         campaign.amountCollected += msg.value;
-        donations[_campaignId][msg.sender] += msg.value; // Track donor's contribution
+        donations[_campaignId][msg.sender] += msg.value;
+        campaign.donors.push(msg.sender);
 
         emit DonationReceived(_campaignId, msg.sender, msg.value);
-    }
-
-    // Function to get all donors and their eligible rewards for a specific campaign
-    function getEligibleRewardsForCampaign(
-        uint256 _campaignId
-    )
-        public
-        view
-        campaignExists(_campaignId)
-        onlyOwner(_campaignId)
-        returns (address[] memory, string[] memory)
-    {
-        Campaign storage campaign = campaigns[_campaignId];
-        address[] memory donorAddresses = campaign.donors;
-        string[] memory rewardDescriptions = new string[](
-            donorAddresses.length
-        );
-
-        for (uint256 i = 0; i < donorAddresses.length; i++) {
-            uint256 donationAmount = donations[_campaignId][donorAddresses[i]];
-            rewardDescriptions[i] = getRewardTier(_campaignId, donationAmount); // Get the eligible reward
-        }
-
-        return (donorAddresses, rewardDescriptions);
-    }
-
-    // Function to get the reward tier for a donation amount
-    function getRewardTier(
-        uint256 _campaignId,
-        uint256 _donationAmount
-    )
-        public
-        view
-        campaignExists(_campaignId)
-        returns (string memory rewardDescription)
-    {
-        Reward[] memory rewards = campaigns[_campaignId].rewards;
-
-        for (uint256 i = 0; i < rewards.length; i++) {
-            if (_donationAmount >= rewards[i].minAmount) {
-                rewardDescription = rewards[i].description;
-            }
-        }
-        return rewardDescription;
     }
 
     // Refund donations from an unsuccessful campaign
@@ -235,11 +133,11 @@ contract CrowdfundingCampaign {
         Campaign storage campaign = campaigns[_campaignId];
         require(
             block.timestamp >= campaign.deadline,
-            "Campaign is still active."
+            "Campaign is still active"
         );
         require(
             campaign.amountCollected < campaign.targetAmount,
-            "Campaign reached its goal."
+            "Campaign reached its target"
         );
 
         uint256 donatedAmount = donations[_campaignId][msg.sender];
