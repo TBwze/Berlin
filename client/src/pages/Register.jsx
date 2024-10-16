@@ -7,6 +7,7 @@ import TextFieldComponent from '../components/Textfield.component';
 import CustomButton from '../components/CustomButton.component';
 import PageLoad from '../components/Loading.component';
 import AlertComponent from '../components/Alert.component';
+import PopupComponent from '../components/PopUp.component';
 import Cookies from 'js-cookie';
 
 export const Register = () => {
@@ -14,6 +15,7 @@ export const Register = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({ type: '', message: '', visible: false });
+  const [popupVisible, setPopupVisible] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -99,8 +101,7 @@ export const Register = () => {
 
       try {
         await registerUser(formData);
-
-        navigate('/login');
+        setPopupVisible(true);
       } catch (error) {
         setAlert({ type: 'error', message: error.message, visible: true });
         scrollToTop();
@@ -117,6 +118,10 @@ export const Register = () => {
     }
   };
 
+  const handleClosePopup = () => {
+    setPopupVisible(false);
+    navigate('/login');
+  };
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -140,6 +145,11 @@ export const Register = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
+        <PopupComponent
+          message="Registration successful! You can now log in."
+          visible={popupVisible}
+          onClose={handleClosePopup}
+        />
         <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md w-full max-w-md mt-5">
           <div className="text-center font-poppins font-bold text-2xl mb-6 mt-5">
             <h3>Buat akun baru</h3>

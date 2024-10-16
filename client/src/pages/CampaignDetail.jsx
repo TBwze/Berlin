@@ -123,6 +123,7 @@ const CampaignDetail = () => {
 
   const closePopup = () => {
     setPopupVisible(false);
+    window.location.reload();
   };
 
   return (
@@ -179,7 +180,9 @@ const CampaignDetail = () => {
               <div className="flex flex-col gap-2 mt-3">
                 <h2 className="font-bold text-xl text-left">Comments</h2>
                 <hr className="border-t border-gray-400 my-2" />
-                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4 border border-2 p-4 rounded-lg shadow-lg bg-gray-100">
+                <form
+                  onSubmit={handleCommentSubmit}
+                  className="flex flex-col gap-4 border border-2 p-4 rounded-lg shadow-lg bg-gray-100">
                   <TextFieldComponent
                     name="content"
                     label=""
@@ -190,15 +193,15 @@ const CampaignDetail = () => {
                     required={true}
                     errorMessage={form.formState.errors.content?.message}
                   />
-                  <div className='flex justify-end'>
+                  <div className="flex justify-end">
                     <CustomButton
-                    btnType="submit"
-                    title="Post"
-                    bgColor="#4CAF50"
-                    styles="font-semibold rounded px-4 border-2"
-                    textColor="#ffffff"
-                    className='w-1/4'
-                  />
+                      btnType="submit"
+                      title="Post"
+                      bgColor="#4CAF50"
+                      styles="font-semibold rounded px-4 border-2"
+                      textColor="#ffffff"
+                      className="w-1/4"
+                    />
                   </div>
                 </form>
                 {/* Render comments with nested replies */}

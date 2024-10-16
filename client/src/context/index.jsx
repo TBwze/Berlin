@@ -185,6 +185,26 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  const refundDonation = async (campaignId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error('Wallet not connected. Please try connecting again.');
+      }
+
+      const transaction = await contract.call('refundDonation', [campaignId]);
+
+      console.log('Refund successful!', transaction);
+      return transaction;
+    } catch (error) {
+      console.error('Refund failed!', error);
+      throw new Error('Failed to refund donation');
+    }
+  };
+
   return (
     <stateContext.Provider
       value={{
@@ -196,7 +216,8 @@ export const StateContextProvider = ({ children }) => {
         getCampaignById,
         donateToCampaign,
         fetchUserDonation,
-        fetchUserReward
+        fetchUserReward,
+        refundDonation
       }}>
       {children}
     </stateContext.Provider>

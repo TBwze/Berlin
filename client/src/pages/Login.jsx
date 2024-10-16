@@ -8,12 +8,14 @@ import { loginUser } from '../api/User/login.api';
 import Web3 from 'web3';
 import AlertComponent from '../components/Alert.component';
 import Cookies from 'js-cookie';
+import PopupComponent from '../components/PopUp.component';
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [alert, setAlert] = useState({ type: '', message: '', visible: false });
+  const [popupVisible, setPopupVisible] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -28,7 +30,7 @@ const Login = () => {
     if (token) {
       navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   const detectCurrentProvider = () => {
     let provider;
@@ -73,26 +75,31 @@ const Login = () => {
     const password = form.getValues('password');
     const wallet = form.getValues('account');
 
-    await loginUser(email, password, wallet)
-      .then((response) => {
-        navigate('/');
-      })
-      .catch((error) => {
-        if (wallet === '') {
-          setAlert({
-            type: 'error',
-            message: 'Please connect to MetaMask to login.',
-            visible: true
-          });
-        } else {
-          setAlert({
-            type: 'error',
-            message: error,
-            visible: true
-          });
-        }
-      });
-    setIsLoading(false);
+    try {
+      await loginUser(email, password, wallet);
+      setPopupVisible(true);
+    } catch (error) {
+      if (wallet === '') {
+        setAlert({
+          type: 'error',
+          message: 'Please connect to MetaMask to login.',
+          visible: true
+        });
+      } else {
+        setAlert({
+          type: 'error',
+          message: error,
+          visible: true
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const closePopup = () => {
+    setPopupVisible(false);
+    navigate('/');
   };
 
   return (
@@ -105,6 +112,12 @@ const Login = () => {
           message={alert.message}
           visible={alert.visible}
           onClose={() => setAlert({ ...alert, visible: false })}
+        />
+
+        <PopupComponent
+          message="Login successful!" 
+          visible={popupVisible}
+          onClose={closePopup}
         />
 
         <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md w-full max-w-md mt-5">
