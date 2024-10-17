@@ -131,7 +131,14 @@ contract CrowdfundingCampaign {
     function deleteCampaign(
         uint256 _campaignId
     ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
-        campaigns[_campaignId].exists = false;
+        Campaign storage campaign = campaigns[_campaignId];
+
+        require(
+            block.timestamp >= campaign.deadline + 30 days,
+            "Campaign can only be deleted 30 days after deadline"
+        );
+
+        campaign.exists = false;
         emit CampaignDeleted(_campaignId, msg.sender);
     }
 
