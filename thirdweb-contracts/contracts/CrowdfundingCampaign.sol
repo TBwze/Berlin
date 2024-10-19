@@ -100,7 +100,8 @@ contract CrowdfundingCampaign {
             uint256 deadline,
             uint256 amountCollected,
             string memory image,
-            Reward[] memory rewards
+            Reward[] memory rewards,
+            address[] memory donors
         )
     {
         Campaign memory campaign = campaigns[_campaignId];
@@ -112,7 +113,8 @@ contract CrowdfundingCampaign {
             campaign.deadline,
             campaign.amountCollected,
             campaign.image,
-            campaign.rewards
+            campaign.rewards,
+            campaign.donors
         );
     }
 
@@ -158,25 +160,25 @@ contract CrowdfundingCampaign {
     }
 
     // Function to get all donors and their eligible rewards for a specific campaign
-    function getEligibleRewardsForCampaign(
-        uint256 _campaignId
-    )
-        public
-        view
-        campaignExists(_campaignId)
-        onlyOwner(_campaignId)
-        returns (address[] memory, string[] memory)
-    {
-        Campaign storage campaign = campaigns[_campaignId];
-        address[] memory donorAddresses = campaign.donors;
-        string[] memory rewardTiers = new string[](donorAddresses.length);
+    // function getEligibleRewardsForCampaign(
+    //     uint256 _campaignId
+    // )
+    //     public
+    //     view
+    //     campaignExists(_campaignId)
+    //     onlyOwner(_campaignId)
+    //     returns (address[] memory, string[] memory)
+    // {
+    //     Campaign storage campaign = campaigns[_campaignId];
+    //     address[] memory donorAddresses = campaign.donors;
+    //     string[] memory rewardTiers = new string[](donorAddresses.length);
 
-        for (uint256 i = 0; i < donorAddresses.length; i++) {
-            rewardTiers[i] = getRewardTier(_campaignId, donorAddresses[i]); // Get the eligible reward
-        }
+    //     for (uint256 i = 0; i < donorAddresses.length; i++) {
+    //         rewardTiers[i] = getRewardTier(_campaignId, donorAddresses[i]); // Get the eligible reward
+    //     }
 
-        return (donorAddresses, rewardTiers);
-    }
+    //     return (donorAddresses, rewardTiers);
+    // }
 
     // Function to get the reward tier for a donation amount
     function getRewardTier(

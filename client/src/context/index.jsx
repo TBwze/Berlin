@@ -16,7 +16,7 @@ const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x7874f2DF36a6893715aADE2a598f357898f5B7C6');
+  const { contract } = useContract('0x5EC18598E22A7267347801f176DABF75E7eCDDA7');
   const { mutateAsync: createCampaignWrite } = useContractWrite(contract, 'createCampaign');
 
   const address = useAddress();
