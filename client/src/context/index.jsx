@@ -7,18 +7,17 @@ import {
   useContractWrite,
   useSigner
 } from '@thirdweb-dev/react';
-import { ethers } from 'ethers';
 import dayjs from 'dayjs';
 import { getAccountByWallet } from '../api/User/getUserByWallet.api';
 import { formatDate } from '../utils/date.utils';
+import { ethToWei, weiToEth } from '../utils/convertEth.utils';
 
 const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x4AdeDAe205840c757e5824682c8F82537C6ECB8f');
+  const { contract } = useContract('0x5EC18598E22A7267347801f176DABF75E7eCDDA7');
   const { mutateAsync: createCampaignWrite } = useContractWrite(contract, 'createCampaign');
-  const [username, setUsername] = useState('');
 
   const address = useAddress();
   const connect = useConnect();
@@ -33,7 +32,6 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        console.log('Wallet not connected, connecting now...');
         await connect(metamaskConfig);
       }
 
@@ -41,11 +39,11 @@ export const StateContextProvider = ({ children }) => {
         throw new Error('Wallet not connected. Please try connecting again.');
       }
 
-      const targetInWei = ethers.utils.parseEther(targetAmount);
+      const targetInWei = ethToWei(targetAmount);
       const deadlineTimestamp = dayjs().add(deadline, 'day').unix();
 
       const formattedRewards = rewards.map((reward) => ({
-        minAmount: ethers.utils.parseEther(reward.minAmount),
+        minAmount: ethToWei(reward.minAmount),
         description: reward.description
       }));
 
@@ -53,8 +51,6 @@ export const StateContextProvider = ({ children }) => {
         args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards],
         signer: signer
       });
-
-      console.log('Contract call success!', data);
     } catch (error) {
       console.error('Contract call failed!', error);
       throw new Error('Failed to create campaign');
@@ -82,8 +78,8 @@ export const StateContextProvider = ({ children }) => {
             wallet: campaign.owner,
             owner,
             title: campaign.title,
-            targetAmount: ethers.utils.formatEther(campaign.targetAmount),
-            amountCollected: ethers.utils.formatEther(campaign.amountCollected),
+            targetAmount: weiToEth(campaign.targetAmount),
+            amountCollected: weiToEth(campaign.amountCollected),
             deadline: formatDate(campaign.deadline),
             imageUrl: campaign.image || 'default-image-url.jpg'
           };
@@ -100,48 +96,134 @@ export const StateContextProvider = ({ children }) => {
   const getCampaignById = async (id) => {
     try {
       const response = await contract.call('getCampaign', id);
-      const [owner, title, description, targetAmount, deadline, amountCollected, image, rewards] =
-        response;
+      const [
+        owner,
+        title,
+        description,
+        targetAmount,
+        deadline,
+        amountCollected,
+        image,
+        rewards,
+        donators
+      ] = response;
+
       const username = await getAccountUsername(owner);
       const formattedCampaign = {
         owner: owner,
         username: username,
         title: title,
         description: description,
-        targetAmount: ethers.utils.formatEther(targetAmount),
-        amountCollected: ethers.utils.formatEther(amountCollected),
+        targetAmount: weiToEth(targetAmount),
+        amountCollected: weiToEth(amountCollected),
         deadline: formatDate(deadline),
         imageUrl: image,
         rewards: rewards.map((reward) => ({
-          minAmount: ethers.utils.formatEther(reward.minAmount),
+          minAmount: weiToEth(reward.minAmount),
           description: reward.description
-        }))
+        })),
+        donators: donators
       };
+
       return formattedCampaign;
     } catch (error) {
-      throw new Error('Error fetching campaign by ID');
+      throw new Error('Error fetching campaign by ID: ' + error.message);
     }
   };
 
   const donateToCampaign = async (campaignId, amount) => {
     try {
       if (!signer || !address) {
-        console.log('Wallet not connected, connecting now...');
         await connect(metamaskConfig);
       }
 
       if (!signer || !address) {
         throw new Error('Wallet not connected. Please try connecting again.');
       }
-      // Convert amount to a string
       const transaction = await contract.call('donateToCampaign', campaignId, {
-        value: ethers.utils.parseEther(amount.toString()) // Convert amount to string here
+        value: ethToWei(amount.toString())
       });
-
-      console.log('Donation successful!', transaction);
     } catch (error) {
       console.error('Donation failed!', error);
       throw new Error('Failed to donate to campaign');
+    }
+  };
+
+  const fetchUserDonation = async (campaignId) => {
+    if (!signer || !address) {
+      await connect(metamaskConfig);
+    }
+
+    if (!signer || !address) {
+      throw new Error('Wallet not connected. Please try connecting again.');
+    }
+
+    try {
+      const donation = await contract.call('donations', [campaignId, address]);
+      const donationEth = weiToEth(donation);
+      return donation == 0 ? donation : donationEth;
+    } catch (error) {
+      console.error('Error fetching donation:', error);
+      return 0;
+    }
+  };
+  const fetchUserReward = async (campaignId, userId) => {
+    if (!signer || !address) {
+      await connect(metamaskConfig);
+    }
+
+    if (!signer || !address) {
+      throw new Error('Wallet not connected. Please try connecting again.');
+    }
+
+    try {
+      const rewardTier = await contract.call('getRewardTier', [
+        campaignId,
+        userId ? userId : address
+      ]);
+      return rewardTier;
+    } catch (error) {
+      console.error('Error fetching reward tier:', error);
+      return null;
+    }
+  };
+
+  const refundDonation = async (campaignId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error('Wallet not connected. Please try connecting again.');
+      }
+
+      const transaction = await contract.call('refundDonation', [campaignId]);
+      return transaction;
+    } catch (error) {
+      console.error('Refund failed!', error);
+      throw new Error('Failed to refund donation');
+    }
+  };
+
+  const getEligibleRewardsForCampaign = async (campaignId) => {
+    if (!signer || !address) {
+      await connect(metamaskConfig);
+    }
+
+    if (!signer || !address) {
+      throw new Error('Wallet not connected. Please try connecting again.');
+    }
+
+    try {
+      const [donorAddresses, rewardTiers] = await contract.call(
+        'getEligibleRewardsForCampaign',
+        campaignId
+      );
+      return { donorAddresses, rewardTiers };
+    } catch (error) {
+      console.error('Error fetching eligible rewards:', error);
+      throw new Error('Failed to fetch eligible rewards for campaign');
     }
   };
 
@@ -154,7 +236,11 @@ export const StateContextProvider = ({ children }) => {
         createCampaign: publishCampaign,
         getCampaigns,
         getCampaignById,
-        donateToCampaign
+        donateToCampaign,
+        fetchUserDonation,
+        fetchUserReward,
+        refundDonation,
+        getEligibleRewardsForCampaign
       }}>
       {children}
     </stateContext.Provider>

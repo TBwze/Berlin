@@ -82,7 +82,7 @@ const Campaign = () => {
       {myCampaigns.length > 0 && (
         <section className="w-full mb-8">
           <h2 className="mb-4 text-lg font-bold">Projek Anda</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
             {myCampaigns.slice(0, 4).map((campaign) => (
               <CardComponent
                 key={campaign.id}
@@ -105,7 +105,7 @@ const Campaign = () => {
           Jelajahi{' '}
           <span className="text-blue-500 cursor-pointer">{filteredCampaigns.length} Projek</span>
         </h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
           {filteredCampaigns.map((campaign) => (
             <CardComponent
               key={campaign.id}
