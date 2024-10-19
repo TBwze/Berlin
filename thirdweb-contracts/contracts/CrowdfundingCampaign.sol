@@ -151,7 +151,8 @@ contract CrowdfundingCampaign {
         require(msg.value > 0, "Donation must be greater than zero.");
 
         campaign.amountCollected += msg.value;
-        donations[_campaignId][msg.sender] += msg.value; // Track donor's contribution
+        donations[_campaignId][msg.sender] += msg.value;
+        campaign.donors.push(msg.sender);
 
         emit DonationReceived(_campaignId, msg.sender, msg.value);
     }
