@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '../context';
 import PageLoad from '../components/Loading.component';
 import { uploadProfilePicture } from '../api/User/uploadImage.api';
+import PopupComponent from '../components/PopUp.component';
 
 const validationSchema = yup.object().shape({
   target: yup
@@ -132,11 +133,11 @@ const CreateCampaign = () => {
   };
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
+      <PageLoad isLoading={isLoading} />
       <form
         className="flex flex-row items-center justify-around"
         onSubmit={form.handleSubmit(handleSaveButton)}>
         <div className="flex flex-col w-1/3">
-          <PageLoad isLoading={isLoading} />
           <PopupComponent
             message="Campaign created successfully!"
             visible={popupVisible}

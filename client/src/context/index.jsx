@@ -51,8 +51,6 @@ export const StateContextProvider = ({ children }) => {
         args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards],
         signer: signer
       });
-
-      console.log('Contract call success!', data);
     } catch (error) {
       console.error('Contract call failed!', error);
       throw new Error('Failed to create campaign');
@@ -98,8 +96,18 @@ export const StateContextProvider = ({ children }) => {
   const getCampaignById = async (id) => {
     try {
       const response = await contract.call('getCampaign', id);
-      const [owner, title, description, targetAmount, deadline, amountCollected, image, rewards] =
-        response;
+      const [
+        owner,
+        title,
+        description,
+        targetAmount,
+        deadline,
+        amountCollected,
+        image,
+        rewards,
+        donators
+      ] = response;
+
       const username = await getAccountUsername(owner);
       const formattedCampaign = {
         owner: owner,
@@ -113,11 +121,13 @@ export const StateContextProvider = ({ children }) => {
         rewards: rewards.map((reward) => ({
           minAmount: weiToEth(reward.minAmount),
           description: reward.description
-        }))
+        })),
+        donators: donators
       };
+
       return formattedCampaign;
     } catch (error) {
-      throw new Error('Error fetching campaign by ID');
+      throw new Error('Error fetching campaign by ID: ' + error.message);
     }
   };
 
@@ -133,8 +143,6 @@ export const StateContextProvider = ({ children }) => {
       const transaction = await contract.call('donateToCampaign', campaignId, {
         value: ethToWei(amount.toString())
       });
-
-      console.log('Donation successful!', transaction);
     } catch (error) {
       console.error('Donation failed!', error);
       throw new Error('Failed to donate to campaign');
@@ -159,7 +167,7 @@ export const StateContextProvider = ({ children }) => {
       return 0;
     }
   };
-  const fetchUserReward = async (campaignId) => {
+  const fetchUserReward = async (campaignId, userId) => {
     if (!signer || !address) {
       await connect(metamaskConfig);
     }
@@ -169,15 +177,10 @@ export const StateContextProvider = ({ children }) => {
     }
 
     try {
-      const donationEth = await fetchUserDonation(campaignId);
-      const userDonation = donationEth == 0 ? donationEth : ethToWei(donationEth);
-
-      if (!userDonation || userDonation === '0') {
-        console.error('No donation amount found for this campaign.');
-        return null;
-      }
-
-      const rewardTier = await contract.call('getRewardTier', [campaignId, userDonation]);
+      const rewardTier = await contract.call('getRewardTier', [
+        campaignId,
+        userId ? userId : address
+      ]);
       return rewardTier;
     } catch (error) {
       console.error('Error fetching reward tier:', error);
@@ -196,12 +199,31 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const transaction = await contract.call('refundDonation', [campaignId]);
-
-      console.log('Refund successful!', transaction);
       return transaction;
     } catch (error) {
       console.error('Refund failed!', error);
       throw new Error('Failed to refund donation');
+    }
+  };
+
+  const getEligibleRewardsForCampaign = async (campaignId) => {
+    if (!signer || !address) {
+      await connect(metamaskConfig);
+    }
+
+    if (!signer || !address) {
+      throw new Error('Wallet not connected. Please try connecting again.');
+    }
+
+    try {
+      const [donorAddresses, rewardTiers] = await contract.call(
+        'getEligibleRewardsForCampaign',
+        campaignId
+      );
+      return { donorAddresses, rewardTiers };
+    } catch (error) {
+      console.error('Error fetching eligible rewards:', error);
+      throw new Error('Failed to fetch eligible rewards for campaign');
     }
   };
 
@@ -217,7 +239,8 @@ export const StateContextProvider = ({ children }) => {
         donateToCampaign,
         fetchUserDonation,
         fetchUserReward,
-        refundDonation
+        refundDonation,
+        getEligibleRewardsForCampaign
       }}>
       {children}
     </stateContext.Provider>

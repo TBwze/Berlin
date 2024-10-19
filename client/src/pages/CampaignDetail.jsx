@@ -16,12 +16,14 @@ import { getAllComments } from '../api/Comment/getAllComment.api';
 import CommentSection from '../components/Comment.component';
 import { postComment } from '../api/Comment/postComment.api';
 import CheckDonationAndReward from '../components/CheckDonationAndReward.component';
+import DataGridComponent from '../components/DataGrid.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const { address, contract, getCampaignById, donateToCampaign } = useStateContext();
+  const { address, contract, getCampaignById, donateToCampaign, fetchUserReward } =
+    useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -30,6 +32,8 @@ const CampaignDetail = () => {
   const [loadingComments, setLoadingComments] = useState(true);
   const [username, setUsername] = useState(null);
   const [userPicture, setUserPicture] = useState(null);
+  const [donators, setDonators] = useState([]);
+  const [rows, setRows] = useState([]);
 
   const form = useForm({
     defaultValues: {
@@ -44,10 +48,55 @@ const CampaignDetail = () => {
   );
   const percentage = Number(fundingPercentage);
 
+  useEffect(() => {
+    const fetchRewards = async () => {
+      const updatedRows = [];
+
+      for (const address of donators) {
+        const rewardTier = await fetchUserReward(id, address);
+        const donator = await getAccountByWallet(address);
+        const usernames = donator.username;
+
+        if (rewardTier) {
+          updatedRows.push({ donor: usernames, reward: rewardTier });
+        }
+      }
+
+      setRows(updatedRows);
+    };
+
+    if (donators.length > 0) {
+      fetchRewards();
+    }
+  }, [donators, id]);
+
+  const columns = [
+    { headerName: 'Donor Address', field: 'donor' },
+    { headerName: 'Reward Tier', field: 'reward' }
+  ];
+
+  const getRewardBadge = (reward) => {
+    switch (reward) {
+      case 'Gold':
+        return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
+      case 'Silver':
+        return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
+      case 'Bronze':
+        return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
+      default:
+        return null;
+    }
+  };
+  const rowsWithBadges = rows.map((row) => ({
+    ...row,
+    reward: getRewardBadge(row.reward) // Replace reward text with image
+  }));
+
   const fetchCampaign = async () => {
     try {
       const campaignData = await getCampaignById(id);
       setData(campaignData);
+      setDonators(campaignData.donators);
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
@@ -282,15 +331,16 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                     bgColor="#4CAF50"
                   />
+                  <div>
+                    <CheckDonationAndReward
+                      campaignId={id}
+                      username={username}
+                      profilePicture={userPicture}
+                    />
+                  </div>
                 </form>
               )}
-              <div>
-                <CheckDonationAndReward
-                  campaignId={id}
-                  username={username}
-                  profilePicture={userPicture}
-                />
-              </div>
+              <DataGridComponent columns={columns} rows={rowsWithBadges} />
             </div>
           </div>
         </div>

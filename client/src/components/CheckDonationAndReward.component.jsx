@@ -5,10 +5,9 @@ import goldBadge from '../assets/gold.png';
 import bronzeBadge from '../assets/bronze.png';
 
 const DonationDetails = ({ campaignId, username, profilePicture }) => {
-  const { fetchUserDonation, fetchUserReward, address, getCampaignById } = useStateContext();
+  const { fetchUserDonation, fetchUserReward, address } = useStateContext();
   const [donationAmount, setDonationAmount] = useState(null);
   const [rewardTier, setRewardTier] = useState(null);
-  const [rewards, setRewards] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,49 +22,22 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
     }
   }, [campaignId, address]);
 
-  useEffect(() => {
-    const fetchRewards = async () => {
-      const campaignData = await getCampaignById(campaignId);
-      setRewards(campaignData.rewards);
-    };
-
-    if (campaignId) {
-      fetchRewards();
-    }
-  }, [campaignId]);
-
-  const getBadgeInfo = (tier) => {
-    if (!tier) return { image: null, name: '' };
-
-    const matchingReward = rewards.find((reward) => reward.description === tier);
-    if (!matchingReward) return { image: null, name: '' };
-
-    const index = rewards.indexOf(matchingReward);
-    let badgeImage;
-    let badgeName;
-
-    switch (rewards.length - index) {
-      case 1:
-        badgeImage = goldBadge;
-        badgeName = 'Gold';
-        break;
-      case 2:
-        badgeImage = silverBadge;
-        badgeName = 'Silver';
-        break;
-      case 3:
-        badgeImage = bronzeBadge;
-        badgeName = 'Bronze';
-        break;
+  const getRewardBadge = (reward) => {
+    switch (reward) {
+      case 'Gold':
+        return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
+      case 'Silver':
+        return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
+      case 'Bronze':
+        return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
       default:
-        badgeImage = null;
-        badgeName = '';
+        return null;
     }
-
-    return { image: badgeImage, name: badgeName };
   };
 
-  const { image: badgeImage, name: badgeName } = getBadgeInfo(rewardTier);
+  // Determine the badge image and name based on the reward tier
+  const badgeImage = getRewardBadge(rewardTier);
+  const badgeName = rewardTier;
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto mt-8">
@@ -79,8 +51,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
       </div>
       <div className="bg-gray-100 p-4 rounded-md mb-4">
         <p className="text-gray-600">
-          <strong className="text-gray-800">Amount Donated:</strong>{' '}
-          {donationAmount ? `${donationAmount} ETH` : '0 ETH'}
+          <strong className="text-gray-800">Amount Donated:</strong> {`${donationAmount} ETH`}
         </p>
       </div>
       <div className="bg-gray-100 p-4 rounded-md">
@@ -89,7 +60,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
             <p className="text-black">
               <strong className="text-gray-800">Reward Tier:</strong> {badgeName}
             </p>
-            <img src={badgeImage} alt={badgeName} className="w-10 h-10 mr-2" />
+            {badgeImage} {/* Use the badgeImage directly */}
           </div>
         ) : (
           <p className="text-gray-600">Your donation isn't enough for a reward.</p>
