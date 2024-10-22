@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStateContext } from '../context';
 import PageLoad from '../components/Loading.component';
 import { uploadProfilePicture } from '../api/User/uploadImage.api';
+import PopupComponent from '../components/PopUp.component';
 
 const validationSchema = yup.object().shape({
   target: yup
@@ -76,14 +77,11 @@ const CreateCampaign = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [popupVisible, setPopupVisible] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-    } else {
-      setSelectedFile(null);
-    }
+    setSelectedFile(file || null);
   };
 
   const handleSaveButton = async () => {
@@ -107,40 +105,44 @@ const CreateCampaign = () => {
     const picture = new FormData();
     picture.append('profilePicture', selectedFile);
 
-    await uploadProfilePicture(picture)
-      .then((response) => {
-        form.setValue('profilePicture', response.url);
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    try {
+      const response = await uploadProfilePicture(picture);
+      form.setValue('profilePicture', response.url);
 
-    const formDataRequest = {
-      title: form.getValues('judul_proyek'),
-      description: form.getValues('deskripsi_proyek'),
-      targetAmount: form.getValues('target').toString(),
-      deadline: form.getValues('deadline'),
-      image: form.getValues('profilePicture'),
-      rewards: tiers
-    };
-    await createCampaign(formDataRequest)
-      .then(() => {
-        alert('Campaign created successfully');
-        navigate('/');
-      })
-      .catch((error) => {
-        alert('Failed to create campaign');
-      });
-    setIsLoading(false);
+      const formDataRequest = {
+        title: form.getValues('judul_proyek'),
+        description: form.getValues('deskripsi_proyek'),
+        targetAmount: form.getValues('target').toString(),
+        deadline: form.getValues('deadline'),
+        image: form.getValues('profilePicture'),
+        rewards: tiers
+      };
+
+      await createCampaign(formDataRequest);
+      setPopupVisible(true);
+    } catch (error) {
+      alert('Failed to create campaign: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  const handlePopupClose = () => {
+    setPopupVisible(false);
+    navigate('/');
+  };
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
+      <PageLoad isLoading={isLoading} />
       <form
         className="flex flex-row items-center justify-around"
         onSubmit={form.handleSubmit(handleSaveButton)}>
         <div className="flex flex-col w-1/3">
-          <PageLoad isLoading={isLoading} />
+          <PopupComponent
+            message="Campaign created successfully!"
+            visible={popupVisible}
+            onClose={handlePopupClose}
+          />
           <div className="Header font-bold text-2xl font-poppins mb-7">
             <h3>Mulai Kampanye untuk Projek Baru</h3>
           </div>

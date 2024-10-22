@@ -3,20 +3,21 @@ pragma solidity ^0.8.0;
 
 contract CrowdfundingCampaign {
     struct Reward {
-        uint256 minAmount; // Minimum donation amount for this reward
-        string description; // Description of the reward
+        uint256 minAmount;
+        string description;
     }
 
     struct Campaign {
-        address owner; // Creator of the campaign
-        string title; // Title of the campaign
-        string description; // Description of the campaign
-        uint256 targetAmount; // Target amount to be raised
-        uint256 deadline; // Campaign deadline as a timestamp
-        uint256 amountCollected; // Total amount collected
-        string image; // Image URL for the campaign
-        Reward[] rewards; // Dynamic array of rewards
-        bool exists; // To check if the campaign exists (for deletion logic)
+        address owner;
+        string title;
+        string description;
+        uint256 targetAmount;
+        uint256 deadline;
+        uint256 amountCollected;
+        string image;
+        Reward[] rewards;
+        address[] donors;
+        bool exists;
     }
 
     mapping(uint256 => Campaign) public campaigns;
@@ -26,9 +27,6 @@ contract CrowdfundingCampaign {
     // Event emitted when a new campaign is created
     event CampaignCreated(uint256 indexed campaignId, address indexed owner);
 
-    // Event emitted when a campaign is updated
-    event CampaignUpdated(uint256 indexed campaignId);
-
     // Event emitted when a donation is made
     event DonationReceived(
         uint256 indexed campaignId,
@@ -36,18 +34,21 @@ contract CrowdfundingCampaign {
         uint256 amount
     );
 
+    // Event emitted when a campaign is deleted
+    event CampaignDeleted(uint256 indexed campaignId, address indexed owner);
+
     // Modifier to check if the sender is the campaign owner
     modifier onlyOwner(uint256 _campaignId) {
         require(
             campaigns[_campaignId].owner == msg.sender,
-            "Only the campaign owner can perform this action."
+            "Only the campaign owner can perform this action"
         );
         _;
     }
 
     // Modifier to check if the campaign exists
     modifier campaignExists(uint256 _campaignId) {
-        require(campaigns[_campaignId].exists, "Campaign does not exist.");
+        require(campaigns[_campaignId].exists, "Campaign does not exist");
         _;
     }
 
@@ -84,40 +85,6 @@ contract CrowdfundingCampaign {
         emit CampaignCreated(campaignCount, msg.sender);
     }
 
-    // Function to update a campaign
-    function updateCampaign(
-        uint256 _campaignId,
-        string memory _title,
-        string memory _description,
-        uint256 _targetAmount,
-        uint256 _deadline,
-        string memory _image,
-        Reward[] memory _rewards
-    ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
-        require(
-            _deadline > block.timestamp,
-            "Deadline should be in the future."
-        );
-        require(_rewards.length <= 3, "Maximum of 3 rewards allowed."); // Ensure only 3 rewards
-
-        Campaign storage campaign = campaigns[_campaignId];
-        campaign.title = _title;
-        campaign.description = _description;
-        campaign.targetAmount = _targetAmount;
-        campaign.deadline = _deadline;
-        campaign.image = _image;
-
-        // Clear existing rewards
-        delete campaign.rewards;
-
-        // Copy new rewards from memory to storage
-        for (uint256 i = 0; i < _rewards.length; i++) {
-            campaign.rewards.push(_rewards[i]);
-        }
-
-        emit CampaignUpdated(_campaignId);
-    }
-
     // Function to view a campaign
     function getCampaign(
         uint256 _campaignId
@@ -133,7 +100,8 @@ contract CrowdfundingCampaign {
             uint256 deadline,
             uint256 amountCollected,
             string memory image,
-            Reward[] memory rewards
+            Reward[] memory rewards,
+            address[] memory donors
         )
     {
         Campaign memory campaign = campaigns[_campaignId];
@@ -145,16 +113,15 @@ contract CrowdfundingCampaign {
             campaign.deadline,
             campaign.amountCollected,
             campaign.image,
-            campaign.rewards
+            campaign.rewards,
+            campaign.donors
         );
     }
 
     // Function to get all campaigns
     function getAllCampaigns() public view returns (Campaign[] memory) {
-        // Create an array in memory to hold all the campaigns
         Campaign[] memory allCampaigns = new Campaign[](campaignCount);
 
-        // Loop through each campaign and add it to the array
         for (uint256 i = 1; i <= campaignCount; i++) {
             allCampaigns[i - 1] = campaigns[i];
         }
@@ -166,7 +133,15 @@ contract CrowdfundingCampaign {
     function deleteCampaign(
         uint256 _campaignId
     ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
-        delete campaigns[_campaignId];
+        Campaign storage campaign = campaigns[_campaignId];
+
+        require(
+            block.timestamp >= campaign.deadline + 30 days,
+            "Campaign can only be deleted 30 days after deadline"
+        );
+
+        campaign.exists = false;
+        emit CampaignDeleted(_campaignId, msg.sender);
     }
 
     // Function to donate to a campaign
@@ -178,31 +153,62 @@ contract CrowdfundingCampaign {
         require(msg.value > 0, "Donation must be greater than zero.");
 
         campaign.amountCollected += msg.value;
-        donations[_campaignId][msg.sender] += msg.value; // Track donor's contribution
+        donations[_campaignId][msg.sender] += msg.value;
+        campaign.donors.push(msg.sender);
 
         emit DonationReceived(_campaignId, msg.sender, msg.value);
     }
 
+    // Function to get all donors and their eligible rewards for a specific campaign
+    // function getEligibleRewardsForCampaign(
+    //     uint256 _campaignId
+    // )
+    //     public
+    //     view
+    //     campaignExists(_campaignId)
+    //     onlyOwner(_campaignId)
+    //     returns (address[] memory, string[] memory)
+    // {
+    //     Campaign storage campaign = campaigns[_campaignId];
+    //     address[] memory donorAddresses = campaign.donors;
+    //     string[] memory rewardTiers = new string[](donorAddresses.length);
+
+    //     for (uint256 i = 0; i < donorAddresses.length; i++) {
+    //         rewardTiers[i] = getRewardTier(_campaignId, donorAddresses[i]); // Get the eligible reward
+    //     }
+
+    //     return (donorAddresses, rewardTiers);
+    // }
+
     // Function to get the reward tier for a donation amount
     function getRewardTier(
         uint256 _campaignId,
-        uint256 _donationAmount
+        address _donorAddress
     )
         public
         view
         campaignExists(_campaignId)
         returns (string memory rewardDescription)
     {
+        uint256 donationAmount = donations[_campaignId][_donorAddress];
         Reward[] memory rewards = campaigns[_campaignId].rewards;
 
         for (uint256 i = 0; i < rewards.length; i++) {
-            if (_donationAmount >= rewards[i].minAmount) {
-                rewardDescription = rewards[i].description;
+            if (donationAmount >= rewards[i].minAmount) {
+                if (i == 0) {
+                    return "Bronze";
+                } else if (i == 1) {
+                    return "Silver";
+                } else if (i == 2) {
+                    return "Gold";
+                }
             }
         }
-        return rewardDescription;
+
+        return "No eligible reward";
     }
 
+    // Refund donations from an unsuccessful campaign
     function refundDonation(
         uint256 _campaignId
     ) public campaignExists(_campaignId) {
@@ -219,8 +225,8 @@ contract CrowdfundingCampaign {
         uint256 donatedAmount = donations[_campaignId][msg.sender];
         require(donatedAmount > 0, "No donation to refund.");
 
-        donations[_campaignId][msg.sender] = 0; // Reset the donor's contribution
-        payable(msg.sender).transfer(donatedAmount); // Refund the donor
+        donations[_campaignId][msg.sender] = 0;
+        payable(msg.sender).transfer(donatedAmount);
     }
 
     // Withdraw funds from a successful campaign
@@ -238,6 +244,6 @@ contract CrowdfundingCampaign {
         );
 
         payable(campaign.owner).transfer(campaign.amountCollected);
-        campaign.amountCollected = 0; // Reset after withdrawal
+        campaign.amountCollected = 0;
     }
 }

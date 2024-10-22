@@ -14,27 +14,32 @@ import PopupComponent from '../components/PopUp.component';
 import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
 import { getAllComments } from '../api/Comment/getAllComment.api';
 import CommentSection from '../components/Comment.component';
-import { UserWallet } from '@thirdweb-dev/react';
 import { postComment } from '../api/Comment/postComment.api';
+import CheckDonationAndReward from '../components/CheckDonationAndReward.component';
+import DataGridComponent from '../components/DataGrid.component';
 
 const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const { address, contract, getCampaignById, donateToCampaign } = useStateContext();
+  const { address, contract, getCampaignById, donateToCampaign, fetchUserReward } =
+    useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [userId, setUserId] = useState(null);
   const [newProfilePict, setNewProfilePict] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [username, setUsername] = useState(null);
+  const [userPicture, setUserPicture] = useState(null);
+  const [donators, setDonators] = useState([]);
+  const [rows, setRows] = useState([]);
 
   const form = useForm({
     defaultValues: {
       minimal_eth: '',
       content: '',
-      is_owner: false,
-      comments: ''
+      is_owner: false
     }
   });
 
@@ -43,14 +48,61 @@ const CampaignDetail = () => {
   );
   const percentage = Number(fundingPercentage);
 
+  useEffect(() => {
+    const fetchRewards = async () => {
+      const updatedRows = [];
+
+      for (const address of donators) {
+        const rewardTier = await fetchUserReward(id, address);
+        const donator = await getAccountByWallet(address);
+        const usernames = donator.username;
+
+        if (rewardTier) {
+          updatedRows.push({ donor: usernames, reward: rewardTier });
+        }
+      }
+
+      setRows(updatedRows);
+    };
+
+    if (donators.length > 0) {
+      fetchRewards();
+    }
+  }, [donators, id]);
+
+  const columns = [
+    { headerName: 'Donor Address', field: 'donor' },
+    { headerName: 'Reward Tier', field: 'reward' }
+  ];
+
+  const getRewardBadge = (reward) => {
+    switch (reward) {
+      case 'Gold':
+        return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
+      case 'Silver':
+        return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
+      case 'Bronze':
+        return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
+      default:
+        return null;
+    }
+  };
+  const rowsWithBadges = rows.map((row) => ({
+    ...row,
+    reward: getRewardBadge(row.reward) // Replace reward text with image
+  }));
+
   const fetchCampaign = async () => {
     try {
       const campaignData = await getCampaignById(id);
       setData(campaignData);
+      setDonators(campaignData.donators);
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
       setUserId(userDetails.wallet);
+      setUsername(userDetails.username);
+      setUserPicture(userDetails.profilePicture);
       if (userDetails.wallet === campaignData.owner) {
         form.setValue('is_owner', true);
       }
@@ -73,11 +125,13 @@ const CampaignDetail = () => {
     }
   };
 
-  const handleCommentSubmit = async () => {
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
     try {
       setLoadingComments(true);
-      await postComment(id, wallet, form.watch('content'));
+      await postComment(id, userId, form.watch('content'));
       fetchCommentsData();
+      form.reset({ content: '' });
     } catch (error) {
       alert(error);
     } finally {
@@ -85,7 +139,9 @@ const CampaignDetail = () => {
     }
   };
 
-  const handleDonation = async () => {
+  const handleDonation = async (e) => {
+    e.preventDefault();
+
     try {
       const donationAmount = form.watch('minimal_eth');
       await donateToCampaign(id, donationAmount);
@@ -95,7 +151,6 @@ const CampaignDetail = () => {
       alert('Error donating to campaign: ' + error.message);
     }
   };
-
   useEffect(() => {
     if (contract) {
       fetchCampaign();
@@ -117,6 +172,7 @@ const CampaignDetail = () => {
 
   const closePopup = () => {
     setPopupVisible(false);
+    window.location.reload();
   };
 
   return (
@@ -162,8 +218,8 @@ const CampaignDetail = () => {
                             <h3 className="text-lg font-bold">{badgeName}</h3>
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-sm font-bold mb-2">Description:</h3>
-                            <p className="text-sm">{reward.description}</p>
+                            <h3 className="text-sm font-bold mb-2 text-left">Description:</h3>
+                            <p className="text-sm text-left">{reward.description}</p>
                           </div>
                         </div>
                       </div>
@@ -171,27 +227,32 @@ const CampaignDetail = () => {
                   })}
               </div>
               <div className="flex flex-col gap-2 mt-3">
-                <h2 className="font-bold text-xl">Komentar</h2>
-                <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4">
+                <h2 className="font-bold text-xl text-left">Comments</h2>
+                <hr className="border-t border-gray-400 my-2" />
+                <form
+                  onSubmit={handleCommentSubmit}
+                  className="flex flex-col gap-4 border border-2 p-4 rounded-lg shadow-lg bg-gray-100">
                   <TextFieldComponent
                     name="content"
                     label=""
-                    placeholder="Enter your comment here"
+                    placeholder="Add a Comment..."
                     control={form.control}
                     type="textarea"
                     rows={4}
                     required={true}
                     errorMessage={form.formState.errors.content?.message}
                   />
-                  <CustomButton
-                    btnType="submit"
-                    title="add Comment"
-                    bgColor="#4CAF50"
-                    styles="font-semibold rounded px-4 border-2"
-                    textColor="#ffffff"
-                  />
+                  <div className="flex justify-end">
+                    <CustomButton
+                      btnType="submit"
+                      title="Post"
+                      bgColor="#4CAF50"
+                      styles="font-semibold rounded px-4 border-2"
+                      textColor="#ffffff"
+                      className="w-1/4"
+                    />
+                  </div>
                 </form>
-
                 {/* Render comments with nested replies */}
                 <div className="flex flex-col gap-2 mt-4">
                   <div>
@@ -221,9 +282,9 @@ const CampaignDetail = () => {
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
               <div className="flex flex-row items-center gap-3">
-                <div className="w-full bg-gray-300 rounded-3xl h-3.5 ">
+                <div className="w-full bg-gray-300 h-3.5 ">
                   <div
-                    className="bg-green-500 h-3.5 rounded-3xl text-xs text-white text-center shadow-lg"
+                    className="bg-green-500 h-3.5 text-xs text-white text-center shadow-lg"
                     style={{ width: `${fundingPercentage}%` }}
                     role="progressbar"
                     aria-valuenow="60"
@@ -248,12 +309,12 @@ const CampaignDetail = () => {
                 btnType="button"
                 title="Share"
                 bgColor="#4169E1"
-                styles="font-semibold rounded px-4 border-2"
+                styles="font-semibold rounded px-4"
                 textColor="white"
                 borderColor="#2E6950"
               />
               {!form.watch('is_owner') && (
-                <form onSubmit={form.handleSubmit(handleDonation)} className="flex flex-col mb-2">
+                <form onSubmit={handleDonation} className="flex flex-col mb-2">
                   <div className="mb-3">
                     <TextFieldDecimalComponent
                       name="minimal_eth"
@@ -270,8 +331,16 @@ const CampaignDetail = () => {
                     textColor="#ffffff"
                     bgColor="#4CAF50"
                   />
+                  <div>
+                    <CheckDonationAndReward
+                      campaignId={id}
+                      username={username}
+                      profilePicture={userPicture}
+                    />
+                  </div>
                 </form>
               )}
+              <DataGridComponent columns={columns} rows={rowsWithBadges} />
             </div>
           </div>
         </div>

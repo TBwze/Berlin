@@ -45,8 +45,10 @@ export const getComments = async (req, res) => {
     try {
         const { campaignId } = req.params;
 
-        // Fetch comments for the specified campaign
-        const comments = await Comment.find({ campaignId });
+        // Fetch comments for the specified campaign and sort by createdAt in descending order
+        const comments = await Comment.find({ campaignId }).sort({
+            createdAt: -1,
+        });
 
         // Function to get user details and include them in comments and replies
         const attachUserDetails = async (comment) => {
