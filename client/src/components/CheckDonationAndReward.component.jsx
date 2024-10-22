@@ -40,7 +40,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
   const badgeName = rewardTier;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto mt-8">
+    <div className="bg-white border-2 shadow-md rounded-lg p-6 max-w-lg mx-auto mt-8">
       <div className="flex items-center mb-4">
         <img
           src={profilePicture}
