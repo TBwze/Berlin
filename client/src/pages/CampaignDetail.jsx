@@ -22,7 +22,7 @@ const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const { address, contract, getCampaignById, donateToCampaign, fetchUserReward } =
+  const { address, contract, getCampaignById, donateToCampaign, fetchUserReward, withdrawFunds } =
     useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
@@ -34,6 +34,7 @@ const CampaignDetail = () => {
   const [userPicture, setUserPicture] = useState(null);
   const [donators, setDonators] = useState([]);
   const [rows, setRows] = useState([]);
+  const [popupMessage, setPopupMessage] = useState('');
 
   const form = useForm({
     defaultValues: {
@@ -48,6 +49,8 @@ const CampaignDetail = () => {
   );
   const percentage = Number(fundingPercentage);
 
+  const isTargetMet = data.amountCollected >= data.targetAmount;
+  const isDeadlinePassed = new Date(data.deadline) < new Date();
   useEffect(() => {
     const fetchRewards = async () => {
       const updatedRows = [];
@@ -145,6 +148,7 @@ const CampaignDetail = () => {
     try {
       const donationAmount = form.watch('minimal_eth');
       await donateToCampaign(id, donationAmount);
+      setPopupMessage('Donation Successful!');
       setPopupVisible(true);
       fetchCampaign();
     } catch (error) {
@@ -175,10 +179,23 @@ const CampaignDetail = () => {
     window.location.reload();
   };
 
+  const handleWithdrawFunds = async () => {
+    setIsLoading(true);
+    try {
+      await withdrawFunds(id);
+      setPopupMessage('Funds withdrawn successfully!');
+      setPopupVisible(true);
+    } catch (error) {
+      alert('Error withdrawing funds: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading || loadingComments} />
-      <PopupComponent message="Donation Successful!" visible={popupVisible} onClose={closePopup} />
+      <PopupComponent message={popupMessage} visible={popupVisible} onClose={closePopup} />
       {!isLoading && (
         <div className="flex flex-col text-center pb-4">
           <div className="Header font-bold text-xl pb-4">
@@ -304,15 +321,18 @@ const CampaignDetail = () => {
                 <h3 className="font-bold mt-3">Informasi Proyek</h3>
                 <p className="text-balance text-left text-sm mt-0">{data.description}</p>
               </div>
-              <CustomButton
-                className="w-40"
-                btnType="button"
-                title="Share"
-                bgColor="#4169E1"
-                styles="font-semibold rounded px-4"
-                textColor="white"
-                borderColor="#2E6950"
-              />
+              {form.watch('is_owner') && isTargetMet && isDeadlinePassed && (
+                <CustomButton
+                  className="w-40"
+                  btnType="button"
+                  title="Withdraw Funds"
+                  bgColor="#4CAF50"
+                  styles="font-semibold rounded px-4"
+                  textColor="#ffffff"
+                  onClick={handleWithdrawFunds}
+                />
+              )}
+
               {!form.watch('is_owner') && (
                 <form onSubmit={handleDonation} className="flex flex-col mb-2">
                   <div className="mb-3">

@@ -7,22 +7,44 @@ import { formatDate } from '../utils/date.utils';
 import { useNavigate } from 'react-router-dom';
 import PageLoad from '../components/Loading.component';
 import { useStateContext } from '../context';
+import PopupComponent from '../components/PopUp.component';
 
 const Home = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
-  const { address, contract, getCampaigns } = useStateContext();
-  const [isLoading, setIsLoading] = useState(true); // Set initial loading state to true
+  const { address, contract, getCampaigns, fetchUserDonation, refundDonation } = useStateContext();
+  const [isLoading, setIsLoading] = useState(true);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
 
   const fetchCampaigns = async () => {
     try {
-      setIsLoading(true); // Show loading spinner while fetching data
+      setIsLoading(true);
       const data = await getCampaigns();
       setData(data);
     } catch (error) {
       console.error('Failed to fetch campaigns:', error);
     } finally {
-      setIsLoading(false); // Hide loading spinner once data is fetched
+      setIsLoading(false);
+    }
+  };
+
+  const checkAndRefund = async () => {
+    try {
+      for (const campaign of data) {
+        const userDonation = await fetchUserDonation(campaign.id);
+        if (
+          userDonation > 0 &&
+          new Date(campaign.deadline).getTime() < Date.now() &&
+          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
+        ) {
+          await refundDonation(campaign.id);
+          setPopupVisible(true);
+          setPopupMessage(`Refunded for campaign ${campaign.title}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error during refund process:', error.message);
     }
   };
 
@@ -31,6 +53,12 @@ const Home = () => {
       fetchCampaigns();
     }
   }, [address, contract]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      checkAndRefund();
+    }
+  }, [data]);
 
   const popularProjects = [...data]
     .sort((a, b) => {
@@ -45,8 +73,12 @@ const Home = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
-      {/* Show the loading spinner */}
       <PageLoad loading={isLoading} />
+      <PopupComponent
+        message={popupMessage}
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+      />
 
       {/* Projek Populer Section */}
       {!isLoading && (

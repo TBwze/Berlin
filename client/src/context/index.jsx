@@ -227,6 +227,26 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  const withdrawFunds = async (campaignId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error('Wallet not connected. Please try connecting again.');
+      }
+      const transaction = await contract.call('withdrawFunds', [campaignId], {
+        signer: signer
+      });
+
+      return transaction;
+    } catch (error) {
+      console.error('Withdrawal failed!', error);
+      throw new Error('Failed to withdraw funds');
+    }
+  };
+
   return (
     <stateContext.Provider
       value={{
