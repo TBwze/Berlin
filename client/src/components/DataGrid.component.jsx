@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DataGridComponent = ({ columns, rows }) => {
+const DataGridComponent = ({ columns = [], rows = [] }) => {
   return (
     <div className="overflow-auto">
       <table className="min-w-full bg-white border border-gray-200">
@@ -31,12 +31,6 @@ const DataGridComponent = ({ columns, rows }) => {
       </table>
     </div>
   );
-};
-
-// Default Props
-DataGridComponent.defaultProps = {
-  columns: [],
-  rows: []
 };
 
 export default DataGridComponent;

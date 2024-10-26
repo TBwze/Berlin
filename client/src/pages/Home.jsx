@@ -23,7 +23,6 @@ const Home = () => {
       const data = await getCampaigns();
       setData(data);
     } catch (error) {
-      console.error('Failed to fetch campaigns:', error);
     } finally {
       setIsLoading(false);
     }
@@ -36,16 +35,15 @@ const Home = () => {
         if (
           userDonation > 0 &&
           new Date(campaign.deadline).getTime() < Date.now() &&
-          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
+          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount) &&
+          campaign.exists === true
         ) {
           await refundDonation(campaign.id);
           setPopupVisible(true);
           setPopupMessage(`Refunded for campaign ${campaign.title}`);
         }
       }
-    } catch (error) {
-      console.error('Error during refund process:', error.message);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
