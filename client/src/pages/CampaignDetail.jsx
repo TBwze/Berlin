@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import CustomButton from '../components/CustomButton.component';
 import TextFieldComponent from '../components/Textfield.component';
 import { getAccountByWallet } from '../api/User/getUserByWallet.api';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStateContext } from '../context';
 import silverBadge from '../assets/silver.png';
 import goldBadge from '../assets/gold.png';
@@ -22,8 +22,14 @@ const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const { address, contract, getCampaignById, donateToCampaign, fetchUserReward } =
-    useStateContext();
+  const {
+    address,
+    contract,
+    getCampaignById,
+    donateToCampaign,
+    withdrawFunds,
+    getCampaignDonators
+  } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -32,8 +38,10 @@ const CampaignDetail = () => {
   const [loadingComments, setLoadingComments] = useState(true);
   const [username, setUsername] = useState(null);
   const [userPicture, setUserPicture] = useState(null);
-  const [donators, setDonators] = useState([]);
-  const [rows, setRows] = useState([]);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [donatorData, setDonatorData] = useState([]);
+  const [gridRows, setGridRows] = useState([]);
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -48,64 +56,96 @@ const CampaignDetail = () => {
   );
   const percentage = Number(fundingPercentage);
 
-  useEffect(() => {
-    const fetchRewards = async () => {
-      const updatedRows = [];
-
-      for (const address of donators) {
-        const rewardTier = await fetchUserReward(id, address);
-        const donator = await getAccountByWallet(address);
-        const usernames = donator.username;
-
-        if (rewardTier) {
-          updatedRows.push({ donor: usernames, reward: rewardTier });
-        }
-      }
-
-      setRows(updatedRows);
-    };
-
-    if (donators.length > 0) {
-      fetchRewards();
-    }
-  }, [donators, id]);
-
-  const columns = [
-    { headerName: 'Reward Tier', field: 'reward' },
-    { headerName: 'Donor', field: 'donor' }
-  ];
+  const isTargetMet = data.amountCollected >= data.targetAmount;
+  const isDeadlinePassed = new Date(data.deadline) < new Date();
 
   const getRewardBadge = (reward) => {
     switch (reward) {
       case 'Gold':
-        return (<div className="flex items-center">
-                  <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />
-                  <span className="ml-2">Gold</span>
-                </div>);
+        return (
+          <div className="flex items-center">
+            <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />
+            <span className="ml-2">Gold</span>
+          </div>
+        );
       case 'Silver':
-        return (<div className="flex items-center">
-                  <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />
-                  <span className="ml-2">Silver</span>
-                </div>);
+        return (
+          <div className="flex items-center">
+            <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />
+            <span className="ml-2">Silver</span>
+          </div>
+        );
       case 'Bronze':
-        return (<div className="flex items-center">
-                  <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />
-                  <span className="ml-2">Bronze</span>
-                </div>);
+        return (
+          <div className="flex items-center">
+            <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />
+            <span className="ml-2">Bronze</span>
+          </div>
+        );
       default:
         return null;
     }
   };
-  const rowsWithBadges = rows.map((row) => ({
-    ...row,
-    reward: getRewardBadge(row.reward) // Replace reward text with image
-  }));
+  const columns = [
+    { headerName: 'Tier', field: 'tier' },
+    { headerName: 'Username', field: 'addresses' },
+    { headerName: 'Amounts', field: 'amounts' }
+  ];
+
+  const getUsernamesForAddresses = async (addresses) => {
+    try {
+      const usernames = await Promise.all(
+        addresses.map(async (address) => {
+          const response = await getAccountByWallet(address);
+          return response.username || address;
+        })
+      );
+      return usernames;
+    } catch (error) {
+      console.error('Error fetching usernames:', error);
+      return addresses;
+    }
+  };
+
+  const createGridRows = async () => {
+    setIsLoading(true);
+    try {
+      const gridRows = await Promise.all(
+        donatorData.map(async (item) => {
+          const usernames =
+            item.addresses.length > 0 ? await getUsernamesForAddresses(item.addresses) : [];
+
+          return {
+            tier: getRewardBadge(item.tier),
+            addresses: usernames.length > 0 ? usernames.join(', ') : '',
+            amounts: item.amounts.length > 0 ? item.amounts.join(', ') : ''
+          };
+        })
+      );
+      setGridRows(gridRows);
+    } catch (error) {
+      console.error('Error creating grid rows:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchDonors = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getCampaignDonators(id);
+      setDonatorData(data);
+    } catch (error) {
+      console.error('Error fetching donors:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchCampaign = async () => {
     try {
       const campaignData = await getCampaignById(id);
       setData(campaignData);
-      setDonators(campaignData.donators);
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
@@ -116,7 +156,7 @@ const CampaignDetail = () => {
         form.setValue('is_owner', true);
       }
     } catch (error) {
-      alert('Error fetching campaign:', error);
+      console.log(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -150,20 +190,25 @@ const CampaignDetail = () => {
 
   const handleDonation = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const donationAmount = form.watch('minimal_eth');
       await donateToCampaign(id, donationAmount);
+      setPopupMessage('Donation Successful!');
       setPopupVisible(true);
       fetchCampaign();
     } catch (error) {
       alert('Error donating to campaign: ' + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
     if (contract) {
       fetchCampaign();
+      fetchDonors();
       fetchCommentsData();
+      createGridRows();
     }
   }, [address, contract, id]);
 
@@ -184,10 +229,23 @@ const CampaignDetail = () => {
     window.location.reload();
   };
 
+  const handleWithdrawFunds = async () => {
+    setIsLoading(true);
+    try {
+      await withdrawFunds(id);
+      setPopupMessage('Funds withdrawn successfully!');
+      setPopupVisible(true);
+    } catch (error) {
+      alert('Error withdrawing funds: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading || loadingComments} />
-      <PopupComponent message="Donation Successful!" visible={popupVisible} onClose={closePopup} />
+      <PopupComponent message={popupMessage} visible={popupVisible} onClose={closePopup} />
       {!isLoading && (
         <div className="flex flex-col text-center pb-4">
           <div className="Header font-bold text-2xl pb-4">
@@ -229,6 +287,11 @@ const CampaignDetail = () => {
                           <div className="flex-1">
                             <h3 className="text-sm font-bold mb-2 text-left">Description:</h3>
                             <p className="text-sm text-left">{reward.description}</p>
+                            <h3 className="text-sm font-bold mb-2 text-left">Minimum Amount:</h3>
+                            <p className="text-sm text-left">
+                              {' '}
+                              {'>'} {reward.minAmount} ETH
+                            </p>{' '}
                           </div>
                         </div>
                       </div>
@@ -262,7 +325,6 @@ const CampaignDetail = () => {
                     />
                   </div>
                 </form>
-                {/* Render comments with nested replies */}
                 <div className="flex flex-col gap-2 mt-4">
                   <div>
                     {loadingComments ? (
@@ -284,7 +346,11 @@ const CampaignDetail = () => {
             </div>
             <div className="flex flex-col w-1/2 pl-10 gap-4 ">
               <div className="flex flex-row items-center">
-                <img src={newProfilePict} alt="ProfilePicture" className="w-20 h-20 mr-2 rounded-full" />
+                <img
+                  src={newProfilePict}
+                  alt="ProfilePicture"
+                  className="w-20 h-20 mr-2 rounded-full"
+                />
                 <h4 className="text-xl font-semibold">{data.username}</h4>
               </div>
               <p className="font-bold text-right">
@@ -313,16 +379,21 @@ const CampaignDetail = () => {
                 <h3 className="font-bold mt-3 text-left mb-3">Informasi Proyek</h3>
                 <p className="text-balance text-justify text-sm">{data.description}</p>
               </div>
-              <CustomButton
-                className="w-40"
-                btnType="button"
-                title="Share"
-                bgColor="#4169E1"
-                styles="font-semibold rounded px-4"
-                textColor="white"
-                borderColor="#2E6950"
-              />
-              {!form.watch('is_owner') && (
+              {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
+              {form.watch('content') !== 'asdfasdfannnbbbbbbbbbb' && (
+                <CustomButton
+                  className="w-40"
+                  btnType="button"
+                  title="Withdraw Funds"
+                  bgColor="#4CAF50"
+                  styles="font-semibold rounded px-4"
+                  textColor="#ffffff"
+                  handleClick={handleWithdrawFunds}
+                />
+              )}
+
+              {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
+              {form.watch('content') !== 'i[qwpoeoirq[pwoier' && (
                 <form onSubmit={handleDonation} className="flex flex-col mb-2">
                   <div className="mb-3">
                     <TextFieldDecimalComponent
@@ -349,7 +420,7 @@ const CampaignDetail = () => {
                   </div>
                 </form>
               )}
-              <DataGridComponent columns={columns} rows={rowsWithBadges} />
+              <DataGridComponent columns={columns} rows={gridRows} />
             </div>
           </div>
         </div>

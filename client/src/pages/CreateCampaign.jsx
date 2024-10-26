@@ -240,9 +240,11 @@ const CreateCampaign = () => {
             <TextFieldComponent
               name="hadiah_gold"
               label="Hadiah"
-              placeholder="Hadiah tier gold"
+              placeholder="Hadiah untuk tier gold"
               control={form.control}
               required
+              type="textarea"
+              rows={3}
             />
             <TextFieldDecimalComponent
               name="minimal_eth_gold"
@@ -263,9 +265,11 @@ const CreateCampaign = () => {
             <TextFieldComponent
               name="hadiah_silver"
               label="Hadiah"
-              placeholder="Hadiah tier silver"
+              placeholder="Hadiah untuk tier silver"
               control={form.control}
               required
+              type="textarea"
+              rows={3}
             />
             <TextFieldDecimalComponent
               name="minimal_eth_silver"
@@ -286,9 +290,11 @@ const CreateCampaign = () => {
             <TextFieldComponent
               name="hadiah_bronze"
               label="Hadiah"
-              placeholder="Hadiah tier bronze"
+              placeholder="Hadiah untuk tier bronze"
               control={form.control}
               required
+              type="textarea"
+              rows={3}
             />
             <TextFieldDecimalComponent
               name="minimal_eth_bronze"

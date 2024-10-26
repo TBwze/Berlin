@@ -22,6 +22,9 @@ contract CrowdfundingCampaign {
 
     mapping(uint256 => Campaign) public campaigns;
     mapping(uint256 => mapping(address => uint256)) public donations;
+    mapping(uint256 => mapping(address => bool)) public isDonor; // New mapping to track if address has donated before
+    mapping(uint256 => mapping(address => uint256))
+        public totalDonationsPerDonor;
     uint256 public campaignCount;
 
     // Event emitted when a new campaign is created
@@ -154,31 +157,16 @@ contract CrowdfundingCampaign {
 
         campaign.amountCollected += msg.value;
         donations[_campaignId][msg.sender] += msg.value;
-        campaign.donors.push(msg.sender);
+        totalDonationsPerDonor[_campaignId][msg.sender] += msg.value;
+
+        // Only add to donors array if this is their first donation
+        if (!isDonor[_campaignId][msg.sender]) {
+            campaign.donors.push(msg.sender);
+            isDonor[_campaignId][msg.sender] = true;
+        }
 
         emit DonationReceived(_campaignId, msg.sender, msg.value);
     }
-
-    // Function to get all donors and their eligible rewards for a specific campaign
-    // function getEligibleRewardsForCampaign(
-    //     uint256 _campaignId
-    // )
-    //     public
-    //     view
-    //     campaignExists(_campaignId)
-    //     onlyOwner(_campaignId)
-    //     returns (address[] memory, string[] memory)
-    // {
-    //     Campaign storage campaign = campaigns[_campaignId];
-    //     address[] memory donorAddresses = campaign.donors;
-    //     string[] memory rewardTiers = new string[](donorAddresses.length);
-
-    //     for (uint256 i = 0; i < donorAddresses.length; i++) {
-    //         rewardTiers[i] = getRewardTier(_campaignId, donorAddresses[i]); // Get the eligible reward
-    //     }
-
-    //     return (donorAddresses, rewardTiers);
-    // }
 
     // Function to get the reward tier for a donation amount
     function getRewardTier(
@@ -190,19 +178,21 @@ contract CrowdfundingCampaign {
         campaignExists(_campaignId)
         returns (string memory rewardDescription)
     {
-        uint256 donationAmount = donations[_campaignId][_donorAddress];
+        uint256 totalDonation = totalDonationsPerDonor[_campaignId][
+            _donorAddress
+        ];
         Reward[] memory rewards = campaigns[_campaignId].rewards;
 
-        for (uint256 i = 0; i < rewards.length; i++) {
-            if (donationAmount >= rewards[i].minAmount) {
-                if (i == 0) {
-                    return "Bronze";
-                } else if (i == 1) {
-                    return "Silver";
-                } else if (i == 2) {
-                    return "Gold";
-                }
-            }
+        if (rewards.length >= 3 && totalDonation >= rewards[2].minAmount) {
+            return "Gold";
+        } else if (
+            rewards.length >= 2 && totalDonation >= rewards[1].minAmount
+        ) {
+            return "Silver";
+        } else if (
+            rewards.length >= 1 && totalDonation >= rewards[0].minAmount
+        ) {
+            return "Bronze";
         }
 
         return "No eligible reward";
@@ -227,6 +217,7 @@ contract CrowdfundingCampaign {
 
         donations[_campaignId][msg.sender] = 0;
         payable(msg.sender).transfer(donatedAmount);
+        campaign.exists = false;
     }
 
     // Withdraw funds from a successful campaign
@@ -245,5 +236,73 @@ contract CrowdfundingCampaign {
 
         payable(campaign.owner).transfer(campaign.amountCollected);
         campaign.amountCollected = 0;
+        campaign.exists = false;
+    }
+
+    // New function to get all donors along with their donation and reward tier
+    function getDonorsWithRewards(
+        uint256 _campaignId
+    )
+        public
+        view
+        campaignExists(_campaignId)
+        returns (
+            string[] memory rewardTiers,
+            address[][] memory donors,
+            uint256[][] memory donationsList
+        )
+    {
+        Campaign storage campaign = campaigns[_campaignId];
+
+        // Define reward tier labels
+        string[] memory rewardTierLabels = new string[](3);
+        rewardTierLabels[0] = "Bronze";
+        rewardTierLabels[1] = "Silver";
+        rewardTierLabels[2] = "Gold";
+
+        // Initialize result arrays
+        address[][] memory rewardDonors = new address[][](3);
+        uint256[][] memory rewardDonations = new uint256[][](3);
+        uint256[] memory donorCounts = new uint256[](3);
+
+        for (uint256 i = 0; i < 3; i++) {
+            rewardDonors[i] = new address[](campaign.donors.length);
+            rewardDonations[i] = new uint256[](campaign.donors.length);
+        }
+
+        // Categorize donors into reward tiers based on total donations
+        for (uint256 i = 0; i < campaign.donors.length; i++) {
+            address donor = campaign.donors[i];
+            uint256 totalDonation = totalDonationsPerDonor[_campaignId][donor];
+
+            // Determine reward tier based on total donation
+            uint256 tierIndex;
+            if (totalDonation >= campaign.rewards[2].minAmount) {
+                tierIndex = 2; // Gold
+            } else if (totalDonation >= campaign.rewards[1].minAmount) {
+                tierIndex = 1; // Silver
+            } else {
+                tierIndex = 0; // Bronze
+            }
+
+            rewardDonors[tierIndex][donorCounts[tierIndex]] = donor;
+            rewardDonations[tierIndex][donorCounts[tierIndex]] = totalDonation;
+            donorCounts[tierIndex]++;
+        }
+
+        // Resize arrays to actual counts
+        for (uint256 i = 0; i < 3; i++) {
+            address[] memory tierDonors = new address[](donorCounts[i]);
+            uint256[] memory tierDonations = new uint256[](donorCounts[i]);
+
+            for (uint256 j = 0; j < donorCounts[i]; j++) {
+                tierDonors[j] = rewardDonors[i][j];
+                tierDonations[j] = rewardDonations[i][j];
+            }
+            rewardDonors[i] = tierDonors;
+            rewardDonations[i] = tierDonations;
+        }
+
+        return (rewardTierLabels, rewardDonors, rewardDonations);
     }
 }

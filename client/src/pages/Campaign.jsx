@@ -9,19 +9,15 @@ const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [myCampaigns, setMyCampaigns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [wallet, setWallet] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
   const fetchData = async () => {
     setIsLoading(true); // Start loading before fetching data
     try {
       const userDetails = await getUserDetails();
-      setWallet(userDetails.wallet);
-      console.log(wallet);
 
       const fetchedCampaigns = await getCampaigns();
       setCampaigns(fetchedCampaigns);
-      console.log(fetchedCampaigns);
 
       const userCampaigns = fetchedCampaigns.filter(
         (campaign) => campaign.wallet.toLowerCase() === userDetails.wallet.toLowerCase()
