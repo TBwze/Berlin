@@ -8,6 +8,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import ProtectedRoute from '../components/ProtectedRoute.component';
+import NotAuthorize from '../pages/NotAuthorize';
 import Admin from '../pages/admin/AdminPage';
 
 const router = createBrowserRouter([
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: 'admin',
         element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />
+      },
+      {
+        path: 'NotAuthorize',
+        element: <ProtectedRoute element={<NotAuthorize />} />
       }
     ]
   }

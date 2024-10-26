@@ -74,18 +74,27 @@ const CampaignDetail = () => {
   }, [donators, id]);
 
   const columns = [
-    { headerName: 'Donor Address', field: 'donor' },
-    { headerName: 'Reward Tier', field: 'reward' }
+    { headerName: 'Reward Tier', field: 'reward' },
+    { headerName: 'Donor', field: 'donor' }
   ];
 
   const getRewardBadge = (reward) => {
     switch (reward) {
       case 'Gold':
-        return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
+        return (<div className="flex items-center">
+                  <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />
+                  <span className="ml-2">Gold</span>
+                </div>);
       case 'Silver':
-        return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
+        return (<div className="flex items-center">
+                  <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />
+                  <span className="ml-2">Silver</span>
+                </div>);
       case 'Bronze':
-        return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
+        return (<div className="flex items-center">
+                  <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />
+                  <span className="ml-2">Bronze</span>
+                </div>);
       default:
         return null;
     }
@@ -198,7 +207,7 @@ const CampaignDetail = () => {
       <PopupComponent message={popupMessage} visible={popupVisible} onClose={closePopup} />
       {!isLoading && (
         <div className="flex flex-col text-center pb-4">
-          <div className="Header font-bold text-xl pb-4">
+          <div className="Header font-bold text-2xl pb-4">
             <h3>{data.title}</h3>
           </div>
           <div className="flex flex-row justify-around">
@@ -292,7 +301,7 @@ const CampaignDetail = () => {
             </div>
             <div className="flex flex-col w-1/2 pl-10 gap-4 ">
               <div className="flex flex-row items-center">
-                <img src={newProfilePict} alt="ProfilePicture" className="w-20 h-20 mr-2" />
+                <img src={newProfilePict} alt="ProfilePicture" className="w-20 h-20 mr-2 rounded-full" />
                 <h4 className="text-xl font-semibold">{data.username}</h4>
               </div>
               <p className="font-bold text-right">
@@ -318,8 +327,8 @@ const CampaignDetail = () => {
                 </div>
               </div>
               <div>
-                <h3 className="font-bold mt-3">Informasi Proyek</h3>
-                <p className="text-balance text-left text-sm mt-0">{data.description}</p>
+                <h3 className="font-bold mt-3 text-left mb-3">Informasi Proyek</h3>
+                <p className="text-balance text-justify text-sm">{data.description}</p>
               </div>
               {form.watch('is_owner') && isTargetMet && isDeadlinePassed && (
                 <CustomButton

@@ -9,7 +9,7 @@ const DataGridComponent = ({ columns, rows }) => {
             {columns.map((column, index) => (
               <th
                 key={index}
-                className="px-4 py-2 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-700">
+                className="px-4 py-2 border-b border-gray-200 bg-gray-100 text-left text-sm font-bold text-gray-700">
                 {column.headerName}
               </th>
             ))}
@@ -17,11 +17,11 @@ const DataGridComponent = ({ columns, rows }) => {
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-gray-50">
+            <tr key={rowIndex} className="hover:bg-gray-100">
               {columns.map((column, colIndex) => (
                 <td
                   key={colIndex}
-                  className="px-4 py-2 border-b border-gray-200 text-sm text-gray-600">
+                  className="px-4 py-2 border-b border-gray-200 font-semibold text-left text-sm text-gray-600">
                   {row[column.field]}
                 </td>
               ))}
