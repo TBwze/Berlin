@@ -47,10 +47,14 @@ export const StateContextProvider = ({ children }) => {
         description: reward.description
       }));
 
-      const data = await createCampaignWrite({
+      const tx = await createCampaignWrite({
         args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards],
         signer: signer
       });
+
+      await tx.wait();
+
+      return tx;
     } catch (error) {
       console.error('Contract call failed!', error);
       throw new Error('Failed to create campaign');

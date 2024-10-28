@@ -1,55 +1,60 @@
-import { createBrowserRouter } from 'react-router-dom';
-import App from '../App';
-import Home from '../pages/Home';
-import CreateCampaign from '../pages/CreateCampaign';
-import Campaign from '../pages/Campaign';
-import CampaignDetail from '../pages/CampaignDetail';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Profile from '../pages/Profile';
-import ProtectedRoute from '../components/ProtectedRoute.component';
-import NotAuthorize from '../pages/NotAuthorize';
-import Admin from '../pages/admin/AdminPage';
+import { createBrowserRouter } from "react-router-dom";
+import App from "../App";
+import Home from "../pages/Home";
+import CreateCampaign from "../pages/CreateCampaign";
+import Campaign from "../pages/Campaign";
+import CampaignDetail from "../pages/CampaignDetail";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import Profile from "../pages/Profile";
+import ProtectedRoute from "../components/ProtectedRoute.component";
+import NotAuthorize from "../pages/NotAuthorize";
+import Admin from "../pages/admin/AdminPage";
+import MyCampaign from "../pages/MyCampaign";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
     children: [
       {
-        path: '',
+        path: "",
         element: <Home />
       },
       {
-        path: 'create-campaign',
+        path: "create-campaign",
         element: <ProtectedRoute element={<CreateCampaign />} />
       },
       {
-        path: 'campaign',
-        element: <ProtectedRoute element={<Campaign />} />
+        path: "campaign",
+        element: <Campaign />
       },
       {
-        path: 'campaign/:id',
+        path: "my-campaign",
+        element: <ProtectedRoute element={<MyCampaign />} />
+      },
+      {
+        path: "campaign/:id",
         element: <ProtectedRoute element={<CampaignDetail />} />
       },
       {
-        path: 'login',
+        path: "login",
         element: <Login />
       },
       {
-        path: 'register',
+        path: "register",
         element: <Register />
       },
       {
-        path: 'profile',
+        path: "profile",
         element: <ProtectedRoute element={<Profile />} />
       },
       {
-        path: 'admin',
+        path: "admin",
         element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />
       },
       {
-        path: 'NotAuthorize',
+        path: "NotAuthorize",
         element: <ProtectedRoute element={<NotAuthorize />} />
       }
     ]

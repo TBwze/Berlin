@@ -20,30 +20,35 @@ const Navbar = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({ type: "", message: "", visible: false });
+  const [role, setRole] = useState("");
   const web3 = new Web3(window.ethereum);
+
+  const fetchUserDetails = async () => {
+    try {
+      const response = await getUserDetails();
+      setUserDetails(response.username);
+      getEthBalance(response.wallet);
+      setRole(response.role);
+
+      if (response.profilePicture !== null) {
+        setImageUrl(response.profilePicture);
+      }
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Failed to fetch user details.",
+        visible: true
+      });
+      setIsLoggedIn(false);
+      navigate("/login");
+    }
+  };
+
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
       setIsLoggedIn(true);
-
-      getUserDetails()
-        .then((response) => {
-          setUserDetails(response.username);
-          getEthBalance(response.wallet);
-
-          if (response.profilePicture !== null) {
-            setImageUrl(response.profilePicture);
-          }
-        })
-        .catch((error) => {
-          setAlert({
-            type: "error",
-            message: error,
-            visible: true,
-          });
-          setIsLoggedIn(false);
-          navigate("/login");
-        });
+      fetchUserDetails();
     } else {
       setIsLoggedIn(false);
     }
@@ -53,9 +58,8 @@ const Navbar = () => {
     try {
       const balance = await window.ethereum.request({
         method: "eth_getBalance",
-        params: [walletAddress, "latest"],
+        params: [walletAddress, "latest"]
       });
-
       let ethBalance = web3.utils.fromWei(balance, "ether");
 
       ethBalance = parseFloat(ethBalance).toFixed(4);
@@ -65,7 +69,7 @@ const Navbar = () => {
       setAlert({
         type: "error",
         message: error,
-        visible: true,
+        visible: true
       });
       setEthBalance(0);
     }
@@ -99,8 +103,7 @@ const Navbar = () => {
           <a href="/">
             <h1
               style={{ fontSize: "36px", letterSpacing: "2px" }}
-              className="font-bold font-keaniaOne"
-            >
+              className="font-bold font-keaniaOne">
               SharedFuture
             </h1>
           </a>
@@ -110,9 +113,16 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Jelajahi"
-            styles="rounded hover:underline"
+            styles="rounded hover:underline text-lg mr-10"
             textColor="#000000"
             handleClick={() => navigate("/campaign")}
+          />
+          <CustomButton
+            btnType="button"
+            title="My Campaign"
+            styles="rounded hover:underline text-lg ml-10"
+            textColor="#000000"
+            handleClick={() => navigate("/my-campaign")}
           />
         </div>
       </div>
@@ -128,12 +138,20 @@ const Navbar = () => {
           handleClick={() => navigate("/create-campaign")}
         />
 
+        {isLoggedIn && role === "Admin" && (
+          <CustomButton
+            btnType="button"
+            title="Admin"
+            bgColor="#2E6950"
+            styles="font-semibold rounded px-4"
+            textColor="#ffffff"
+            handleClick={() => navigate("/admin")}
+          />
+        )}
+
         {isLoggedIn ? (
           <div className="relative">
-            <div
-              className="flex items-center cursor-pointer"
-              onClick={toggleDropdown}
-            >
+            <div className="flex items-center cursor-pointer" onClick={toggleDropdown}>
               <img
                 src={imageUrl ? imageUrl : profile}
                 alt={profile}
@@ -153,14 +171,12 @@ const Navbar = () => {
                 <Link
                   to="/profile"
                   className="block px-4 py-2 text-gray-800 hover:bg-gray-300 hover:text-black rounded-t-lg transition duration-200"
-                  onClick={() => setShowDropdown(false)}
-                >
+                  onClick={() => setShowDropdown(false)}>
                   Profile
                 </Link>
                 <button
                   className="w-full text-left block px-4 py-2 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-b-lg transition duration-200"
-                  onClick={handleLogOutButton}
-                >
+                  onClick={handleLogOutButton}>
                   Log Out
                 </button>
               </div>
