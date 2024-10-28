@@ -279,17 +279,16 @@ const CampaignDetail = () => {
 
                     return (
                       <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-lg">
-                        <div className="flex items-start gap-4">
+                        <div className="flex items-start items-center gap-4">
                           <div className="flex flex-col items-center text-center w-24">
-                            <img src={badgeImage} alt={badgeName} className="w-10 h-10 mb-2" />
+                            <img src={badgeImage} alt={badgeName} className="w-16 h-16 mb-2" />
                             <h3 className="text-lg font-bold">{badgeName}</h3>
                           </div>
                           <div className="flex-1">
                             <h3 className="text-sm font-bold mb-2 text-left">Description:</h3>
-                            <p className="text-sm text-left">{reward.description}</p>
-                            <h3 className="text-sm font-bold mb-2 text-left">Minimum Amount:</h3>
-                            <p className="text-sm text-left">
-                              {' '}
+                            <p className="text-sm text-justify mb-2">{reward.description}</p>
+                            <h3 className="text-sm font-bold mb-2 text-left">Minimum Donation:</h3>
+                            <p className="text-sm text-left bg-gray-200 p-2 rounded-sm">
                               {'>'} {reward.minAmount} ETH
                             </p>{' '}
                           </div>
