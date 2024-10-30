@@ -4,13 +4,13 @@ import useAuth from "../utils/useAuth";
 import PageLoad from "./Loading.component";
 
 const ProtectedRoute = ({ element, requiredRole }) => {
-  const { isAuthenticated, isloading, role } = useAuth();
+  const { isAuthenticated, isLoading, role } = useAuth();
 
-  if (isloading) {
-    return <PageLoad loading={isloading} />;
+  if (isLoading) {
+    return <PageLoad loading={isLoading} />;
   }
 
-  if (!isAuthenticated) {
+  if (isAuthenticated === false) {
     return <Navigate to="/login" replace />;
   }
 

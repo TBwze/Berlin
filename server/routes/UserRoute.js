@@ -8,6 +8,7 @@ import {
     getAllUsers,
     uploadProfilePicture,
     getAccountByWallet,
+    logout,
 } from "../controller/UserController.js";
 import { authenticateToken } from "../middleware/AuthMiddleware.js";
 import { uploadSingle } from "../middleware/MulterMiddleware.js";
@@ -37,5 +38,8 @@ router.post("/upload", uploadSingle, uploadProfilePicture);
 
 //get account by wallet
 router.get("/by-wallet", getAccountByWallet);
+
+//logout
+router.post("/logout", logout);
 
 export default router;

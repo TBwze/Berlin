@@ -53,15 +53,25 @@ const DataGridComponent = ({ columns = [], rows = [], rowsPerPageOptions = [5, 1
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {currentRows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="transition-colors hover:bg-gray-50">
-                {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                    {row[column.field]}
-                  </td>
-                ))}
+            {currentRows.length > 0 ? (
+              currentRows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="transition-colors hover:bg-gray-50">
+                  {columns.map((column, colIndex) => (
+                    <td
+                      key={colIndex}
+                      className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                      {row[column.field]}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length} className="text-center py-4 text-gray-600">
+                  No data available
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -72,13 +82,13 @@ const DataGridComponent = ({ columns = [], rows = [], rowsPerPageOptions = [5, 1
           {/* Mobile pagination */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || rows.length === 0}
             className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50">
             Previous
           </button>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || rows.length === 0}
             className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50">
             Next
           </button>
@@ -88,9 +98,13 @@ const DataGridComponent = ({ columns = [], rows = [], rowsPerPageOptions = [5, 1
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> to{" "}
+              Showing{" "}
               <span className="font-medium">
-                {Math.min(currentPage * rowsPerPage, rows.length)}
+                {rows.length > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {rows.length > 0 ? Math.min(currentPage * rowsPerPage, rows.length) : 0}
               </span>{" "}
               of <span className="font-medium">{rows.length}</span> results
             </p>
@@ -99,7 +113,7 @@ const DataGridComponent = ({ columns = [], rows = [], rowsPerPageOptions = [5, 1
           <div className="flex items-center space-x-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || rows.length === 0}
               className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50">
               <FaChevronLeft className="h-4 w-4" />
               <span className="ml-1">Previous</span>
@@ -148,7 +162,7 @@ const DataGridComponent = ({ columns = [], rows = [], rowsPerPageOptions = [5, 1
 
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || rows.length === 0}
               className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50">
               <span className="mr-1">Next</span>
               <FaChevronRight className="h-4 w-4" />

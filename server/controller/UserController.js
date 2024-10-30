@@ -54,14 +54,15 @@ export const login = async (request, response) => {
 
         if (!user) {
             return response.status(400).json({
-                message: "Email or password does not match!",
+                message: "Email or password or wallet does not match!",
             });
         }
+
         const isPasswordMatch = await bcrypt.compare(password, user.password);
 
         if (!isPasswordMatch) {
             return response.status(400).json({
-                message: "Email or password does not match!",
+                message: "Email or password or wallet does not match!",
             });
         }
 
@@ -70,14 +71,21 @@ export const login = async (request, response) => {
                 message: "User wallet does not match!",
             });
         }
+
         const jwtToken = jwt.sign(
             { id: user._id, email: user.email, wallet: user.wallet },
-            process.env.JWT_SECRET
+            process.env.JWT_SECRET,
+            { expiresIn: "24h" }
         );
+
+        response.cookie("token", jwtToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,
+        });
 
         response.json({
             message: "Welcome Back!",
-            token: jwtToken,
+            // Token is now sent in cookie instead of response body
         });
     } catch (err) {
         response
@@ -210,6 +218,18 @@ export const getAccountByWallet = async (request, response) => {
         }
 
         response.json(user);
+    } catch (error) {
+        response.status(500).json({ message: "An error occurred" });
+    }
+};
+export const logout = async (request, response) => {
+    try {
+        response.cookie("token", "", {
+            maxAge: 0,
+            httpOnly: true,
+        });
+
+        response.status(200).json({ message: "Logged out successfully." });
     } catch (error) {
         response.status(500).json({ message: "An error occurred" });
     }
