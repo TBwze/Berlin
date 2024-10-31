@@ -11,6 +11,7 @@ import likeIcon from "../assets/like-icon.png";
 import unlikeIcon from "../assets/unlike-icon.png";
 import dropDown from "../assets/downArrow.png";
 import CustomButton from "./CustomButton.component";
+import { FaTrashCan } from "react-icons/fa6";
 
 dayjs.extend(relativeTime);
 
@@ -22,9 +23,7 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
 
   const form = useForm({
     defaultValues: {
-      reply: "",
-      page: 0,
-      limit: 10
+      reply: ""
     }
   });
 
@@ -70,7 +69,7 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
   };
 
   const onSubmitReply = async (e) => {
-    e.preventDefault(); // Prevent the default form submission
+    e.preventDefault();
     try {
       await postComment(campaignId, userId, form.watch("reply"), comment._id);
       refreshComments();
@@ -107,8 +106,8 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
           Reply
         </button>
         {comment.user === userId && (
-          <button onClick={handleDelete} className="px-2 py-1 hover:text-red-600">
-            Delete
+          <button onClick={handleDelete} className="px-2 py-1">
+            <FaTrashCan className="w-5 h-5 text-red-600" />
           </button>
         )}
       </div>

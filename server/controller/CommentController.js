@@ -50,17 +50,10 @@ const buildNestedComments = (comments, parentId = null) => {
 export const getComments = async (request, response) => {
     try {
         const { campaignId } = request.params;
-        const { page, limit } = request.query;
 
-        const parsedPage = parseInt(page) || 0;
-        const parsedLimit = parseInt(limit) || 10;
-
-        const comments = await Comment.find({ campaignId })
-            .sort({ createdAt: -1 })
-            .skip(parsedPage * parsedLimit)
-            .limit(parsedLimit);
-
-        const totalItems = await Comment.countDocuments({ campaignId });
+        const comments = await Comment.find({ campaignId }).sort({
+            createdAt: -1,
+        });
 
         const attachUserDetails = async (comment) => {
             const user = await User.findOne({ wallet: comment.user });
@@ -86,16 +79,8 @@ export const getComments = async (request, response) => {
         const commentsWithUserDetails = await Promise.all(
             nestedComments.map(attachUserDetails)
         );
-        const pagination = calculatePagination(
-            parsedPage,
-            parsedLimit,
-            totalItems
-        );
-        return handleResponsePagination(
-            pagination.page,
-            pagination.page_limit,
-            pagination.total_pages,
-            pagination.total_rows,
+
+        return handleSuccessResponse(
             response,
             200,
             "Success",

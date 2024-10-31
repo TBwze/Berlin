@@ -102,7 +102,6 @@ const CampaignDetail = () => {
       );
       return usernames;
     } catch (error) {
-      
       return addresses;
     }
   };
@@ -152,11 +151,11 @@ const CampaignDetail = () => {
       setUserId(userDetails.data.wallet);
       setUsername(userDetails.data.username);
       setUserPicture(userDetails.data.profilePicture);
-      if (userDetails.data.wallet === campaignData.data.owner) {
+      if (userDetails.data.wallet === campaignData.owner) {
         form.setValue("is_owner", true);
       }
     } catch (error) {
-      console.log(error.message);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -165,8 +164,10 @@ const CampaignDetail = () => {
   const fetchCommentsData = async () => {
     setLoadingComments(true);
     try {
-      const fetchedComments = await getAllComments(id, form.watch('page', form.watch('limit')));
+      const fetchedComments = await getAllComments(id);
       setComments(fetchedComments.data);
+      form.setValue("total_pages", fetchedComments.total_pages);
+      form.setValue("total_rows", fetchedComments.total_rows);
     } catch (error) {
       alert(error.message);
     } finally {
