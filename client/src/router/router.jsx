@@ -54,7 +54,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute element={<Admin />} requiredRole="Admin" />
       },
       {
-        path: "NotAuthorize",
+        path: "not-authorized",
         element: <ProtectedRoute element={<NotAuthorize />} />
       }
     ]

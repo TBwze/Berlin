@@ -9,6 +9,6 @@ export async function updateUserProfile(formData) {
     });
     return response.data;
   } catch (error) {
-    throw new Error('Error updating profile: ' + error.message);
+    throw new Error(error.response.data.message);
   }
 }

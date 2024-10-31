@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import TextFieldComponent from '../components/Textfield.component';
-import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
-import CustomButton from '../components/CustomButton.component';
-import DropdownComponent from '../components/Dropdown.component';
-import AlertComponent from '../components/Alert.component';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useNavigate } from 'react-router-dom';
-import { useStateContext } from '../context';
-import PageLoad from '../components/Loading.component';
-import { uploadProfilePicture } from '../api/User/uploadImage.api';
-import PopupComponent from '../components/PopUp.component';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import TextFieldComponent from "../components/Textfield.component";
+import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
+import CustomButton from "../components/CustomButton.component";
+import DropdownComponent from "../components/Dropdown.component";
+import AlertComponent from "../components/Alert.component";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from "react-router-dom";
+import { useStateContext } from "../context";
+import PageLoad from "../components/Loading.component";
+import { uploadProfilePicture } from "../api/User/uploadImage.api";
+import PopupComponent from "../components/PopUp.component";
 
 const validationSchema = yup.object().shape({
   target: yup
     .number()
     .nullable()
-    .required('Target is required')
-    .min(0.0001, 'Minimum target is 0.0001'),
+    .required("Target is required")
+    .min(0.0001, "Minimum target is 0.0001"),
   minimal_eth_bronze: yup
     .number()
     .nullable()
-    .required('Minimal ETH Bronze is required')
-    .test('min-eth-check-bronze', 'Minimal ETH must be less than the target', function (value) {
+    .required("Minimal ETH Bronze is required")
+    .test("min-eth-check-bronze", "Minimal ETH must be less than the target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     }),
@@ -31,12 +31,12 @@ const validationSchema = yup.object().shape({
   minimal_eth_silver: yup
     .number()
     .nullable()
-    .required('Minimal ETH Silver is required')
+    .required("Minimal ETH Silver is required")
     .moreThan(
-      yup.ref('minimal_eth_bronze'),
-      'Minimal ETH must be greater than minimal ETH value in bronze tier'
+      yup.ref("minimal_eth_bronze"),
+      "Minimal ETH must be greater than minimal ETH value in bronze tier"
     )
-    .test('min-eth-check-silver', 'Minimal ETH must be less than the target', function (value) {
+    .test("min-eth-check-silver", "Minimal ETH must be less than the target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     }),
@@ -44,12 +44,12 @@ const validationSchema = yup.object().shape({
   minimal_eth_gold: yup
     .number()
     .nullable()
-    .required('Minimal ETH Gold is required')
+    .required("Minimal ETH Gold is required")
     .moreThan(
-      yup.ref('minimal_eth_silver'),
-      'Minimal ETH Value must be greater than Minimal ETH value in silver tier'
+      yup.ref("minimal_eth_silver"),
+      "Minimal ETH Value must be greater than Minimal ETH value in silver tier"
     )
-    .test('min-eth-check-gold', 'Minimal ETH must be less than the target', function (value) {
+    .test("min-eth-check-gold", "Minimal ETH must be less than the target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     })
@@ -58,17 +58,17 @@ const validationSchema = yup.object().shape({
 const CreateCampaign = () => {
   const form = useForm({
     defaultValues: {
-      judul_proyek: '',
-      deskripsi_proyek: '',
-      target: '',
-      deadline: '',
-      profilePicture: '',
-      hadiah_bronze: '',
-      hadiah_silver: '',
-      hadiah_gold: '',
-      minimal_eth_bronze: '',
-      minimal_eth_silver: '',
-      minimal_eth_gold: ''
+      judul_proyek: "",
+      deskripsi_proyek: "",
+      target: "",
+      deadline: "",
+      profilePicture: "",
+      hadiah_bronze: "",
+      hadiah_silver: "",
+      hadiah_gold: "",
+      minimal_eth_bronze: "",
+      minimal_eth_silver: "",
+      minimal_eth_gold: ""
     },
     resolver: yupResolver(validationSchema)
   });
@@ -89,39 +89,39 @@ const CreateCampaign = () => {
 
     const tiers = [
       {
-        minAmount: form.getValues('minimal_eth_bronze').toString(),
-        description: form.getValues('hadiah_bronze')
+        minAmount: form.getValues("minimal_eth_bronze").toString(),
+        description: form.getValues("hadiah_bronze")
       },
       {
-        minAmount: form.getValues('minimal_eth_silver').toString(),
-        description: form.getValues('hadiah_silver')
+        minAmount: form.getValues("minimal_eth_silver").toString(),
+        description: form.getValues("hadiah_silver")
       },
       {
-        minAmount: form.getValues('minimal_eth_gold').toString(),
-        description: form.getValues('hadiah_gold')
+        minAmount: form.getValues("minimal_eth_gold").toString(),
+        description: form.getValues("hadiah_gold")
       }
     ];
 
     const picture = new FormData();
-    picture.append('profilePicture', selectedFile);
+    picture.append("profilePicture", selectedFile);
 
     try {
       const response = await uploadProfilePicture(picture);
-      form.setValue('profilePicture', response.url);
+      form.setValue("profilePicture", response.data);
 
       const formDataRequest = {
-        title: form.getValues('judul_proyek'),
-        description: form.getValues('deskripsi_proyek'),
-        targetAmount: form.getValues('target').toString(),
-        deadline: form.getValues('deadline'),
-        image: form.getValues('profilePicture'),
+        title: form.getValues("judul_proyek"),
+        description: form.getValues("deskripsi_proyek"),
+        targetAmount: form.getValues("target").toString(),
+        deadline: form.getValues("deadline"),
+        image: form.getValues("profilePicture"),
         rewards: tiers
       };
 
       await createCampaign(formDataRequest);
       setPopupVisible(true);
     } catch (error) {
-      alert('Failed to create campaign: ' + error.message);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +129,7 @@ const CreateCampaign = () => {
 
   const handlePopupClose = () => {
     setPopupVisible(false);
-    navigate('/');
+    navigate("/");
   };
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
@@ -185,9 +185,9 @@ const CreateCampaign = () => {
               name="deadline"
               label="Durasi Proyek"
               optionData={[
-                { deadline: 30, days: '30 hari' },
-                { deadline: 60, days: '60 hari' },
-                { deadline: 90, days: '90 hari' }
+                { deadline: 30, days: "30 hari" },
+                { deadline: 60, days: "60 hari" },
+                { deadline: 90, days: "90 hari" }
               ]}
               optionId="deadline"
               optionLabel="days"

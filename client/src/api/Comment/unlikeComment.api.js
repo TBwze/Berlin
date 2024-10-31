@@ -7,6 +7,6 @@ export const unlikeComment = async (commentId, userId) => {
     });
     return response.data;
   } catch (error) {
-    throw error;
+    throw new Error(error.response.data.message);
   }
 };

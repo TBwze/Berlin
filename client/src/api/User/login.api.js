@@ -7,8 +7,8 @@ export async function loginUser(email, password, wallet) {
       wallet
     });
 
-    return response;
+    return response.data;
   } catch (error) {
-    throw error.response?.data?.message || "Login failed!";
+    throw new Error(error.response.data.message);
   }
 }

@@ -10,13 +10,13 @@ const useAuth = () => {
     try {
       const response = await getUserDetails();
       if (response) {
-        setRole(response.role);
+        setRole(response.data.role);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error("Failed to fetch user details:", error);
+      console.error(error.message);
       setIsAuthenticated(false);
     }
     setIsLoading(false);

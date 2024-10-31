@@ -18,12 +18,12 @@ const MyCampaign = () => {
       const fetchedCampaigns = await getCampaigns();
 
       const userCampaigns = fetchedCampaigns.filter(
-        (campaign) => campaign.wallet.toLowerCase() === userDetails.wallet.toLowerCase()
+        (campaign) => campaign.wallet.toLowerCase() === userDetails.data.wallet.toLowerCase()
       );
 
       setMyCampaigns(userCampaigns);
     } catch (error) {
-      alert("Failed to fetch data:", error);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }

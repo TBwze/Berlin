@@ -26,12 +26,12 @@ const Navbar = () => {
     try {
       const response = await getUserDetails();
       setIsLoggedIn(true);
-      setUserDetails(response.username);
-      getEthBalance(response.wallet);
-      setRole(response.role);
+      setUserDetails(response.data.username);
+      getEthBalance(response.data.wallet);
+      setRole(response.data.role);
 
-      if (response.profilePicture !== null) {
-        setImageUrl(response.profilePicture);
+      if (response.data.profilePicture !== null) {
+        setImageUrl(response.data.profilePicture);
       }
     } catch (error) {
       setIsLoggedIn(false);

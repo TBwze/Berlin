@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState } from 'react';
+import React, { useContext, createContext, useState } from "react";
 import {
   useAddress,
   useContract,
@@ -6,18 +6,18 @@ import {
   metamaskWallet,
   useContractWrite,
   useSigner
-} from '@thirdweb-dev/react';
-import dayjs from 'dayjs';
-import { getAccountByWallet } from '../api/User/getUserByWallet.api';
-import { formatDate } from '../utils/date.utils';
-import { ethToWei, weiToEth } from '../utils/convertEth.utils';
+} from "@thirdweb-dev/react";
+import dayjs from "dayjs";
+import { getAccountByWallet } from "../api/User/getUserByWallet.api";
+import { formatDate } from "../utils/date.utils";
+import { ethToWei, weiToEth } from "../utils/convertEth.utils";
 
 const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0xd8146A621Ed0b7AF5aB1d683e24Ae6510f543A98');
-  const { mutateAsync: createCampaignWrite } = useContractWrite(contract, 'createCampaign');
+  const { contract } = useContract("0xd8146A621Ed0b7AF5aB1d683e24Ae6510f543A98");
+  const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
   const connect = useConnect();
@@ -28,7 +28,7 @@ export const StateContextProvider = ({ children }) => {
       const { title, description, targetAmount, deadline, image, rewards } = form;
 
       if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
-        throw new Error('Fill in all fields!');
+        throw new Error("Fill in all fields!");
       }
 
       if (!signer || !address) {
@@ -36,11 +36,11 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, 'day').unix();
+      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -56,24 +56,23 @@ export const StateContextProvider = ({ children }) => {
 
       return tx;
     } catch (error) {
-      console.error('Contract call failed!', error);
-      throw new Error('Failed to create campaign');
+      console.error("Contract call failed!", error);
+      throw new Error("Failed to create campaign");
     }
   };
 
   const getAccountUsername = async (wallet) => {
     try {
       const response = await getAccountByWallet(wallet);
-      return response.username;
+      return response.data.username;
     } catch (error) {
-      alert(error);
-      throw new Error('Failed to fetch account username');
+      throw new Error(error.message);
     }
   };
 
   const getCampaigns = async () => {
     try {
-      const campaigns = await contract.call('getAllCampaigns');
+      const campaigns = await contract.call("getAllCampaigns");
 
       const parsedCampaigns = await Promise.all(
         campaigns.map(async (campaign, index) => {
@@ -106,7 +105,7 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaignById = async (id) => {
     try {
-      const response = await contract.call('getCampaign', id);
+      const response = await contract.call("getCampaign", id);
       const [
         owner,
         title,
@@ -138,7 +137,7 @@ export const StateContextProvider = ({ children }) => {
 
       return formattedCampaign;
     } catch (error) {
-      throw new Error('Error fetching campaign by ID: ' + error.message);
+      throw new Error("Error fetching campaign by ID: " + error.message);
     }
   };
 
@@ -149,14 +148,14 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
-      const transaction = await contract.call('donateToCampaign', campaignId, {
+      const transaction = await contract.call("donateToCampaign", campaignId, {
         value: ethToWei(amount.toString())
       });
     } catch (error) {
-      console.error('Donation failed!', error);
-      throw new Error('Failed to donate to campaign');
+      console.error("Donation failed!", error);
+      throw new Error("Failed to donate to campaign");
     }
   };
 
@@ -167,14 +166,14 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const donation = await contract.call('donations', [campaignId, address]);
+      const donation = await contract.call("donations", [campaignId, address]);
       const donationEth = weiToEth(donation);
       return donation == 0 ? donation : donationEth;
     } catch (error) {
-      console.error('Error fetching donation:', error);
+      console.error("Error fetching donation:", error);
       return 0;
     }
   };
@@ -185,12 +184,12 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
-      const rewardTier = await contract.call('getRewardTier', [campaignId, address]);
+      const rewardTier = await contract.call("getRewardTier", [campaignId, address]);
       return rewardTier;
     } catch (error) {
-      console.error('Error fetching reward tier:', error);
+      console.error("Error fetching reward tier:", error);
       return null;
     }
   };
@@ -202,14 +201,14 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const transaction = await contract.call('refundDonation', [campaignId]);
+      const transaction = await contract.call("refundDonation", [campaignId]);
       return transaction;
     } catch (error) {
-      console.error('Refund failed!', error);
-      throw new Error('Failed to refund donation');
+      console.error("Refund failed!", error);
+      throw new Error("Failed to refund donation");
     }
   };
 
@@ -220,10 +219,10 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const data = await contract.call('getDonorsWithRewards', campaignId);
+      const data = await contract.call("getDonorsWithRewards", campaignId);
       const [tiers, addresses, amounts] = data;
 
       const processedData = tiers.map((tier, index) => ({
@@ -234,8 +233,8 @@ export const StateContextProvider = ({ children }) => {
 
       return processedData;
     } catch (error) {
-      console.error('Error fetching eligible rewards:', error);
-      throw new Error('Failed to fetch eligible rewards for campaign');
+      console.error("Error fetching eligible rewards:", error);
+      throw new Error("Failed to fetch eligible rewards for campaign");
     }
   };
 
@@ -246,15 +245,15 @@ export const StateContextProvider = ({ children }) => {
       }
 
       if (!signer || !address) {
-        throw new Error('Wallet not connected. Please try connecting again.');
+        throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const transaction = await contract.call('withdrawFunds', [campaignId]);
+      const transaction = await contract.call("withdrawFunds", [campaignId]);
 
       return transaction;
     } catch (error) {
-      console.error('Withdrawal failed!', error);
-      throw new Error('Failed to withdraw funds');
+      console.error("Withdrawal failed!", error);
+      throw new Error("Failed to withdraw funds");
     }
   };
   return (

@@ -4,18 +4,19 @@ import { FaSearch } from "react-icons/fa";
 const SearchBarComponent = ({ onSearch, placeholder = "Search..." }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSearch) {
-      onSearch(searchTerm);
-    }
-  };
-
   const handleChange = (e) => {
     setSearchTerm(e.target.value);
-    if (onSearch) {
-      onSearch(e.target.value);
-    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Call the parent function to perform the API search
+    onSearch(searchTerm);
+  };
+
+  const handleIconClick = () => {
+    // Call the parent function to perform the API search when the icon is clicked
+    onSearch(searchTerm);
   };
 
   return (
@@ -26,11 +27,15 @@ const SearchBarComponent = ({ onSearch, placeholder = "Search..." }) => {
           value={searchTerm}
           onChange={handleChange}
           placeholder={placeholder}
-          className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+          className="w-full py-2 pl-3 pr-10 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
         />
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <FaSearch className="h-4 w-4 text-gray-400" />
-        </div>
+        <button
+          type="button"
+          onClick={handleIconClick}
+          className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-white bg-[#2E6950] rounded-r-lg" // Increased width and centered icon
+        >
+          <FaSearch className="h-4 w-4" />
+        </button>
       </div>
     </form>
   );

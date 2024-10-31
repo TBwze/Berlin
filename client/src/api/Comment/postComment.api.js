@@ -10,7 +10,6 @@ export const postComment = async (campaignId, userId, content, parentId = null) 
     });
     return response.data;
   } catch (error) {
-    console.error('Error posting comment:', error);
-    throw error;
+    throw new Error(error.response.data.message);
   }
 };

@@ -7,7 +7,6 @@ export const likeComment = async (commentId, userId) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error liking comment:', error);
-    throw error;
+    throw new Error(error.response.data.message);
   }
 };

@@ -5,6 +5,6 @@ export async function getUserDetails() {
     const response = await getApiInstance().get(`${USER_URL}/account`);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch user details");
+    throw new Error(error.response.data.message);
   }
 }

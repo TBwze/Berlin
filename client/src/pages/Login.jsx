@@ -92,9 +92,10 @@ const Login = () => {
       } else {
         setAlert({
           type: "error",
-          message: error,
+          message: error.message,
           visible: true
         });
+        scrollToTop();
       }
     } finally {
       setIsLoading(false);
@@ -104,6 +105,10 @@ const Login = () => {
   const closePopup = () => {
     setPopupVisible(false);
     navigate("/");
+  };
+  
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (

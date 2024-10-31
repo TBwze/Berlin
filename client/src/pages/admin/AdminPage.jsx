@@ -5,54 +5,58 @@ import DataGridComponent from "../../components/DataGrid.component";
 import { deleteUser } from "../../api/User/deleteUser.api";
 import { FaTrashCan } from "react-icons/fa6";
 import SearchBarComponent from "../../components/SearchBar.component";
+import { useForm } from "react-hook-form";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]); // New state for filtered users
-  const [searchTerm, setSearchTerm] = useState(""); // New state for the search term
   const [isLoading, setIsLoading] = useState(false);
+  const form = useForm({
+    defaultValues: {
+      page: 0,
+      limit: 10,
+      total_pages: 0,
+      total_rows: 0
+    }
+  });
 
   useEffect(() => {
-    refreshGrid();
+    refreshGrid(form.watch("page"), form.watch("limit")); 
   }, []);
 
-  useEffect(() => {
-    const filtered = users.filter(
-      (user) =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredUsers(filtered);
-  }, [users, searchTerm]);
-
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-  };
-
-  const refreshGrid = async () => {
+  const refreshGrid = async (page = 0, limit = 10, username = "") => {
     setIsLoading(true);
-    getAllUsers()
-      .then((response) => {
-        setUsers(response);
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-    setIsLoading(false);
+    try {
+      const response = await getAllUsers(page, limit, username);
+      setUsers(response.data);
+      form.setValue("page", response.page);
+      form.setValue("limit", response.limit);
+      form.setValue("total_pages", response.total_pages);
+      form.setValue("total_rows", response.total_rows);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async (userId) => {
     setIsLoading(true);
     if (confirm("Are you sure you want to delete this user?")) {
-      deleteUser(userId)
-        .then(() => {
-          refreshGrid();
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
+      try {
+        await deleteUser(userId);
+        refreshGrid(form.watch("page"), form.watch("limit")); // Refresh the grid after deletion
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  };
+
+  const handleSearch = (searchTerm) => {
+    refreshGrid(form.watch("page"), form.watch("limit"), searchTerm);
   };
 
   const columns = [
@@ -62,7 +66,7 @@ const Admin = () => {
     { headerName: "Actions", field: "actions" }
   ];
 
-  const rows = filteredUsers.map((user) => ({
+  const rows = users.map((user) => ({
     username: user.username,
     profilePicture: (
       <img src={user.profilePicture} alt="Profile" className="h-10 w-10 rounded-full" />
@@ -77,18 +81,30 @@ const Admin = () => {
     )
   }));
 
+  const handleChangePageGrid = async (page) => {
+    await refreshGrid(page, form.watch("limit")); 
+  };
+
+  const handleChangeLimitGrid = async (limit) => {
+    await refreshGrid(form.watch("page"), limit); 
+  };
+
   return (
     <div className="flex flex-col justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading} />
-      {/* Search Bar */}
       <div className="mb-4">
-        <SearchBarComponent 
-          onSearch={handleSearch}
-          placeholder="Search by username or email..."
-        />
+        <SearchBarComponent onSearch={handleSearch} placeholder="Search by username..." />
       </div>
-      {/* Data Grid */}
-      <DataGridComponent columns={columns} rows={rows} />
+      <DataGridComponent
+        columns={columns}
+        rows={rows}
+        page={form.watch("page")}
+        limit={form.watch("limit")}
+        totalPages={form.watch("total_pages")}
+        totalRows={form.watch("total_rows")}
+        handleChangePage={handleChangePageGrid}
+        handleChangeLimit={handleChangeLimitGrid}
+      />
     </div>
   );
 };

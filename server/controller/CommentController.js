@@ -1,9 +1,15 @@
+import calculatePagination from "../helper/pagination.js";
+import {
+    handleErrorResponse,
+    handleResponsePagination,
+    handleSuccessResponse,
+} from "../helper/Response.js";
 import { Comment } from "../model/Comment.js";
 import { User } from "../model/User.js";
 
-export const postComment = async (req, res) => {
+export const postComment = async (request, response) => {
     try {
-        const { campaignId, user, content, parentId } = req.body;
+        const { campaignId, user, content, parentId } = request.body;
 
         const newComment = new Comment({
             campaignId,
@@ -13,9 +19,9 @@ export const postComment = async (req, res) => {
         });
 
         await newComment.save();
-        res.status(201).json(newComment);
+        return handleSuccessResponse(response, 201, "Success");
     } catch (error) {
-        res.status(500).json({ message: "Error posting comment" });
+        return handleErrorResponse(response, 500, "An error occured");
     }
 };
 
@@ -41,16 +47,21 @@ const buildNestedComments = (comments, parentId = null) => {
     return nestedComments;
 };
 
-export const getComments = async (req, res) => {
+export const getComments = async (request, response) => {
     try {
-        const { campaignId } = req.params;
+        const { campaignId } = request.params;
+        const { page, limit } = request.query;
 
-        // Fetch comments for the specified campaign and sort by createdAt in descending order
-        const comments = await Comment.find({ campaignId }).sort({
-            createdAt: -1,
-        });
+        const parsedPage = parseInt(page) || 0;
+        const parsedLimit = parseInt(limit) || 10;
 
-        // Function to get user details and include them in comments and replies
+        const comments = await Comment.find({ campaignId })
+            .sort({ createdAt: -1 })
+            .skip(parsedPage * parsedLimit)
+            .limit(parsedLimit);
+
+        const totalItems = await Comment.countDocuments({ campaignId });
+
         const attachUserDetails = async (comment) => {
             const user = await User.findOne({ wallet: comment.user });
             const userDetails = user
@@ -75,84 +86,87 @@ export const getComments = async (req, res) => {
         const commentsWithUserDetails = await Promise.all(
             nestedComments.map(attachUserDetails)
         );
-
-        return res.status(200).json(commentsWithUserDetails);
+        const pagination = calculatePagination(
+            parsedPage,
+            parsedLimit,
+            totalItems
+        );
+        return handleResponsePagination(
+            pagination.page,
+            pagination.page_limit,
+            pagination.total_pages,
+            pagination.total_rows,
+            response,
+            200,
+            "Success",
+            commentsWithUserDetails
+        );
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Error fetching comments" });
+        return handleErrorResponse(response, 500, "An error occured");
     }
 };
 
-export const likeComment = async (req, res) => {
+export const likeComment = async (request, response) => {
     try {
-        const { commentId } = req.params;
-        const { userId } = req.body; // Expecting a userId (wallet address or username) in the request body
+        const { commentId } = request.params;
+        const { userId } = request.body;
 
-        // Find the comment by its ID
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return handleErrorResponse(response, 404, "Comment not found");
         }
 
-        // Check if the user has already liked the comment
         if (!comment.likes.includes(userId)) {
             comment.likes.push(userId);
             await comment.save();
         }
-
-        return res.status(200).json(comment);
+        return handleSuccessResponse(response, 200, "Success", comment);
     } catch (error) {
-        return res.status(500).json({ message: "Error liking the comment" });
+        return handleErrorResponse(response, 500, "An error occured");
     }
 };
-export const unlikeComment = async (req, res) => {
+export const unlikeComment = async (request, response) => {
     try {
-        const { commentId } = req.params;
-        const { userId } = req.body;
+        const { commentId } = request.params;
+        const { userId } = request.body;
 
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return handleErrorResponse(response, 404, "Comment not found");
         }
 
         const index = comment.likes.indexOf(userId);
         if (index === -1) {
-            return res
-                .status(400)
-                .json({ message: "User has not liked this comment" });
+            return handleErrorResponse(
+                response,
+                400,
+                "User has not liked this comment"
+            );
         }
 
         comment.likes.splice(index, 1);
         await comment.save();
-        return res.status(200).json({
-            message: "Comment unliked successfully",
-            likes: comment.likes,
-        });
+        return handleSuccessResponse(response, 200, "Success", comment.likes);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Error unliking comment" });
+        return handleErrorResponse(response, 500, "An error occured");
     }
 };
 
-export const deleteComment = async (req, res) => {
+export const deleteComment = async (request, response) => {
     try {
-        const { commentId } = req.params;
+        const { commentId } = request.params;
 
-        // Find the comment by its ID
         const comment = await Comment.findById(commentId);
         if (!comment) {
-            return res.status(404).json({ message: "Comment not found" });
+            return handleErrorResponse(response, 404, "Comment not found");
         }
 
-        // Delete the comment and all its nested replies using a single query
         await Comment.deleteMany({
             $or: [{ _id: commentId }, { parentId: commentId }],
         });
 
-        return res
-            .status(200)
-            .json({ message: "Comment and its replies deleted successfully" });
+        return handleSuccessResponse(response, 200, "Success", null);
     } catch (error) {
-        return res.status(500).json({ message: "Error deleting the comment" });
+        return handleErrorResponse(response, 500, "An error occured");
     }
 };

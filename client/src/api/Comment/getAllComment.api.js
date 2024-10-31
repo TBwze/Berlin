@@ -1,11 +1,12 @@
-import { COMMENT_URL, getApiInstance } from '../../utils/api.utils';
+import { COMMENT_URL, getApiInstance } from "../../utils/api.utils";
 
-export const getAllComments = async (campaignId) => {
+export const getAllComments = async (campaignId, page, limit) => {
   try {
-    const response = await getApiInstance().get(`${COMMENT_URL}/${campaignId}`);
+    const response = await getApiInstance().get(
+      `${COMMENT_URL}/${campaignId}?page=${page}&limit=${limit}`
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching comments:', error);
-    throw error;
+    throw new Error(error.response.data.message);
   }
 };

@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import CustomButton from '../components/CustomButton.component';
-import TextFieldComponent from '../components/Textfield.component';
-import { getAccountByWallet } from '../api/User/getUserByWallet.api';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useStateContext } from '../context';
-import silverBadge from '../assets/silver.png';
-import goldBadge from '../assets/gold.png';
-import bronzeBadge from '../assets/bronze.png';
-import PageLoad from '../components/Loading.component';
-import { getUserDetails } from '../api/User/getUserDetails.api';
-import PopupComponent from '../components/PopUp.component';
-import TextFieldDecimalComponent from '../components/TextFieldDecimal.component';
-import { getAllComments } from '../api/Comment/getAllComment.api';
-import CommentSection from '../components/Comment.component';
-import { postComment } from '../api/Comment/postComment.api';
-import CheckDonationAndReward from '../components/CheckDonationAndReward.component';
-import DataGridComponent from '../components/DataGrid.component';
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import CustomButton from "../components/CustomButton.component";
+import TextFieldComponent from "../components/Textfield.component";
+import { getAccountByWallet } from "../api/User/getUserByWallet.api";
+import { useNavigate, useParams } from "react-router-dom";
+import { useStateContext } from "../context";
+import silverBadge from "../assets/silver.png";
+import goldBadge from "../assets/gold.png";
+import bronzeBadge from "../assets/bronze.png";
+import PageLoad from "../components/Loading.component";
+import { getUserDetails } from "../api/User/getUserDetails.api";
+import PopupComponent from "../components/PopUp.component";
+import TextFieldDecimalComponent from "../components/TextFieldDecimal.component";
+import { getAllComments } from "../api/Comment/getAllComment.api";
+import CommentSection from "../components/Comment.component";
+import { postComment } from "../api/Comment/postComment.api";
+import CheckDonationAndReward from "../components/CheckDonationAndReward.component";
+import DataGridComponent from "../components/DataGrid.component";
 
 const CampaignDetail = () => {
   const { id } = useParams();
@@ -38,15 +38,15 @@ const CampaignDetail = () => {
   const [loadingComments, setLoadingComments] = useState(true);
   const [username, setUsername] = useState(null);
   const [userPicture, setUserPicture] = useState(null);
-  const [popupMessage, setPopupMessage] = useState('');
+  const [popupMessage, setPopupMessage] = useState("");
   const [donatorData, setDonatorData] = useState([]);
   const [gridRows, setGridRows] = useState([]);
   const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
-      minimal_eth: '',
-      content: '',
+      minimal_eth: "",
+      content: "",
       is_owner: false
     }
   });
@@ -61,21 +61,21 @@ const CampaignDetail = () => {
 
   const getRewardBadge = (reward) => {
     switch (reward) {
-      case 'Gold':
+      case "Gold":
         return (
           <div className="flex items-center">
             <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />
             <span className="ml-2">Gold</span>
           </div>
         );
-      case 'Silver':
+      case "Silver":
         return (
           <div className="flex items-center">
             <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />
             <span className="ml-2">Silver</span>
           </div>
         );
-      case 'Bronze':
+      case "Bronze":
         return (
           <div className="flex items-center">
             <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />
@@ -87,9 +87,9 @@ const CampaignDetail = () => {
     }
   };
   const columns = [
-    { headerName: 'Tier', field: 'tier' },
-    { headerName: 'Username', field: 'addresses' },
-    { headerName: 'Amounts', field: 'amounts' }
+    { headerName: "Tier", field: "tier" },
+    { headerName: "Username", field: "addresses" },
+    { headerName: "Amounts", field: "amounts" }
   ];
 
   const getUsernamesForAddresses = async (addresses) => {
@@ -97,12 +97,12 @@ const CampaignDetail = () => {
       const usernames = await Promise.all(
         addresses.map(async (address) => {
           const response = await getAccountByWallet(address);
-          return response.username || address;
+          return response.data.username || address;
         })
       );
       return usernames;
     } catch (error) {
-      console.error('Error fetching usernames:', error);
+      
       return addresses;
     }
   };
@@ -117,14 +117,14 @@ const CampaignDetail = () => {
 
           return {
             tier: getRewardBadge(item.tier),
-            addresses: usernames.length > 0 ? usernames.join(', ') : '',
-            amounts: item.amounts.length > 0 ? item.amounts.join(', ') : ''
+            addresses: usernames.length > 0 ? usernames.join(", ") : "",
+            amounts: item.amounts.length > 0 ? item.amounts.join(", ") : ""
           };
         })
       );
       setGridRows(gridRows);
     } catch (error) {
-      console.error('Error creating grid rows:', error);
+      console.error("Error creating grid rows:", error.message);
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +136,7 @@ const CampaignDetail = () => {
       const data = await getCampaignDonators(id);
       setDonatorData(data);
     } catch (error) {
-      console.error('Error fetching donors:', error);
+      console.error("Error fetching donors:", error);
     } finally {
       setIsLoading(false);
     }
@@ -149,11 +149,11 @@ const CampaignDetail = () => {
       setWallet(campaignData.owner);
 
       const userDetails = await getUserDetails();
-      setUserId(userDetails.wallet);
-      setUsername(userDetails.username);
-      setUserPicture(userDetails.profilePicture);
-      if (userDetails.wallet === campaignData.owner) {
-        form.setValue('is_owner', true);
+      setUserId(userDetails.data.wallet);
+      setUsername(userDetails.data.username);
+      setUserPicture(userDetails.data.profilePicture);
+      if (userDetails.data.wallet === campaignData.data.owner) {
+        form.setValue("is_owner", true);
       }
     } catch (error) {
       console.log(error.message);
@@ -165,10 +165,10 @@ const CampaignDetail = () => {
   const fetchCommentsData = async () => {
     setLoadingComments(true);
     try {
-      const fetchedComments = await getAllComments(id);
-      setComments(fetchedComments);
+      const fetchedComments = await getAllComments(id, form.watch('page', form.watch('limit')));
+      setComments(fetchedComments.data);
     } catch (error) {
-      alert('Error fetching comments:', error.message);
+      alert(error.message);
     } finally {
       setLoadingComments(false);
     }
@@ -178,11 +178,11 @@ const CampaignDetail = () => {
     e.preventDefault();
     try {
       setLoadingComments(true);
-      await postComment(id, userId, form.watch('content'));
+      await postComment(id, userId, form.watch("content"));
       fetchCommentsData();
-      form.reset({ content: '' });
+      form.reset({ content: "" });
     } catch (error) {
-      alert(error);
+      alert(error.message);
     } finally {
       setLoadingComments(false);
     }
@@ -192,13 +192,13 @@ const CampaignDetail = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const donationAmount = form.watch('minimal_eth');
+      const donationAmount = form.watch("minimal_eth");
       await donateToCampaign(id, donationAmount);
-      setPopupMessage('Donation Successful!');
+      setPopupMessage("Donation Successful!");
       setPopupVisible(true);
       fetchCampaign();
     } catch (error) {
-      alert('Error donating to campaign: ' + error.message);
+      alert("Error donating to campaign: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -216,10 +216,10 @@ const CampaignDetail = () => {
     if (wallet) {
       getAccountByWallet(wallet)
         .then((response) => {
-          setNewProfilePict(response.profilePicture);
+          setNewProfilePict(response.data.profilePicture);
         })
-        .catch((err) => {
-          alert('Error fetching user by wallet:', err);
+        .catch((error) => {
+          alert(error.message);
         });
     }
   }, [wallet]);
@@ -233,10 +233,10 @@ const CampaignDetail = () => {
     setIsLoading(true);
     try {
       await withdrawFunds(id);
-      setPopupMessage('Funds withdrawn successfully!');
+      setPopupMessage("Funds withdrawn successfully!");
       setPopupVisible(true);
     } catch (error) {
-      alert('Error withdrawing funds: ' + error.message);
+      alert("Error withdrawing funds: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -268,13 +268,13 @@ const CampaignDetail = () => {
 
                     if (data.rewards.length - index === 3) {
                       badgeImage = goldBadge;
-                      badgeName = 'Gold';
+                      badgeName = "Gold";
                     } else if (data.rewards.length - index === 2) {
                       badgeImage = silverBadge;
-                      badgeName = 'Silver';
+                      badgeName = "Silver";
                     } else if (data.rewards.length - index === 1) {
                       badgeImage = bronzeBadge;
-                      badgeName = 'Bronze';
+                      badgeName = "Bronze";
                     }
 
                     return (
@@ -289,8 +289,8 @@ const CampaignDetail = () => {
                             <p className="text-sm text-justify mb-2">{reward.description}</p>
                             <h3 className="text-sm font-bold mb-2 text-left">Minimum Donation:</h3>
                             <p className="text-sm text-left bg-gray-200 p-2 rounded-sm">
-                              {'>'} {reward.minAmount} ETH
-                            </p>{' '}
+                              {">"} {reward.minAmount} ETH
+                            </p>{" "}
                           </div>
                         </div>
                       </div>
@@ -379,7 +379,7 @@ const CampaignDetail = () => {
                 <p className="text-balance text-justify text-sm">{data.description}</p>
               </div>
               {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
-              {form.watch('content') !== 'asdfasdfannnbbbbbbbbbb' && (
+              {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
                 <CustomButton
                   className="w-40"
                   btnType="button"
@@ -392,7 +392,7 @@ const CampaignDetail = () => {
               )}
 
               {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
-              {form.watch('content') !== 'i[qwpoeoirq[pwoier' && (
+              {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
                 <form onSubmit={handleDonation} className="flex flex-col mb-2">
                   <div className="mb-3">
                     <TextFieldDecimalComponent
