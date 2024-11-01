@@ -22,14 +22,8 @@ const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const {
-    address,
-    contract,
-    getCampaignById,
-    donateToCampaign,
-    withdrawFunds,
-    getCampaignDonators
-  } = useStateContext();
+  const { address, contract, getCampaignById, donateToCampaign, withdrawFunds, getLeaderboard } =
+    useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -86,54 +80,57 @@ const CampaignDetail = () => {
         return null;
     }
   };
-  const columns = [
-    { headerName: "Tier", field: "tier" },
-    { headerName: "Username", field: "addresses" },
-    { headerName: "Amounts", field: "amounts" }
-  ];
 
-  const getUsernamesForAddresses = async (addresses) => {
-    try {
-      const usernames = await Promise.all(
-        addresses.map(async (address) => {
-          const response = await getAccountByWallet(address);
-          return response.data.username || address;
-        })
-      );
-      return usernames;
-    } catch (error) {
-      return addresses;
-    }
-  };
+  // NEED FIXING
 
-  const createGridRows = async () => {
+  // const columns = [
+  //   { headerName: "Tier", field: "tier" },
+  //   { headerName: "Username", field: "addresses" },
+  //   { headerName: "Amounts", field: "amounts" }
+  // ];
+
+  // const getUsernamesForAddresses = async (addresses) => {
+  //   try {
+  //     const usernames = await Promise.all(
+  //       addresses.map(async (address) => {
+  //         const response = await getAccountByWallet(address);
+  //         return response.data.username || address;
+  //       })
+  //     );
+  //     return usernames;
+  //   } catch (error) {
+  //     return addresses;
+  //   }
+  // };
+
+  // const createGridRows = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const gridRows = await Promise.all(
+  //       donatorData.map(async (item) => {
+  //         const usernames =
+  //           item.addresses.length > 0 ? await getUsernamesForAddresses(item.addresses) : [];
+
+  //         return {
+  //           tier: getRewardBadge(item.tier),
+  //           addresses: usernames.length > 0 ? usernames.join(", ") : "",
+  //           amounts: item.amounts.length > 0 ? item.amounts.join(", ") : ""
+  //         };
+  //       })
+  //     );
+  //     setGridRows(gridRows);
+  //   } catch (error) {
+  //     console.error("Error creating grid rows:", error.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const fetchDonors = async (page, limit) => {
     setIsLoading(true);
     try {
-      const gridRows = await Promise.all(
-        donatorData.map(async (item) => {
-          const usernames =
-            item.addresses.length > 0 ? await getUsernamesForAddresses(item.addresses) : [];
-
-          return {
-            tier: getRewardBadge(item.tier),
-            addresses: usernames.length > 0 ? usernames.join(", ") : "",
-            amounts: item.amounts.length > 0 ? item.amounts.join(", ") : ""
-          };
-        })
-      );
-      setGridRows(gridRows);
-    } catch (error) {
-      console.error("Error creating grid rows:", error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchDonors = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getCampaignDonators(id);
-      setDonatorData(data);
+      const response = await getLeaderboard(id, page, limit);
+      setDonatorData(response.data);
     } catch (error) {
       console.error("Error fetching donors:", error);
     } finally {
@@ -209,7 +206,7 @@ const CampaignDetail = () => {
       fetchCampaign();
       fetchDonors();
       fetchCommentsData();
-      createGridRows();
+      // createGridRows();
     }
   }, [address, contract, id]);
 
@@ -239,6 +236,7 @@ const CampaignDetail = () => {
     } catch (error) {
       alert("Error withdrawing funds: " + error.message);
     } finally {
+      navigate("/");
       setIsLoading(false);
     }
   };

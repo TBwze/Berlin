@@ -11,6 +11,8 @@ import dayjs from "dayjs";
 import { getAccountByWallet } from "../api/User/getUserByWallet.api";
 import { formatDate } from "../utils/date.utils";
 import { ethToWei, weiToEth } from "../utils/convertEth.utils";
+import { formatErrorResponse, formatResponse } from "../utils/response";
+import { calculatePagination } from "../utils/pagination";
 
 const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
@@ -70,36 +72,83 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
-  const getCampaigns = async () => {
+  const parseCampaignData = (campaignArray) => {
+    return {
+      owner: campaignArray[0],
+      title: campaignArray[1],
+      description: campaignArray[2],
+      targetAmount: campaignArray[3],
+      deadline: campaignArray[4],
+      amountCollected: campaignArray[5],
+      image: campaignArray[6],
+      rewards: campaignArray[7],
+      donors: campaignArray[8],
+      exists: campaignArray[9]
+    };
+  };
+
+  const getCampaigns = async (page = 0, limit = 10, searchQuery = "", isOwner = false) => {
     try {
-      const campaigns = await contract.call("getAllCampaigns");
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
 
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
+
+      const rawCampaigns = await contract.call("getAllCampaigns");
+
+      // Parse the raw campaign data
+      let campaigns = rawCampaigns.map(parseCampaignData);
+
+      // Filter by owner if required
+      if (isOwner) {
+        campaigns = campaigns.filter(
+          (campaign) => campaign.owner.toLowerCase() === address.toLowerCase()
+        );
+      }
+
+      // Filter by search query
+      let filteredCampaigns = campaigns.filter((campaign) =>
+        campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      // Calculate pagination
+      const totalItems = filteredCampaigns.length;
+      const pagination = calculatePagination(totalItems, page, limit);
+
+      // Apply pagination
+      const paginatedCampaigns = filteredCampaigns.slice(
+        pagination.page * pagination.limit,
+        pagination.page * pagination.limit + pagination.limit
+      );
+
+      // Parse and format the campaign data
       const parsedCampaigns = await Promise.all(
-        campaigns.map(async (campaign, index) => {
-          if (!campaign.exists) {
-            return null;
-          }
-
+        paginatedCampaigns.map(async (campaign, index) => {
           const owner = await getAccountUsername(campaign.owner);
           return {
-            id: index + 1,
+            id: index + 1 + pagination.page * pagination.limit,
             wallet: campaign.owner,
             owner,
             title: campaign.title,
-            targetAmount: weiToEth(campaign.targetAmount),
-            amountCollected: weiToEth(campaign.amountCollected),
-            deadline: formatDate(campaign.deadline),
+            targetAmount: weiToEth(campaign.targetAmount.hex || campaign.targetAmount),
+            amountCollected: weiToEth(campaign.amountCollected.hex || campaign.amountCollected),
+            deadline: formatDate(campaign.deadline.hex || campaign.deadline),
             imageUrl: campaign.image,
-            exists: campaign.exists
+            exists: campaign.exists,
+            description: campaign.description,
+            rewards: campaign.rewards.map((reward) => ({
+              minAmount: weiToEth(reward[0].hex || reward[0]),
+              description: reward[1]
+            }))
           };
         })
       );
-
-      const filteredParsedCampaigns = parsedCampaigns.filter((campaign) => campaign !== null);
-
-      return filteredParsedCampaigns;
+      return formatResponse(parsedCampaigns, pagination);
     } catch (error) {
-      return [];
+      return formatResponse([], { page: 0, limit: 10, total_rows: 0, total_pages: 0 });
     }
   };
 
@@ -135,9 +184,9 @@ export const StateContextProvider = ({ children }) => {
         donators: donators
       };
 
-      return formattedCampaign;
+      return formatResponse(formattedCampaign);
     } catch (error) {
-      throw new Error("Error fetching campaign by ID: " + error.message);
+      return formatErrorResponse(error);
     }
   };
 
@@ -154,8 +203,7 @@ export const StateContextProvider = ({ children }) => {
         value: ethToWei(amount.toString())
       });
     } catch (error) {
-      console.error("Donation failed!", error);
-      throw new Error("Failed to donate to campaign");
+      return formatErrorResponse(error);
     }
   };
 
@@ -171,10 +219,9 @@ export const StateContextProvider = ({ children }) => {
 
       const donation = await contract.call("donations", [campaignId, address]);
       const donationEth = weiToEth(donation);
-      return donation == 0 ? donation : donationEth;
+      return formatResponse(donation == 0 ? donation : donationEth);
     } catch (error) {
-      console.error("Error fetching donation:", error);
-      return 0;
+      return formatErrorResponse(error);
     }
   };
   const fetchUserReward = async (campaignId) => {
@@ -187,10 +234,9 @@ export const StateContextProvider = ({ children }) => {
         throw new Error("Wallet not connected. Please try connecting again.");
       }
       const rewardTier = await contract.call("getRewardTier", [campaignId, address]);
-      return rewardTier;
+      return formatResponse(rewardTier);
     } catch (error) {
-      console.error("Error fetching reward tier:", error);
-      return null;
+      return formatErrorResponse(error);
     }
   };
 
@@ -207,12 +253,11 @@ export const StateContextProvider = ({ children }) => {
       const transaction = await contract.call("refundDonation", [campaignId]);
       return transaction;
     } catch (error) {
-      console.error("Refund failed!", error);
-      throw new Error("Failed to refund donation");
+      return formatErrorResponse(error);
     }
   };
 
-  const getCampaignDonators = async (campaignId) => {
+  const getLeaderboard = async (campaignId, page = 0, limit = 10) => {
     try {
       if (!signer || !address) {
         await connect(metamaskConfig);
@@ -222,19 +267,34 @@ export const StateContextProvider = ({ children }) => {
         throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const data = await contract.call("getDonorsWithRewards", campaignId);
-      const [tiers, addresses, amounts] = data;
+      // Get leaderboard data from contract
+      const [donors, donationAmounts] = await contract.call("getLeaderboard", [campaignId]);
 
-      const processedData = tiers.map((tier, index) => ({
-        tier,
-        addresses: addresses[index] || [],
-        amounts: amounts[index].map((amount) => (amount ? weiToEth(amount) : null))
-      }));
+      // Create full leaderboard array
+      const fullLeaderboard = await Promise.all(
+        donors.map((donor, index) =>
+          formatLeaderboardEntry(donor, donationAmounts[index], index + 1)
+        )
+      );
 
-      return processedData;
+      // Sort by amount in descending order (in case it's not already sorted)
+      fullLeaderboard.sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+
+      // Calculate pagination
+      const totalItems = fullLeaderboard.length;
+      const pagination = calculatePagination(totalItems, page, limit);
+
+      // Slice the data according to pagination
+      const paginatedData = fullLeaderboard.slice(
+        pagination.page * pagination.limit,
+        pagination.page * pagination.limit + pagination.limit
+      );
+
+      // Return formatted response
+      return formatResponse(paginatedData, pagination);
     } catch (error) {
-      console.error("Error fetching eligible rewards:", error);
-      throw new Error("Failed to fetch eligible rewards for campaign");
+      console.error("Error fetching leaderboard:", error);
+      return formatResponse([], { page: 0, limit: 10, total_rows: 0, total_pages: 0 });
     }
   };
 
@@ -252,8 +312,25 @@ export const StateContextProvider = ({ children }) => {
 
       return transaction;
     } catch (error) {
-      console.error("Withdrawal failed!", error);
-      throw new Error("Failed to withdraw funds");
+      return formatErrorResponse(error);
+    }
+  };
+
+  const deleteCampaign = async (campaignId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
+
+      const transaction = await contract.call("deleteCampaign", [campaignId]);
+
+      return transaction;
+    } catch (error) {
+      return formatErrorResponse(error);
     }
   };
   return (
@@ -269,8 +346,9 @@ export const StateContextProvider = ({ children }) => {
         fetchUserDonation,
         fetchUserReward,
         refundDonation,
-        getCampaignDonators,
-        withdrawFunds
+        getLeaderboard,
+        withdrawFunds,
+        deleteCampaign
       }}>
       {children}
     </stateContext.Provider>
