@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useStateContext } from "../context";
 import CardComponent from "../components/Card.component";
 import PageLoad from "../components/Loading.component";
-import { getUserDetails } from "../api/User/getUserDetails.api";
 import SearchBarComponent from "../components/SearchBar.component";
+import { useForm } from "react-hook-form";
 
 const MyCampaign = () => {
   const { getCampaigns, address, contract } = useStateContext();
@@ -11,30 +11,44 @@ const MyCampaign = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchData = async () => {
+  const form = useForm({
+    defaultValues: {
+      page: 0,
+      limit: 10
+    }
+  });
+
+  const watchedPage = form.watch("page");
+  const watchedLimit = form.watch("limit");
+
+  const fetchData = async (page, limit, searchQuery, isOwner) => {
     setIsLoading(true);
     try {
-      const userDetails = await getUserDetails();
-      const fetchedCampaigns = await getCampaigns();
-
-      const userCampaigns = fetchedCampaigns.filter(
-        (campaign) => campaign.wallet.toLowerCase() === userDetails.wallet.toLowerCase()
-      );
-
-      setMyCampaigns(userCampaigns);
+      const fetchedCampaigns = await getCampaigns(page, limit, searchQuery, isOwner);
+      setMyCampaigns(fetchedCampaigns.data);
+      form.setValue("total_pages", fetchedCampaigns.total_pages);
     } catch (error) {
-      alert("Failed to fetch data:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [getCampaigns, contract, address]);
+    fetchData(watchedPage, watchedLimit, searchQuery, true);
+  }, [getCampaigns, contract, address, watchedPage, watchedLimit, searchQuery]);
 
   const handleSearch = (searchTerm) => {
     setSearchQuery(searchTerm);
+    form.setValue("page", 0);
+  };
+
+  const handlePageChange = (newPage) => {
+    form.setValue("page", newPage);
+  };
+
+  const handleLimitChange = (event) => {
+    form.setValue("limit", Number(event.target.value));
+    form.setValue("page", 0);
   };
 
   const filteredMyCampaigns = myCampaigns.filter((campaign) =>
@@ -72,6 +86,39 @@ const MyCampaign = () => {
       ) : (
         <p className="text-center text-gray-500">No projects found.</p>
       )}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <div>
+          <label htmlFor="limit" className="mr-2">
+            Items per page:
+          </label>
+          <select
+            id="limit"
+            value={watchedLimit}
+            onChange={handleLimitChange}
+            className="border border-gray-300 rounded">
+            <option value={1}>1</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+        </div>
+        <div>
+          <button
+            onClick={() => handlePageChange(watchedPage - 1)}
+            disabled={watchedPage === 0}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400">
+            Previous
+          </button>
+          <span className="mx-2">{`Page ${watchedPage + 1}`}</span>
+          <button
+            onClick={() => handlePageChange(watchedPage + 1)}
+            disabled={watchedPage + 1 >= form.getValues("total_pages")}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400">
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

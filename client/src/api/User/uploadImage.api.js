@@ -9,6 +9,6 @@ export async function uploadProfilePicture(formData) {
     });
     return response.data;
   } catch (error) {
-    throw new Error('Error uploading image: ' + error.response?.data?.message);
+    throw new Error(error.response.data.message);
   }
 }

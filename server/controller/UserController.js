@@ -2,6 +2,12 @@ import { User } from "../model/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { deleteImage, uploadImage } from "../utils/Cloudinary.js";
+import calculatePagination from "../helper/pagination.js";
+import {
+    handleErrorResponse,
+    handleResponsePagination,
+    handleSuccessResponse,
+} from "../helper/Response.js";
 
 export const create = async (request, response) => {
     try {
@@ -12,9 +18,11 @@ export const create = async (request, response) => {
             !request.body.email ||
             !request.body.password
         ) {
-            return response.status(400).send({
-                message: "Send all required fields!",
-            });
+            return handleErrorResponse(
+                response,
+                400,
+                "Send all required fields!"
+            );
         }
 
         const hashedPassword = await bcrypt.hash(request.body.password, 10);
@@ -38,11 +46,9 @@ export const create = async (request, response) => {
         };
 
         const user = await User.create(newUser);
-        return response.status(201).send(user);
+        return handleSuccessResponse(response, 201, "Register Success", null);
     } catch (error) {
-        response.status(500).send({
-            message: error.message,
-        });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
@@ -53,36 +59,45 @@ export const login = async (request, response) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return response.status(400).json({
-                message: "Email or password does not match!",
-            });
+            return handleErrorResponse(
+                response,
+                401,
+                "Email or password or wallet does not match!"
+            );
         }
+
         const isPasswordMatch = await bcrypt.compare(password, user.password);
 
         if (!isPasswordMatch) {
-            return response.status(400).json({
-                message: "Email or password does not match!",
-            });
+            return handleErrorResponse(
+                response,
+                401,
+                "Email or password or wallet does not match!"
+            );
         }
 
         if (wallet.toLowerCase() !== user.wallet.toLowerCase()) {
-            return response.status(400).json({
-                message: "User wallet does not match!",
-            });
+            return handleErrorResponse(
+                response,
+                401,
+                "Email or password or wallet does not match!"
+            );
         }
+
         const jwtToken = jwt.sign(
             { id: user._id, email: user.email, wallet: user.wallet },
-            process.env.JWT_SECRET
+            process.env.JWT_SECRET,
+            { expiresIn: "24h" }
         );
 
-        response.json({
-            message: "Welcome Back!",
-            token: jwtToken,
+        response.cookie("token", jwtToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,
         });
-    } catch (err) {
-        response
-            .status(500)
-            .json({ message: "An error occurred during login" });
+
+        return handleSuccessResponse(response, 200, "Login Success", null);
+    } catch (error) {
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
@@ -93,21 +108,49 @@ export const getAccountInfo = async (request, response) => {
         const user = await User.findById(userId);
 
         if (!user) {
-            return response.status(404).json({ message: "User not found" });
+            return handleErrorResponse(response, 404, "User not found");
         }
-
-        response.json(user);
+        return handleSuccessResponse(response, 200, "success", user);
     } catch (error) {
-        response.status(500).json({ message: "An error occurred" });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
 export const getAllUsers = async (request, response) => {
     try {
-        const users = await User.find({ role: "User" });
-        return response.status(200).json(users);
+        let { page, limit, username } = request.query;
+
+        page = parseInt(page) || 0;
+        limit = parseInt(limit) || 10;
+
+        const baseQuery = { role: "User" };
+        if (username) {
+            baseQuery.username = {
+                $regex: username,
+                $options: "i",
+            };
+        }
+
+        const totalUsers = await User.countDocuments(baseQuery);
+        const pagination = calculatePagination(page, limit, totalUsers);
+
+        // Apply the same query for fetching users
+        const users = await User.find(baseQuery)
+            .skip(pagination.page * pagination.page_limit)
+            .limit(pagination.page_limit);
+
+        return handleResponsePagination(
+            pagination.page,
+            pagination.page_limit,
+            pagination.total_pages,
+            pagination.total_rows,
+            response,
+            200,
+            "Users fetched successfully",
+            users
+        );
     } catch (error) {
-        return response.status(500).json({ message: "Error fetching users" });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
@@ -146,10 +189,9 @@ export const edit = async (request, response) => {
         }
 
         await user.save();
-
-        return response.status(200).json(user);
+        return handleSuccessResponse(response, 200, "Edit Success", user);
     } catch (error) {
-        response.status(500).json({ message: error.message });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
@@ -158,38 +200,37 @@ export const destroy = async (request, response) => {
         const { id } = request.params;
         const result = await User.findByIdAndDelete(id);
         if (!result) {
-            return response.status(404).send({
-                message: "User not found!",
-            });
+            return handleErrorResponse(response, 404, "User not found!");
         }
-        return response
-            .status(200)
-            .send({ message: "User deleted successfully!" });
+        return handleSuccessResponse(
+            response,
+            200,
+            "User deleted successfully!",
+            null
+        );
     } catch (error) {
-        response.status(500).send({
-            message: error.message,
-        });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
 export const uploadProfilePicture = async (request, response) => {
     try {
         if (!request.file) {
-            return response.status(400).json({ message: "No file uploaded" });
+            return handleErrorResponse(response, 400, "No file uploaded!");
         }
 
         let profilePictureUrl = null;
         const result = await uploadImage(request.file.buffer);
         profilePictureUrl = result.url;
 
-        return response.status(200).json({
-            message: "Image uploaded successfully",
-            url: profilePictureUrl,
-        });
+        return handleSuccessResponse(
+            response,
+            200,
+            "Image uploaded successfully!",
+            profilePictureUrl
+        );
     } catch (error) {
-        return response
-            .status(500)
-            .json({ message: "Image upload failed", error: error.message });
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };
 
@@ -198,19 +239,37 @@ export const getAccountByWallet = async (request, response) => {
         const { wallet } = request.query;
 
         if (!wallet) {
-            return response
-                .status(400)
-                .json({ message: "Wallet address is required" });
+            return handleErrorResponse(
+                response,
+                400,
+                "Wallet address is required!"
+            );
         }
 
         const user = await User.findOne({ wallet });
 
         if (!user) {
-            return response.status(404).json({ message: "User not found" });
+            return handleErrorResponse(response, 404, "User not found!");
         }
 
-        response.json(user);
+        return handleSuccessResponse(response, 200, "Success!", user);
     } catch (error) {
-        response.status(500).json({ message: "An error occurred" });
+        return handleErrorResponse(response, 500, "An error occurred");
+    }
+};
+export const logout = async (request, response) => {
+    try {
+        response.cookie("token", "", {
+            maxAge: 0,
+            httpOnly: true,
+        });
+        return handleSuccessResponse(
+            response,
+            200,
+            "Logged out successfully!",
+            null
+        );
+    } catch (error) {
+        return handleErrorResponse(response, 500, "An error occurred");
     }
 };

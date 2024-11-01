@@ -8,6 +8,6 @@ export async function getAccountByWallet(walletAddress) {
 
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error.response.data.message);
   }
 }

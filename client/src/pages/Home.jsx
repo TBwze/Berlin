@@ -20,8 +20,8 @@ const Home = () => {
   const fetchCampaigns = async () => {
     try {
       setIsLoading(true);
-      const data = await getCampaigns();
-      setData(data);
+      const response = await getCampaigns();
+      setData(response.data);
     } catch (error) {
     } finally {
       setIsLoading(false);

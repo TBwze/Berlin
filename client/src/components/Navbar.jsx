@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "./CustomButton.component";
-import Cookies from "js-cookie";
 import { FaChevronDown } from "react-icons/fa";
 import { getUserDetails } from "../api/User/getUserDetails.api";
-import { API_BASE_URL } from "../utils/api.utils";
 import PageLoad from "./Loading.component";
 import Web3 from "web3";
 import { profile } from "../assets";
 import AlertComponent from "./Alert.component";
+import { logoutUser } from "../api/User/logout.api";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -26,32 +25,21 @@ const Navbar = () => {
   const fetchUserDetails = async () => {
     try {
       const response = await getUserDetails();
-      setUserDetails(response.username);
-      getEthBalance(response.wallet);
-      setRole(response.role);
+      setIsLoggedIn(true);
+      setUserDetails(response.data.username);
+      getEthBalance(response.data.wallet);
+      setRole(response.data.role);
 
-      if (response.profilePicture !== null) {
-        setImageUrl(response.profilePicture);
+      if (response.data.profilePicture !== null) {
+        setImageUrl(response.data.profilePicture);
       }
     } catch (error) {
-      setAlert({
-        type: "error",
-        message: error.message || "Failed to fetch user details.",
-        visible: true
-      });
       setIsLoggedIn(false);
-      navigate("/login");
     }
   };
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      setIsLoggedIn(true);
-      fetchUserDetails();
-    } else {
-      setIsLoggedIn(false);
-    }
+    fetchUserDetails();
   }, [location]);
 
   const getEthBalance = async (walletAddress) => {
@@ -75,13 +63,23 @@ const Navbar = () => {
     }
   };
 
-  const handleLogOutButton = () => {
+  const handleLogOutButton = async () => {
     setIsLoading(true);
-    Cookies.remove("token");
-    setShowDropdown(false);
-    setIsLoggedIn(false);
-    navigate("/");
-    setIsLoading(false);
+    try {
+      await logoutUser();
+      setShowDropdown(false);
+      setIsLoggedIn(false);
+      navigate("/");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error,
+        visible: true
+      });
+    } finally {
+      window.location.reload();
+      setIsLoading(false);
+    }
   };
 
   const toggleDropdown = () => {

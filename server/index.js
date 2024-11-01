@@ -6,6 +6,7 @@ import cors from "cors";
 import { ATLAS_URI, PORT } from "./config.js";
 import dotenv from "dotenv";
 import "./utils/Cloudinary.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -19,9 +20,9 @@ app.use(
         credentials: true,
     })
 );
+app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-
 app.use("/user", userRoute);
 app.use("/comment", commentRoute);
 

@@ -9,6 +9,6 @@ export async function registerUser(formData) {
     });
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || 'Registration failed!';
+    throw new Error(error.response.data.message);
   }
 }

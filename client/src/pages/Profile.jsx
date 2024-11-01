@@ -35,13 +35,13 @@ const Profile = () => {
   useEffect(() => {
     getUserDetails()
       .then((response) => {
-        form.setValue('id', response._id);
-        form.setValue('username', response.username);
-        form.setValue('firstname', response.firstname);
-        form.setValue('lastname', response.lastname);
-        form.setValue('email', response.email);
-        if (response.profilePicture !== null) {
-          form.setValue('image', response.profilePicture);
+        form.setValue('id', response.data._id);
+        form.setValue('username', response.data.username);
+        form.setValue('firstname', response.data.firstname);
+        form.setValue('lastname', response.data.lastname);
+        form.setValue('email', response.data.email);
+        if (response.data.profilePicture !== null) {
+          form.setValue('image', response.data.profilePicture);
         }
       })
       .catch((error) => {
@@ -73,11 +73,11 @@ const Profile = () => {
 
     try {
       await updateUserProfile(formData);
-      setPopUpVisible(true);
+      setPopupVisible(true);
     } catch (error) {
       setAlert({
         visible: true,
-        message: 'Error updating profile: ' + error.message,
+        message: error.message,
         type: 'error'
       });
     }

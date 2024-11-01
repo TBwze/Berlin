@@ -1,44 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import Web3 from 'web3';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../api/User/register.api';
-import TextFieldComponent from '../components/Textfield.component';
-import CustomButton from '../components/CustomButton.component';
-import PageLoad from '../components/Loading.component';
-import AlertComponent from '../components/Alert.component';
-import PopupComponent from '../components/PopUp.component';
-import Cookies from 'js-cookie';
+import React, { useEffect, useState } from "react";
+import Web3 from "web3";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/User/register.api";
+import TextFieldComponent from "../components/Textfield.component";
+import CustomButton from "../components/CustomButton.component";
+import PageLoad from "../components/Loading.component";
+import AlertComponent from "../components/Alert.component";
+import PopupComponent from "../components/PopUp.component";
+import { getUserDetails } from "../api/User/getUserDetails.api";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState({ type: '', message: '', visible: false });
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
   const [popupVisible, setPopupVisible] = useState(false);
 
   const form = useForm({
     defaultValues: {
-      firstname: '',
-      lastname: '',
-      username: '',
-      email: '',
-      password: '',
-      role: 'user',
-      account: '',
-      profilePicture: ''
+      firstname: "",
+      lastname: "",
+      username: "",
+      email: "",
+      password: "",
+      role: "user",
+      account: "",
+      profilePicture: ""
     }
   });
 
+  const checkIfLoggedIn = async () => {
+    try {
+      await getUserDetails();
+      navigate("/");
+    } catch (error) {}
+  };
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (token) {
-      navigate('/');
-    }
+    checkIfLoggedIn();
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const detectCurrentProvider = () => {
@@ -49,8 +52,8 @@ export const Register = () => {
       provider = window.web3.currentProvider;
     } else {
       setAlert({
-        type: 'error',
-        message: 'Non-ethereum browser detected. You should install MetaMask.',
+        type: "error",
+        message: "Non-ethereum browser detected. You should install MetaMask.",
         visible: true
       });
       scrollToTop();
@@ -62,22 +65,22 @@ export const Register = () => {
     try {
       const currentProvider = detectCurrentProvider();
       if (currentProvider) {
-        await currentProvider.request({ method: 'eth_requestAccounts' });
+        await currentProvider.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(currentProvider);
         const userAccount = await web3.eth.getAccounts();
         const account = userAccount[0];
         setIsConnected(true);
 
-        form.setValue('account', account);
+        form.setValue("account", account);
         setAlert({
-          type: 'success',
-          message: 'MetaMask connected successfully!',
+          type: "success",
+          message: "MetaMask connected successfully!",
           visible: true
         });
         scrollToTop();
       }
     } catch (err) {
-      setAlert({ type: 'error', message: err.message, visible: true });
+      setAlert({ type: "error", message: err.message, visible: true });
       scrollToTop();
     }
   };
@@ -87,31 +90,31 @@ export const Register = () => {
       setIsLoading(true);
 
       const formData = new FormData();
-      formData.append('firstname', form.getValues('firstname'));
-      formData.append('lastname', form.getValues('lastname'));
-      formData.append('username', form.getValues('username'));
-      formData.append('email', form.getValues('email'));
-      formData.append('password', form.getValues('password'));
-      formData.append('role', 'user');
-      formData.append('wallet', form.watch('account'));
+      formData.append("firstname", form.getValues("firstname"));
+      formData.append("lastname", form.getValues("lastname"));
+      formData.append("username", form.getValues("username"));
+      formData.append("email", form.getValues("email"));
+      formData.append("password", form.getValues("password"));
+      formData.append("role", "user");
+      formData.append("wallet", form.watch("account"));
 
       if (selectedFile) {
-        formData.append('profilePicture', selectedFile);
+        formData.append("profilePicture", selectedFile);
       }
 
       try {
         await registerUser(formData);
         setPopupVisible(true);
       } catch (error) {
-        setAlert({ type: 'error', message: error.message, visible: true });
+        setAlert({ type: "error", message: error.message, visible: true });
         scrollToTop();
       } finally {
         setIsLoading(false);
       }
     } else {
       setAlert({
-        type: 'error',
-        message: 'Please connect to an Ethereum wallet to register',
+        type: "error",
+        message: "Please connect to an Ethereum wallet to register",
         visible: true
       });
       scrollToTop();
@@ -120,7 +123,7 @@ export const Register = () => {
 
   const handleClosePopup = () => {
     setPopupVisible(false);
-    navigate('/login');
+    navigate("/login");
   };
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -254,7 +257,7 @@ export const Register = () => {
               />
             </div>
             <div className="flex justify-center text-xs font-poppins my-2">
-              Sudah punya akun?{' '}
+              Sudah punya akun?{" "}
               <a href="/Login" className="text-blue-600 ml-1">
                 Login sekarang
               </a>

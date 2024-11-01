@@ -1,36 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import CustomButton from '../components/CustomButton.component';
-import TextFieldComponent from '../components/Textfield.component';
-import PageLoad from '../components/Loading.component';
-import { loginUser } from '../api/User/login.api';
-import Web3 from 'web3';
-import AlertComponent from '../components/Alert.component';
-import Cookies from 'js-cookie';
-import PopupComponent from '../components/PopUp.component';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import CustomButton from "../components/CustomButton.component";
+import TextFieldComponent from "../components/Textfield.component";
+import PageLoad from "../components/Loading.component";
+import { loginUser } from "../api/User/login.api";
+import Web3 from "web3";
+import AlertComponent from "../components/Alert.component";
+import PopupComponent from "../components/PopUp.component";
+import { getUserDetails } from "../api/User/getUserDetails.api";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [alert, setAlert] = useState({ type: '', message: '', visible: false });
+  const [alert, setAlert] = useState({ type: "", message: "", visible: false });
   const [popupVisible, setPopupVisible] = useState(false);
 
   const form = useForm({
     defaultValues: {
-      email: '',
-      password: '',
-      account: ''
+      email: "",
+      password: "",
+      account: ""
     }
   });
 
+  const checkIfLoggedIn = async () => {
+    try {
+      await getUserDetails();
+      navigate("/");
+    } catch (error) {}
+  };
+
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (token) {
-      navigate('/');
-    }
-  }, [navigate]);
+    checkIfLoggedIn();
+  }, []);
 
   const detectCurrentProvider = () => {
     let provider;
@@ -40,8 +44,8 @@ const Login = () => {
       provider = window.web3.currentProvider;
     } else {
       setAlert({
-        type: 'error',
-        message: 'Non-ethereum browser detected. You should install MetaMask.',
+        type: "error",
+        message: "Non-ethereum browser detected. You should install MetaMask.",
         visible: true
       });
     }
@@ -52,45 +56,46 @@ const Login = () => {
     try {
       const currentProvider = detectCurrentProvider();
       if (currentProvider) {
-        await currentProvider.request({ method: 'eth_requestAccounts' });
+        await currentProvider.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(currentProvider);
         const userAccount = await web3.eth.getAccounts();
         const account = userAccount[0];
         setIsConnected(true);
-        form.setValue('account', account);
+        form.setValue("account", account);
         setAlert({
-          type: 'success',
-          message: 'MetaMask connected successfully!',
+          type: "success",
+          message: "MetaMask connected successfully!",
           visible: true
         });
       }
     } catch (err) {
-      setAlert({ type: 'error', message: err.message, visible: true });
+      setAlert({ type: "error", message: err.message, visible: true });
     }
   };
 
   const onSubmit = async () => {
     setIsLoading(true);
-    const email = form.getValues('email');
-    const password = form.getValues('password');
-    const wallet = form.getValues('account');
+    const email = form.getValues("email");
+    const password = form.getValues("password");
+    const wallet = form.getValues("account");
 
     try {
       await loginUser(email, password, wallet);
       setPopupVisible(true);
     } catch (error) {
-      if (wallet === '') {
+      if (wallet === "") {
         setAlert({
-          type: 'error',
-          message: 'Please connect to MetaMask to login.',
+          type: "error",
+          message: "Please connect to MetaMask to login.",
           visible: true
         });
       } else {
         setAlert({
-          type: 'error',
-          message: error,
+          type: "error",
+          message: error.message,
           visible: true
         });
+        scrollToTop();
       }
     } finally {
       setIsLoading(false);
@@ -99,7 +104,11 @@ const Login = () => {
 
   const closePopup = () => {
     setPopupVisible(false);
-    navigate('/');
+    navigate("/");
+  };
+  
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -114,11 +123,7 @@ const Login = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
-        <PopupComponent
-          message="Login successful!" 
-          visible={popupVisible}
-          onClose={closePopup}
-        />
+        <PopupComponent message="Login successful!" visible={popupVisible} onClose={closePopup} />
 
         <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md w-full max-w-md mt-5">
           <div className="text-center font-poppins font-bold text-2xl mt-3">
@@ -158,9 +163,9 @@ const Login = () => {
                 <div className="app-details mt-6">
                   <h2
                     style={{
-                      fontFamily: 'Poppins',
-                      fontWeight: '700',
-                      color: 'green'
+                      fontFamily: "Poppins",
+                      fontWeight: "700",
+                      color: "green"
                     }}>
                     Connected with MetaMask
                   </h2>
@@ -186,7 +191,7 @@ const Login = () => {
             </div>
           </form>
           <div className="flex justify-center text-xs font-poppins">
-            Belum punya akun?{' '}
+            Belum punya akun?{" "}
             <a href="/register" className="text-blue-600 ml-1">
               Register sekarang
             </a>
