@@ -123,13 +123,24 @@ contract CrowdfundingCampaign {
 
     // Function to get all campaigns
     function getAllCampaigns() public view returns (Campaign[] memory) {
-        Campaign[] memory allCampaigns = new Campaign[](campaignCount);
-
+        uint256 existingCount = 0;
         for (uint256 i = 1; i <= campaignCount; i++) {
-            allCampaigns[i - 1] = campaigns[i];
+            if (campaigns[i].exists) {
+                existingCount++;
+            }
         }
 
-        return allCampaigns;
+        Campaign[] memory existingCampaigns = new Campaign[](existingCount);
+
+        uint256 currentIndex = 0;
+        for (uint256 i = 1; i <= campaignCount; i++) {
+            if (campaigns[i].exists) {
+                existingCampaigns[currentIndex] = campaigns[i];
+                currentIndex++;
+            }
+        }
+
+        return existingCampaigns;
     }
 
     // Function to delete a campaign
@@ -236,73 +247,48 @@ contract CrowdfundingCampaign {
 
         payable(campaign.owner).transfer(campaign.amountCollected);
         campaign.amountCollected = 0;
-        campaign.exists = false;
     }
 
     // New function to get all donors along with their donation and reward tier
-    function getDonorsWithRewards(
+    function getLeaderboard(
         uint256 _campaignId
     )
         public
         view
         campaignExists(_campaignId)
-        returns (
-            string[] memory rewardTiers,
-            address[][] memory donors,
-            uint256[][] memory donationsList
-        )
+        returns (address[] memory donors, uint256[] memory donationAmounts)
     {
         Campaign storage campaign = campaigns[_campaignId];
+        uint256 donorCount = campaign.donors.length;
 
-        // Define reward tier labels
-        string[] memory rewardTierLabels = new string[](3);
-        rewardTierLabels[0] = "Bronze";
-        rewardTierLabels[1] = "Silver";
-        rewardTierLabels[2] = "Gold";
+        address[] memory allDonors = new address[](donorCount);
+        uint256[] memory allDonations = new uint256[](donorCount);
 
-        // Initialize result arrays
-        address[][] memory rewardDonors = new address[][](3);
-        uint256[][] memory rewardDonations = new uint256[][](3);
-        uint256[] memory donorCounts = new uint256[](3);
-
-        for (uint256 i = 0; i < 3; i++) {
-            rewardDonors[i] = new address[](campaign.donors.length);
-            rewardDonations[i] = new uint256[](campaign.donors.length);
-        }
-
-        // Categorize donors into reward tiers based on total donations
-        for (uint256 i = 0; i < campaign.donors.length; i++) {
+        // Populate arrays with donor addresses and their total donation amounts
+        for (uint256 i = 0; i < donorCount; i++) {
             address donor = campaign.donors[i];
             uint256 totalDonation = totalDonationsPerDonor[_campaignId][donor];
-
-            // Determine reward tier based on total donation
-            uint256 tierIndex;
-            if (totalDonation >= campaign.rewards[2].minAmount) {
-                tierIndex = 2; // Gold
-            } else if (totalDonation >= campaign.rewards[1].minAmount) {
-                tierIndex = 1; // Silver
-            } else {
-                tierIndex = 0; // Bronze
-            }
-
-            rewardDonors[tierIndex][donorCounts[tierIndex]] = donor;
-            rewardDonations[tierIndex][donorCounts[tierIndex]] = totalDonation;
-            donorCounts[tierIndex]++;
+            allDonors[i] = donor;
+            allDonations[i] = totalDonation;
         }
 
-        // Resize arrays to actual counts
-        for (uint256 i = 0; i < 3; i++) {
-            address[] memory tierDonors = new address[](donorCounts[i]);
-            uint256[] memory tierDonations = new uint256[](donorCounts[i]);
+        // Sort the donors and donation amounts in descending order based on donations
+        for (uint256 i = 0; i < donorCount; i++) {
+            for (uint256 j = i + 1; j < donorCount; j++) {
+                if (allDonations[i] < allDonations[j]) {
+                    // Swap donors
+                    address tempDonor = allDonors[i];
+                    allDonors[i] = allDonors[j];
+                    allDonors[j] = tempDonor;
 
-            for (uint256 j = 0; j < donorCounts[i]; j++) {
-                tierDonors[j] = rewardDonors[i][j];
-                tierDonations[j] = rewardDonations[i][j];
+                    // Swap donation amounts
+                    uint256 tempDonation = allDonations[i];
+                    allDonations[i] = allDonations[j];
+                    allDonations[j] = tempDonation;
+                }
             }
-            rewardDonors[i] = tierDonors;
-            rewardDonations[i] = tierDonations;
         }
 
-        return (rewardTierLabels, rewardDonors, rewardDonations);
+        return (allDonors, allDonations);
     }
 }
