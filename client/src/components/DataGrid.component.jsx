@@ -14,23 +14,6 @@ const DataGridComponent = ({
 }) => {
   return (
     <div className="space-y-4 w-full">
-      <div className="flex items-center justify-end space-x-2">
-        <label htmlFor="rowsPerPage" className="text-sm text-gray-600">
-          Rows per page:
-        </label>
-        <select
-          id="rowsPerPage"
-          value={limit}
-          onChange={(e) => handleChangeLimit(Number(e.target.value))}
-          className="form-select rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-          {rowsPerPageOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Table */}
       <div className="relative overflow-x-auto rounded-lg border border-gray-200 shadow">
         <table className="w-full divide-y divide-gray-200">
@@ -69,13 +52,33 @@ const DataGridComponent = ({
         </table>
       </div>
 
-      <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-        {/* Total Rows Info */}
-        <div className="text-sm text-gray-600">
-          {`Showing ${page * limit + 1} to ${Math.min(
-            (page + 1) * limit,
-            totalRows
-          )} of ${totalRows} results`}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="flex items-center space-x-4 text-sm text-gray-600">
+          {/* Total Rows Info */}
+          <div>
+            {`Showing ${page * limit + 1} to ${Math.min(
+              (page + 1) * limit,
+              totalRows
+            )} of ${totalRows} results`}
+          </div>
+
+          {/* Rows per page selector */}
+          <div className="flex items-center space-x-2">
+            <label htmlFor="rowsPerPage" className="text-sm text-gray-600">
+              Rows per page:
+            </label>
+            <select
+              id="rowsPerPage"
+              value={limit}
+              onChange={(e) => handleChangeLimit(Number(e.target.value))}
+              className="form-select rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
