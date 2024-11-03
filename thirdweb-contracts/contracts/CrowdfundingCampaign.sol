@@ -209,7 +209,7 @@ contract CrowdfundingCampaign {
         return "No eligible reward";
     }
 
-    // Refund donations from an unsuccessful campaign
+    // Function to refund donations from an unsuccessful campaign
     function refundDonation(
         uint256 _campaignId
     ) public campaignExists(_campaignId) {
@@ -231,7 +231,7 @@ contract CrowdfundingCampaign {
         campaign.exists = false;
     }
 
-    // Withdraw funds from a successful campaign
+    // Function to withdraw funds from a successful campaign
     function withdrawFunds(
         uint256 _campaignId
     ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
@@ -249,7 +249,7 @@ contract CrowdfundingCampaign {
         campaign.amountCollected = 0;
     }
 
-    // New function to get all donors along with their donation and reward tier
+    // Function to get all donors along with their donation, ordered by donations (desc)
     function getLeaderboard(
         uint256 _campaignId
     )
@@ -273,22 +273,66 @@ contract CrowdfundingCampaign {
         }
 
         // Sort the donors and donation amounts in descending order based on donations
-        for (uint256 i = 0; i < donorCount; i++) {
-            for (uint256 j = i + 1; j < donorCount; j++) {
-                if (allDonations[i] < allDonations[j]) {
-                    // Swap donors
-                    address tempDonor = allDonors[i];
-                    allDonors[i] = allDonors[j];
-                    allDonors[j] = tempDonor;
+        quickSort(allDonors, allDonations, 0, int(donorCount - 1));
 
-                    // Swap donation amounts
-                    uint256 tempDonation = allDonations[i];
-                    allDonations[i] = allDonations[j];
-                    allDonations[j] = tempDonation;
-                }
+        return (allDonors, allDonations);
+    }
+
+    // Function to delete a user's campaign when their account gets deleted
+    function deleteAllOwnerCampaigns(address _owner) public {
+        for (uint256 i = 0; i < campaignCount; i++) {
+            if (campaigns[i].owner == _owner && campaigns[i].exists) {
+                campaigns[i].exists = false;
+            }
+        }
+    }
+
+    function quickSort(
+        address[] memory allDonors,
+        uint256[] memory allDonations,
+        int left,
+        int right
+    ) internal pure {
+        if (left < right) {
+            int pivotIndex = partition(allDonors, allDonations, left, right);
+            quickSort(allDonors, allDonations, left, pivotIndex - 1);
+            quickSort(allDonors, allDonations, pivotIndex + 1, right);
+        }
+    }
+
+    function partition(
+        address[] memory allDonors,
+        uint256[] memory allDonations,
+        int left,
+        int right
+    ) internal pure returns (int) {
+        uint256 pivot = allDonations[uint256(right)];
+        int i = left - 1;
+
+        for (int j = left; j < right; j++) {
+            if (allDonations[uint256(j)] >= pivot) {
+                i++;
+
+                (allDonations[uint256(i)], allDonations[uint256(j)]) = (
+                    allDonations[uint256(j)],
+                    allDonations[uint256(i)]
+                );
+                (allDonors[uint256(i)], allDonors[uint256(j)]) = (
+                    allDonors[uint256(j)],
+                    allDonors[uint256(i)]
+                );
             }
         }
 
-        return (allDonors, allDonations);
+        (allDonations[uint256(i + 1)], allDonations[uint256(right)]) = (
+            allDonations[uint256(right)],
+            allDonations[uint256(i + 1)]
+        );
+        (allDonors[uint256(i + 1)], allDonors[uint256(right)]) = (
+            allDonors[uint256(right)],
+            allDonors[uint256(i + 1)]
+        );
+
+        return i + 1;
     }
 }
