@@ -16,11 +16,3 @@ export const formatResponse = (data, pagination = null) => {
     data: data
   };
 };
-
-export const formatErrorResponse = (error) => {
-  return {
-    status: false,
-    message: error.message || "An error occurred",
-    data: null
-  };
-};

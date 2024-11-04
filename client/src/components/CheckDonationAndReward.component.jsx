@@ -12,9 +12,9 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
   useEffect(() => {
     const fetchData = async () => {
       const donation = await fetchUserDonation(campaignId);
-      setDonationAmount(donation);
+      setDonationAmount(donation.data);
       const reward = await fetchUserReward(campaignId);
-      setRewardTier(reward);
+      setRewardTier(reward.data);
     };
 
     if (address && campaignId) {

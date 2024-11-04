@@ -73,11 +73,13 @@ const CreateCampaign = () => {
     resolver: yupResolver(validationSchema)
   });
 
-  const { createCampaign } = useStateContext();
+  const { createCampaign, isContractLoading } = useStateContext();
   const [selectedFile, setSelectedFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUploadLoading, setIsUploadLoading] = useState(false);
   const navigate = useNavigate();
   const [popupVisible, setPopupVisible] = useState(false);
+
+  const isLoading = isUploadLoading || isContractLoading;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -85,7 +87,7 @@ const CreateCampaign = () => {
   };
 
   const handleSaveButton = async () => {
-    setIsLoading(true);
+    setIsUploadLoading(true);
 
     const tiers = [
       {
@@ -123,7 +125,7 @@ const CreateCampaign = () => {
     } catch (error) {
       alert(error.message);
     } finally {
-      setIsLoading(false);
+      setIsUploadLoading(false);
     }
   };
 
