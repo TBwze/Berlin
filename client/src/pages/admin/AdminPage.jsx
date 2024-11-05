@@ -6,10 +6,12 @@ import { deleteUser } from "../../api/User/deleteUser.api";
 import { FaTrashCan } from "react-icons/fa6";
 import SearchBarComponent from "../../components/SearchBar.component";
 import { useForm } from "react-hook-form";
+import { useStateContext } from "../../context";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { deleteUserCampaign } = useStateContext();
   const form = useForm({
     defaultValues: {
       page: 0,
@@ -20,7 +22,7 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    refreshGrid(form.watch("page"), form.watch("limit")); 
+    refreshGrid(form.watch("page"), form.watch("limit"));
   }, []);
 
   const refreshGrid = async (page = 0, limit = 10, username = "") => {
@@ -28,8 +30,6 @@ const Admin = () => {
     try {
       const response = await getAllUsers(page, limit, username);
       setUsers(response.data);
-      form.setValue("page", response.page);
-      form.setValue("limit", response.limit);
       form.setValue("total_pages", response.total_pages);
       form.setValue("total_rows", response.total_rows);
     } catch (error) {
@@ -44,13 +44,25 @@ const Admin = () => {
     if (confirm("Are you sure you want to delete this user?")) {
       try {
         await deleteUser(userId);
-        refreshGrid(form.watch("page"), form.watch("limit")); // Refresh the grid after deletion
+        deleteCampaign(userId)
+        refreshGrid(form.watch("page"), form.watch("limit"));
       } catch (error) {
         alert(error.message);
       } finally {
         setIsLoading(false);
       }
     } else {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteCampaign = async (userId) => {
+    setIsLoading(true);
+    try {
+      await deleteUserCampaign(userId);
+    } catch (error) {
+      alert(error.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -82,11 +94,11 @@ const Admin = () => {
   }));
 
   const handleChangePageGrid = async (page) => {
-    await refreshGrid(page, form.watch("limit")); 
+    await refreshGrid(page, form.watch("limit"));
   };
 
   const handleChangeLimitGrid = async (limit) => {
-    await refreshGrid(form.watch("page"), limit); 
+    await refreshGrid(form.watch("page"), limit);
   };
 
   return (

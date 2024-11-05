@@ -370,6 +370,23 @@ export const StateContextProvider = ({ children }) => {
       throw new Error("Failed to delete campaign");
     }
   };
+  const deleteUserCampaign = async (userId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
+
+      const transaction = await contract.call("deleteAllOwnerCampaigns", [userId]);
+
+      return transaction;
+    } catch (error) {
+      throw new Error("Failed to delete campaign");
+    }
+  };
   return (
     <stateContext.Provider
       value={{
@@ -377,7 +394,6 @@ export const StateContextProvider = ({ children }) => {
         contract,
         connect,
         createCampaign: publishCampaign,
-        isContractLoading,
         getCampaigns,
         getCampaignById,
         donateToCampaign,
@@ -386,7 +402,8 @@ export const StateContextProvider = ({ children }) => {
         refundDonation,
         getLeaderboard,
         withdrawFunds,
-        deleteCampaign
+        deleteCampaign,
+        deleteUserCampaign
       }}>
       {children}
     </stateContext.Provider>
