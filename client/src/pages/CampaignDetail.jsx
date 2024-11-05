@@ -230,7 +230,7 @@ const CampaignDetail = () => {
             <div className="flex flex-col gap-8 w-1/2">
               <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
                 <div className="row-span-4 col-span-4 w-full">
-                  <img src={data.imageUrl} alt="Campaign" />
+                  <img src={data.imageUrl} alt="Campaign" className="w-full" />
                 </div>
               </div>
               <div className="flex flex-col gap-4">
