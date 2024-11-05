@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useContract } from '@thirdweb-dev/react';
-import CardComponent from '../components/Card.component';
-import { ethers } from 'ethers';
-import { getAccountByWallet } from '../api/User/getUserByWallet.api';
-import { formatDate } from '../utils/date.utils';
-import { useNavigate } from 'react-router-dom';
-import PageLoad from '../components/Loading.component';
-import { useStateContext } from '../context';
-import PopupComponent from '../components/PopUp.component';
+import React, { useEffect, useState } from "react";
+import { useContract } from "@thirdweb-dev/react";
+import CardComponent from "../components/Card.component";
+import { ethers } from "ethers";
+import { getAccountByWallet } from "../api/User/getUserByWallet.api";
+import { formatDate } from "../utils/date.utils";
+import { useNavigate } from "react-router-dom";
+import PageLoad from "../components/Loading.component";
+import { useStateContext } from "../context";
+import PopupComponent from "../components/PopUp.component";
 
 const Home = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
-  const { address, contract, getCampaigns, fetchUserDonation, refundDonation } = useStateContext();
+  const { contract, address, getCampaigns, fetchUserDonation, refundDonation } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
+  const [popupMessage, setPopupMessage] = useState("");
 
   const fetchCampaigns = async () => {
     try {
@@ -47,10 +47,8 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if (contract) {
-      fetchCampaigns();
-    }
-  }, [address, contract]);
+    if (contract) fetchCampaigns();
+  }, [contract, address]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -69,6 +67,7 @@ const Home = () => {
   // Sort campaigns for "Projek Terbaru" by ID descending
   const latestProjects = [...data].sort((a, b) => b.id - a.id).slice(0, 3); // Only take the latest 3
 
+  if (!contract) return <PageLoad loading={true} />;
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
       <PageLoad loading={isLoading} />
@@ -99,7 +98,7 @@ const Home = () => {
             </div>
             <button
               className="mt-4 text-blue-500 hover:underline"
-              onClick={() => navigate('/campaign')}>
+              onClick={() => navigate("/campaign")}>
               See More
             </button>
           </section>
@@ -123,7 +122,7 @@ const Home = () => {
             </div>
             <button
               className="mt-4 text-blue-500 hover:underline"
-              onClick={() => navigate('/campaign')}>
+              onClick={() => navigate("/campaign")}>
               See More
             </button>
           </section>
@@ -133,7 +132,7 @@ const Home = () => {
             <h2 className="mb-6 text-xl font-bold">Tutorial dan Tips</h2>
             <div className="space-y-6">
               {Array(2)
-                .fill('')
+                .fill("")
                 .map((_, index) => (
                   <div key={index} className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300">
                     <p className="text-sm text-gray-700">

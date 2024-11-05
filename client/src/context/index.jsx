@@ -4,22 +4,22 @@ import {
   useContract,
   useConnect,
   metamaskWallet,
-  useContractWrite,
+  // useContractWrite,
   useSigner
 } from "@thirdweb-dev/react";
 import dayjs from "dayjs";
 import { getAccountByWallet } from "../api/User/getUserByWallet.api";
 import { formatDate } from "../utils/date.utils";
 import { ethToWei, weiToEth } from "../utils/convertEth.utils";
-import { formatErrorResponse, formatResponse } from "../utils/response";
+import { formatResponse } from "../utils/response";
 import { calculatePagination } from "../utils/pagination";
 
 const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract("0xd8146A621Ed0b7AF5aB1d683e24Ae6510f543A98");
-  const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
+  const { contract } = useContract("0x724d274Ac1B9dd98ED6663429f6dCDF065B9c95F");
+  // const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
   const connect = useConnect();
@@ -49,26 +49,62 @@ export const StateContextProvider = ({ children }) => {
         description: reward.description
       }));
 
-      const tx = await createCampaignWrite({
-        args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards],
-        signer: signer
-      });
+      // Using contract.call instead of useContractWrite
+      const result = await contract.call("createCampaign", [
+        title,
+        description,
+        targetInWei,
+        deadlineTimestamp,
+        image,
+        formattedRewards
+      ]);
 
-      await tx.wait();
-
-      return tx;
+      return result;
     } catch (error) {
-      console.error("Contract call failed!", error);
       throw new Error("Failed to create campaign");
     }
   };
+
+  // const publishCampaign = async (form) => {
+  //   try {
+  //     const { title, description, targetAmount, deadline, image, rewards } = form;
+
+  //     if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
+  //       throw new Error("Fill in all fields!");
+  //     }
+
+  //     if (!signer || !address) {
+  //       await connect(metamaskConfig);
+  //     }
+
+  //     if (!signer || !address) {
+  //       throw new Error("Wallet not connected. Please try connecting again.");
+  //     }
+
+  //     const targetInWei = ethToWei(targetAmount);
+  //     const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+
+  //     const formattedRewards = rewards.map((reward) => ({
+  //       minAmount: ethToWei(reward.minAmount),
+  //       description: reward.description
+  //     }));
+
+  //     const result = await createCampaignWrite({
+  //       args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards]
+  //     });
+
+  //     return result;
+  //   } catch (error) {
+  //     throw new Error("Failed to create campaign");
+  //   }
+  // };
 
   const getAccountUsername = async (wallet) => {
     try {
       const response = await getAccountByWallet(wallet);
       return response.data.username;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error("Failed to get username");
     }
   };
 
@@ -186,7 +222,7 @@ export const StateContextProvider = ({ children }) => {
 
       return formatResponse(formattedCampaign);
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to get Campaign");
     }
   };
 
@@ -203,7 +239,7 @@ export const StateContextProvider = ({ children }) => {
         value: ethToWei(amount.toString())
       });
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to donate");
     }
   };
 
@@ -221,7 +257,7 @@ export const StateContextProvider = ({ children }) => {
       const donationEth = weiToEth(donation);
       return formatResponse(donation == 0 ? donation : donationEth);
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to get user donation");
     }
   };
   const fetchUserReward = async (campaignId) => {
@@ -236,7 +272,7 @@ export const StateContextProvider = ({ children }) => {
       const rewardTier = await contract.call("getRewardTier", [campaignId, address]);
       return formatResponse(rewardTier);
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to get user reward");
     }
   };
 
@@ -253,7 +289,7 @@ export const StateContextProvider = ({ children }) => {
       const transaction = await contract.call("refundDonation", [campaignId]);
       return transaction;
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to refund");
     }
   };
 
@@ -268,33 +304,35 @@ export const StateContextProvider = ({ children }) => {
       }
 
       // Get leaderboard data from contract
-      const [donors, donationAmounts] = await contract.call("getLeaderboard", [campaignId]);
+      const leaderboard = await contract.call("getLeaderboard", [campaignId]);
 
-      // Create full leaderboard array
-      const fullLeaderboard = await Promise.all(
-        donors.map((donor, index) =>
-          formatLeaderboardEntry(donor, donationAmounts[index], index + 1)
-        )
-      );
+      // Transform the response using weiToEth
+      const formattedData = leaderboard[0].map((address, index) => ({
+        address: address,
+        amount: parseFloat(weiToEth(leaderboard[1][index])) // Using your weiToEth function
+      }));
 
-      // Sort by amount in descending order (in case it's not already sorted)
-      fullLeaderboard.sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+      // Sort by amount in descending order
+      formattedData.sort((a, b) => b.amount - a.amount);
 
-      // Calculate pagination
-      const totalItems = fullLeaderboard.length;
-      const pagination = calculatePagination(totalItems, page, limit);
+      // Calculate pagination values
+      const totalRows = formattedData.length;
+      const totalPages = Math.ceil(totalRows / limit);
+      const startIndex = page * limit;
+      const endIndex = startIndex + limit;
 
-      // Slice the data according to pagination
-      const paginatedData = fullLeaderboard.slice(
-        pagination.page * pagination.limit,
-        pagination.page * pagination.limit + pagination.limit
-      );
+      // Get the paginated data
+      const paginatedData = formattedData.slice(startIndex, endIndex);
 
-      // Return formatted response
+      const pagination = {
+        page,
+        limit,
+        total_pages: totalPages,
+        total_rows: totalRows
+      };
       return formatResponse(paginatedData, pagination);
     } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-      return formatResponse([], { page: 0, limit: 10, total_rows: 0, total_pages: 0 });
+      return formatResponse([], { page: 0, limit: 10, total_pages: 0, total_rows: 0 });
     }
   };
 
@@ -309,10 +347,9 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const transaction = await contract.call("withdrawFunds", [campaignId]);
-
       return transaction;
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to withdraw funds");
     }
   };
 
@@ -330,7 +367,24 @@ export const StateContextProvider = ({ children }) => {
 
       return transaction;
     } catch (error) {
-      return formatErrorResponse(error);
+      throw new Error("Failed to delete campaign");
+    }
+  };
+  const deleteUserCampaign = async (userId) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
+
+      const transaction = await contract.call("deleteAllOwnerCampaigns", [userId]);
+
+      return transaction;
+    } catch (error) {
+      throw new Error("Failed to delete campaign");
     }
   };
   return (
@@ -348,7 +402,8 @@ export const StateContextProvider = ({ children }) => {
         refundDonation,
         getLeaderboard,
         withdrawFunds,
-        deleteCampaign
+        deleteCampaign,
+        deleteUserCampaign
       }}>
       {children}
     </stateContext.Provider>

@@ -33,7 +33,6 @@ const CampaignDetail = () => {
   const [username, setUsername] = useState(null);
   const [userPicture, setUserPicture] = useState(null);
   const [popupMessage, setPopupMessage] = useState("");
-  const [donatorData, setDonatorData] = useState([]);
   const [gridRows, setGridRows] = useState([]);
   const navigate = useNavigate();
 
@@ -41,7 +40,11 @@ const CampaignDetail = () => {
     defaultValues: {
       minimal_eth: "",
       content: "",
-      is_owner: false
+      is_owner: false,
+      page: 0,
+      limit: 10,
+      total_pages: 0,
+      total_rows: 0
     }
   });
 
@@ -53,86 +56,53 @@ const CampaignDetail = () => {
   const isTargetMet = data.amountCollected >= data.targetAmount;
   const isDeadlinePassed = new Date(data.deadline) < new Date();
 
-  const getRewardBadge = (reward) => {
-    switch (reward) {
-      case "Gold":
-        return (
-          <div className="flex items-center">
-            <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />
-            <span className="ml-2">Gold</span>
-          </div>
-        );
-      case "Silver":
-        return (
-          <div className="flex items-center">
-            <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />
-            <span className="ml-2">Silver</span>
-          </div>
-        );
-      case "Bronze":
-        return (
-          <div className="flex items-center">
-            <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />
-            <span className="ml-2">Bronze</span>
-          </div>
-        );
-      default:
-        return null;
+  const columns = [
+    {
+      field: "rank",
+      headerName: "Rank"
+    },
+    {
+      field: "username",
+      headerName: "Donor"
+    },
+    {
+      field: "amount",
+      headerName: "Amount (ETH)"
     }
-  };
-
-  // NEED FIXING
-
-  // const columns = [
-  //   { headerName: "Tier", field: "tier" },
-  //   { headerName: "Username", field: "addresses" },
-  //   { headerName: "Amounts", field: "amounts" }
-  // ];
-
-  // const getUsernamesForAddresses = async (addresses) => {
-  //   try {
-  //     const usernames = await Promise.all(
-  //       addresses.map(async (address) => {
-  //         const response = await getAccountByWallet(address);
-  //         return response.data.username || address;
-  //       })
-  //     );
-  //     return usernames;
-  //   } catch (error) {
-  //     return addresses;
-  //   }
-  // };
-
-  // const createGridRows = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const gridRows = await Promise.all(
-  //       donatorData.map(async (item) => {
-  //         const usernames =
-  //           item.addresses.length > 0 ? await getUsernamesForAddresses(item.addresses) : [];
-
-  //         return {
-  //           tier: getRewardBadge(item.tier),
-  //           addresses: usernames.length > 0 ? usernames.join(", ") : "",
-  //           amounts: item.amounts.length > 0 ? item.amounts.join(", ") : ""
-  //         };
-  //       })
-  //     );
-  //     setGridRows(gridRows);
-  //   } catch (error) {
-  //     console.error("Error creating grid rows:", error.message);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  ];
 
   const fetchDonors = async (page, limit) => {
     setIsLoading(true);
     try {
-      const response = await getLeaderboard(id, page, limit);
-      setDonatorData(response.data);
+      const response = await getLeaderboard(id, (page = 0), (limit = 10));
+      const transformedRows = await Promise.all(
+        response.data.map(async (donor, index) => {
+          try {
+            const userResponse = await getAccountByWallet(donor.address);
+            return {
+              rank: page * limit + index + 1,
+              username:
+                userResponse.data.username ||
+                `${donor.address.slice(0, 6)}...${donor.address.slice(-4)}`,
+              amount: donor.amount
+            };
+          } catch (error) {
+            return {
+              rank: page * limit + index + 1,
+              username: `${donor.address.slice(0, 6)}...${donor.address.slice(-4)}`,
+              amount: donor.amount
+            };
+          }
+        })
+      );
+
+      setGridRows(transformedRows);
+      form.setValue("page", response.page);
+      form.setValue("limit", response.limit);
+      form.setValue("total_pages", response.total_pages);
+      form.setValue("total_rows", response.total_rows);
     } catch (error) {
-      console.error("Error fetching donors:", error);
+      setGridRows([]);
     } finally {
       setIsLoading(false);
     }
@@ -141,14 +111,14 @@ const CampaignDetail = () => {
   const fetchCampaign = async () => {
     try {
       const campaignData = await getCampaignById(id);
-      setData(campaignData);
-      setWallet(campaignData.owner);
+      setData(campaignData.data);
+      setWallet(campaignData.data.owner);
 
       const userDetails = await getUserDetails();
       setUserId(userDetails.data.wallet);
       setUsername(userDetails.data.username);
       setUserPicture(userDetails.data.profilePicture);
-      if (userDetails.data.wallet === campaignData.owner) {
+      if (userDetails.data.wallet === campaignData.data.owner) {
         form.setValue("is_owner", true);
       }
     } catch (error) {
@@ -206,7 +176,6 @@ const CampaignDetail = () => {
       fetchCampaign();
       fetchDonors();
       fetchCommentsData();
-      // createGridRows();
     }
   }, [address, contract, id]);
 
@@ -233,14 +202,21 @@ const CampaignDetail = () => {
       await withdrawFunds(id);
       setPopupMessage("Funds withdrawn successfully!");
       setPopupVisible(true);
+      navigate("/");
     } catch (error) {
       alert("Error withdrawing funds: " + error.message);
     } finally {
-      navigate("/");
       setIsLoading(false);
     }
   };
 
+  const handleChangePageGrid = async (page) => {
+    await fetchDonors(page, form.watch("limit"));
+  };
+
+  const handleChangeLimitGrid = async (limit) => {
+    await fetchDonors(form.watch("page"), limit);
+  };
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading || loadingComments} />
@@ -254,7 +230,7 @@ const CampaignDetail = () => {
             <div className="flex flex-col gap-8 w-1/2">
               <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
                 <div className="row-span-4 col-span-4 w-full">
-                  <img src={data.imageUrl} alt="Campaign" />
+                  <img src={data.imageUrl} alt="Campaign" className="w-full" />
                 </div>
               </div>
               <div className="flex flex-col gap-4">
@@ -418,7 +394,16 @@ const CampaignDetail = () => {
                   </div>
                 </form>
               )}
-              <DataGridComponent columns={columns} rows={gridRows} />
+              <DataGridComponent
+                columns={columns}
+                rows={gridRows}
+                page={form.watch("page")}
+                limit={form.watch("limit")}
+                totalPages={form.watch("total_pages")}
+                totalRows={form.watch("total_rows")}
+                handleChangePage={handleChangePageGrid}
+                handleChangeLimit={handleChangeLimitGrid}
+              />
             </div>
           </div>
         </div>
