@@ -224,14 +224,43 @@ const CampaignDetail = () => {
       {!isLoading && (
         <div className="flex flex-col text-center pb-4">
           <div className="Header font-bold text-2xl pb-4">
-            <h3>{data.title}</h3>
+            <h3 className="uppercase pb-4">{data.title}</h3>
           </div>
           <div className="flex flex-row justify-around">
-            <div className="flex flex-col gap-8 w-1/2">
-              <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto border border-gray-300 rounded-lg shadow-lg p-4">
+            <div className="flex flex-col gap-4 w-[40vw]">
+              <div className="grid grid-rows-2 grid-cols-4 gap-4 items-center w-auto shadow-lg">
                 <div className="row-span-4 col-span-4 w-full">
                   <img src={data.imageUrl} alt="Campaign" className="w-full" />
                 </div>
+              </div>
+              <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-row items-center">
+                  <img
+                  src={newProfilePict}
+                  alt="ProfilePicture"
+                  className="w-20 h-20 mr-2 rounded-full"
+                 />
+                  <h4 className="text-xl font-bold">{data.username}<span className="font-normal"> is organizing this crowdfund</span></h4>
+                </div>
+                <div className="flex">
+                  {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
+                  {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
+                    <CustomButton
+                      className="w-40"
+                      btnType="button"
+                      title="Withdraw Funds"
+                      bgColor="#4CAF50"
+                      styles="font-semibold rounded px-4"
+                      textColor="#ffffff"
+                      handleClick={handleWithdrawFunds}
+                    />
+                  )}
+                </div>
+              </div>
+              <hr style={{border: "1px solid #ccc"}} />
+              <div className="pb-4">
+                <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Proyek</h2>
+                <p className="text-balance text-justify text-wrap pl-4">{data.description}</p>
               </div>
               <div className="flex flex-col gap-4">
                 {data.rewards
@@ -292,10 +321,8 @@ const CampaignDetail = () => {
                     <CustomButton
                       btnType="submit"
                       title="Post"
-                      bgColor="#4CAF50"
                       styles="font-semibold rounded px-4 border-2"
-                      textColor="#ffffff"
-                      className="w-1/4"
+                      className="btn-sm btn-outline bg-green-500 uppercase"
                     />
                   </div>
                 </form>
@@ -318,28 +345,12 @@ const CampaignDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col w-1/2 pl-10 gap-4 ">
-              <div className="flex flex-row items-center">
-                <img
-                  src={newProfilePict}
-                  alt="ProfilePicture"
-                  className="w-20 h-20 mr-2 rounded-full"
-                />
-                <h4 className="text-xl font-semibold">{data.username}</h4>
-              </div>
+            <div className="w-[30vw] h-full sticky top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border-2">
               <p className="font-bold text-right">
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
               <div className="flex flex-row items-center gap-3">
-                <div className="w-full bg-gray-300 h-3.5 ">
-                  <div
-                    className="bg-green-500 h-3.5 text-xs text-white text-center shadow-lg"
-                    style={{ width: `${fundingPercentage}%` }}
-                    role="progressbar"
-                    aria-valuenow="60"
-                    aria-valuemin="0"
-                    aria-valuemax="100"></div>
-                </div>
+                <progress className="progress progress-success w-full h-3.5" value={fundingPercentage} max="100"></progress>
                 {percentage}%
               </div>
               <div className="flex flex-row justify-between">
@@ -350,41 +361,11 @@ const CampaignDetail = () => {
                 </div>
               </div>
               <div>
-                <h3 className="font-bold mt-3 text-left mb-3">Informasi Proyek</h3>
-                <p className="text-balance text-justify text-sm">{data.description}</p>
               </div>
-              {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
-              {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
-                <CustomButton
-                  className="w-40"
-                  btnType="button"
-                  title="Withdraw Funds"
-                  bgColor="#4CAF50"
-                  styles="font-semibold rounded px-4"
-                  textColor="#ffffff"
-                  handleClick={handleWithdrawFunds}
-                />
-              )}
 
               {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
               {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
                 <form onSubmit={handleDonation} className="flex flex-col mb-2">
-                  <div className="mb-3">
-                    <TextFieldDecimalComponent
-                      name="minimal_eth"
-                      label="Masukkan Nominal Donasi"
-                      control={form.control}
-                      required
-                      addOrmentText="ETH"
-                    />
-                  </div>
-                  <CustomButton
-                    btnType="submit"
-                    title="Donasi"
-                    styles="bg-primary rounded-2xl p-2 text-sm font-semibold"
-                    textColor="#ffffff"
-                    bgColor="#4CAF50"
-                  />
                   <div>
                     <CheckDonationAndReward
                       campaignId={id}
@@ -394,6 +375,39 @@ const CampaignDetail = () => {
                   </div>
                 </form>
               )}
+
+              <button className="btn btn-block bg-green-600 text-white hover:text-black" onClick={()=>document.getElementById('my_modal_2').showModal()}>Donasi</button>
+                <dialog id="my_modal_2" className="modal">
+                  <div className="modal-box">
+                    <h3 className="font-bold text-lg">Hello!</h3>
+                    {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
+                    {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
+                      <form onSubmit={handleDonation} className="flex flex-col mb-2">
+                        <div className="mb-3">
+                          <TextFieldDecimalComponent
+                            name="minimal_eth"
+                            label="Masukkan Nominal Donasi"
+                            control={form.control}
+                            required
+                            addOrmentText="ETH"
+                          />
+                        </div>
+                        <CustomButton
+                          btnType="submit"
+                          title="Donasi"
+                          styles="bg-primary rounded-2xl p-2 text-sm font-semibold"
+                          className="btn-block btn-outline btn-success bg-green-500"
+                          textColor="#ffffff"
+                        />
+
+                      </form>
+                    )}
+                  </div>
+                  <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                  </form>
+                </dialog>
+
               <DataGridComponent
                 columns={columns}
                 rows={gridRows}
