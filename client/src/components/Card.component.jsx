@@ -1,6 +1,6 @@
-import React from 'react';
-import { FaArrowRight } from 'react-icons/fa6';
-import { ethers } from 'ethers';
+import React from "react";
+import { FaArrowRight } from "react-icons/fa6";
+import { ethers } from "ethers";
 
 const CardComponent = ({
   id,
@@ -19,7 +19,7 @@ const CardComponent = ({
       <a href={`/campaign/${id}`}>
         <img
           className="rounded-t-lg w-full h-48 object-cover"
-          src={imageUrl || '/api/placeholder/384/192'}
+          src={imageUrl || "/api/placeholder/384/192"}
           alt={title}
         />
       </a>
@@ -36,8 +36,10 @@ const CardComponent = ({
         </p>
 
         {/* Progress bar showing the funding percentage */}
-        <div className="relative w-full bg-gray-200 h-4 dark:bg-gray-700 mb-2">
-          <div className="bg-green-700 h-full" style={{ width: `${fundingPercentage}%` }}></div>
+        <div className="relative w-full bg-gray-200 h-4 dark:bg-gray-700 mb-2 rounded-lg">
+          <div
+            className="bg-green-700 h-full rounded-lg"
+            style={{ width: `${fundingPercentage}%` }}></div>
           <span className="absolute inset-0 flex justify-center items-center text-xs text-white font-poppins-500">
             {fundingPercentage}%
           </span>

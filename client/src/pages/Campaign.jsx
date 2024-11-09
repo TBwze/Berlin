@@ -28,7 +28,7 @@ const Campaign = () => {
     try {
       const fetchedCampaigns = await getCampaigns(page, limit, searchQuery);
       setCampaigns(fetchedCampaigns.data);
-      form.setValue("total_pages", fetchedCampaigns.total_pages); 
+      form.setValue("total_pages", fetchedCampaigns.total_pages);
       form.setValue("total_rows", fetchedCampaigns.total_rows);
     } catch (error) {
       alert("Failed to fetch data:", error);
@@ -43,7 +43,7 @@ const Campaign = () => {
 
   const handleSearch = (searchTerm) => {
     setSearchQuery(searchTerm);
-    form.setValue("page", 0); 
+    form.setValue("page", 0);
   };
 
   const filteredCampaigns = campaigns.filter((campaign) =>
@@ -68,7 +68,7 @@ const Campaign = () => {
         <SearchBarComponent onSearch={handleSearch} placeholder="Search project..." />
       </div>
 
-      <h2 className="mb-4 text-lg font-bold mb-10">
+      <h2 className="text-lg font-bold mb-10">
         Jelajahi <span className="text-[#2E6950]">{filteredCampaigns.length} Projek</span>
       </h2>
       {filteredCampaigns.length > 0 ? (

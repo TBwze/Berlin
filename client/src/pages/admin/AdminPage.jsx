@@ -44,7 +44,7 @@ const Admin = () => {
     if (confirm("Are you sure you want to delete this user?")) {
       try {
         await deleteUser(userId);
-        deleteCampaign(userId)
+        deleteCampaign(userId);
         refreshGrid(form.watch("page"), form.watch("limit"));
       } catch (error) {
         alert(error.message);
@@ -72,7 +72,11 @@ const Admin = () => {
   };
 
   const columns = [
-    { headerName: "Profile Picture", field: "profilePicture" },
+    {
+      headerName: "Profile Picture",
+      field: "profilePicture",
+      className: "flex justify-center items-center"
+    },
     { headerName: "Username", field: "username" },
     { headerName: "Email", field: "email" },
     { headerName: "Actions", field: "actions" }
@@ -80,14 +84,10 @@ const Admin = () => {
 
   const rows = users.map((user) => ({
     username: user.username,
-    profilePicture: (
-      <img src={user.profilePicture} alt="Profile" className="h-10 w-10 rounded-full" />
-    ),
+    profilePicture: <img src={user.profilePicture} alt="Profile" className="h-20 rounded-lg " />,
     email: user.email,
     actions: (
-      <button
-        onClick={() => handleDelete(user._id)}
-        className="text-red-600 rounded-lg p-1 flex items-center justify-center">
+      <button onClick={() => handleDelete(user._id)} className="text-red-600 rounded-lg p-1">
         <FaTrashCan className="w-5 h-5" />
       </button>
     )

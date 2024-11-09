@@ -21,23 +21,18 @@ const DataGridComponent = ({
           <thead className="bg-gray-100 font-medium uppercase tracking-wider text-black text-center">
             <tr>
               {columns.map((column, index) => (
-                <th
-                  key={index}
-                >
-                  {column.headerName}
-                </th>
+                <th key={index}>{column.headerName}</th>
               ))}
             </tr>
           </thead>
           <tbody className="text-center">
             {rows.length > 0 ? (
               rows.map((row, rowIndex) => (
-                <tr key={rowIndex} 
-                    className="hover"
-                >
+                <tr key={rowIndex} className="hover">
                   {columns.map((column, colIndex) => (
                     <td
                       key={colIndex}
+                      className={`${column.className || ""}`} // Apply the className dynamically
                     >
                       {row[column.field]}
                     </td>
