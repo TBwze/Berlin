@@ -4,6 +4,7 @@ import CardComponent from "../components/Card.component";
 import PageLoad from "../components/Loading.component";
 import SearchBarComponent from "../components/SearchBar.component";
 import { useForm } from "react-hook-form";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const MyCampaign = () => {
   const { getCampaigns, address, contract } = useStateContext();
@@ -14,12 +15,17 @@ const MyCampaign = () => {
   const form = useForm({
     defaultValues: {
       page: 0,
-      limit: 10
+      limit: 10,
+      total_pages: 0,
+      total_rows: 0,
+      PageOptions : [1, 10, 20, 50]
     }
   });
 
   const watchedPage = form.watch("page");
   const watchedLimit = form.watch("limit");
+  const watchedTotalPages = form.watch("total_pages");
+  const rowsPerPageOptions = form.watch("PageOptions");
 
   const fetchData = async (page, limit, searchQuery, isOwner) => {
     setIsLoading(true);
@@ -65,7 +71,7 @@ const MyCampaign = () => {
       </div>
 
       {/* My Projects Section */}
-      <h2 className="mb-4 text-lg font-bold mb-10">My Projects</h2>
+      <h2 className="text-lg font-bold mb-10">My Projects</h2>
       {filteredMyCampaigns.length > 0 ? (
         <section className="w-full mb-8">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
@@ -88,34 +94,56 @@ const MyCampaign = () => {
       )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <div>
-          <label htmlFor="limit" className="mr-2">
-            Items per page:
-          </label>
-          <select
-            id="limit"
-            value={watchedLimit}
-            onChange={handleLimitChange}
-            className="border border-gray-300 rounded">
-            <option value={1}>1</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
+      <div className="flex flex-row items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="flex items-center space-x-4 text-sm text-gray-600">
+
+          {/* Rows per page selector */}
+          <div className="flex items-center space-x-2">
+            <label htmlFor="limit" className="text-sm text-gray-600 text-nowrap">
+              Items per page:
+            </label>
+            <select
+              id="limit"
+              value={watchedLimit}
+              onChange={handleLimitChange}
+              className="form-select rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 border">
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div>
+
+        <div className="flex items-center space-x-2">
           <button
-            onClick={() => handlePageChange(watchedPage - 1)}
+            onClick={() => handleChangePage(watchedPage - 1)}
             disabled={watchedPage === 0}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400">
-            Previous
+            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
+            <FaChevronLeft className="h-4 w-4" />
+            <span className="ml-1">Previous</span>
           </button>
-          <span className="mx-2">{`Page ${watchedPage + 1}`}</span>
+
+          <div className="flex items-center space-x-1">
+            {Array.from({ length: watchedTotalPages }, (_, i) => i).map((p) => (
+              <button
+                key={p}
+                onClick={() => handleChangePage(p)}
+                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  watchedPage === p ? "z-10 bg-[#2E6950] text-white" : "text-black hover:bg-gray-50"
+                } rounded-md`}>
+                {p + 1}
+              </button>
+            ))}
+          </div>
+
           <button
-            onClick={() => handlePageChange(watchedPage + 1)}
-            disabled={watchedPage + 1 >= form.getValues("total_pages")}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400">
-            Next
+            onClick={() => handleChangePage(watchedPage + 1)}
+            disabled={watchedPage === watchedTotalPages - 1 || watchedPage === 0}
+            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
+            <span className="mr-1">Next</span>
+            <FaChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>

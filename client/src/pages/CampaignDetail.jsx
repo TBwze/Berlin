@@ -240,16 +240,15 @@ const CampaignDetail = () => {
                   alt="ProfilePicture"
                   className="w-20 h-20 mr-2 rounded-full"
                  />
-                  <h4 className="text-xl font-bold">{data.username}<span className="font-normal"> is organizing this crowdfund</span></h4>
+                  <h4 className="text-xl text-left font-bold">{data.username}<span className="font-normal"> is organizing this crowdfund</span></h4>
                 </div>
                 <div className="flex">
                   {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
                   {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
                     <CustomButton
-                      className="w-40"
+                      className="btn btn-outline btn-success bg-green-500"
                       btnType="button"
                       title="Withdraw Funds"
-                      bgColor="#4CAF50"
                       styles="font-semibold rounded px-4"
                       textColor="#ffffff"
                       handleClick={handleWithdrawFunds}
@@ -260,7 +259,7 @@ const CampaignDetail = () => {
               <hr style={{border: "1px solid #ccc"}} />
               <div className="pb-4">
                 <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Proyek</h2>
-                <p className="text-balance text-justify text-wrap pl-4">{data.description}</p>
+                <p className="text-balance text-justify pl-4">{data.description}</p>
               </div>
               <div className="flex flex-col gap-4">
                 {data.rewards
@@ -283,7 +282,7 @@ const CampaignDetail = () => {
 
                     return (
                       <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-lg">
-                        <div className="flex items-start items-center gap-4">
+                        <div className="flex items-center gap-4">
                           <div className="flex flex-col items-center text-center w-24">
                             <img src={badgeImage} alt={badgeName} className="w-16 h-16 mb-2" />
                             <h3 className="text-lg font-bold">{badgeName}</h3>
@@ -306,7 +305,7 @@ const CampaignDetail = () => {
                 <hr className="border-t border-gray-400 my-2" />
                 <form
                   onSubmit={handleCommentSubmit}
-                  className="flex flex-col gap-4 border border-2 p-4 rounded-lg shadow-lg bg-gray-100">
+                  className="flex flex-col gap-4 border-2 p-4 rounded-lg shadow-lg bg-gray-100">
                   <TextFieldComponent
                     name="content"
                     label=""
@@ -345,7 +344,7 @@ const CampaignDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="w-[30vw] h-full sticky top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border-2">
+            <div className="w-[30vw] h-full sticky top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border">
               <p className="font-bold text-right">
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
@@ -379,7 +378,7 @@ const CampaignDetail = () => {
               <button className="btn btn-block bg-green-600 text-white hover:text-black" onClick={()=>document.getElementById('my_modal_2').showModal()}>Donasi</button>
                 <dialog id="my_modal_2" className="modal">
                   <div className="modal-box">
-                    <h3 className="font-bold text-lg">Hello!</h3>
+                    <h3 className="font-bold text-lg">Donasi</h3>
                     {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
                     {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
                       <form onSubmit={handleDonation} className="flex flex-col mb-2">
@@ -395,7 +394,7 @@ const CampaignDetail = () => {
                         <CustomButton
                           btnType="submit"
                           title="Donasi"
-                          styles="bg-primary rounded-2xl p-2 text-sm font-semibold"
+                          styles="rounded-2xl p-2 text-sm font-semibold"
                           className="btn-block btn-outline btn-success bg-green-500"
                           textColor="#ffffff"
                         />

@@ -87,7 +87,7 @@ const DataGridComponent = ({
         </table>
       </div> */}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="flex flex-col items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center space-x-4 text-sm text-gray-600">
           {/* Total Rows Info */}
           {/* <div className="text-nowrap">
