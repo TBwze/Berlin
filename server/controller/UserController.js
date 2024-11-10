@@ -16,7 +16,7 @@ export const create = async (request, response) => {
             !request.body.lastname ||
             !request.body.username ||
             !request.body.email ||
-            !request.body.password
+            !request.body.password || !request.body.phonenumber
         ) {
             return handleErrorResponse(
                 response,
@@ -42,6 +42,7 @@ export const create = async (request, response) => {
             password: hashedPassword,
             role: "User",
             wallet: request.body.wallet,
+            phonenumber: request.body.phonenumber,
             profilePicture: profilePictureUrl,
         };
 
@@ -164,7 +165,7 @@ export const edit = async (request, response) => {
             return response.status(404).json({ message: "User not found" });
         }
 
-        const { firstname, lastname, username, email, password } = request.body;
+        const { firstname, lastname, username, email, password, phonenumber } = request.body;
 
         if (firstname) user.firstname = firstname;
         if (lastname) user.lastname = lastname;
@@ -174,6 +175,8 @@ export const edit = async (request, response) => {
         if (password) {
             user.password = await bcrypt.hash(password, 10);
         }
+
+        if (phonenumber) user.phonenumber = phonenumber;
 
         if (request.file) {
             if (user.profilePicture) {
@@ -257,6 +260,7 @@ export const getAccountByWallet = async (request, response) => {
         return handleErrorResponse(response, 500, "An error occurred");
     }
 };
+
 export const logout = async (request, response) => {
     try {
         response.cookie("token", "", {
