@@ -378,7 +378,12 @@ const CampaignDetail = () => {
               <button className="btn btn-block bg-green-600 text-white hover:text-black" onClick={()=>document.getElementById('my_modal_2').showModal()}>Donasi</button>
                 <dialog id="my_modal_2" className="modal">
                   <div className="modal-box">
-                    <h3 className="font-bold text-lg">Donasi</h3>
+                    <div className="flex flex-col">
+                      <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
+                      <p className="text-sm">by <span>{data.username}</span></p>
+                      <img src={data.imageUrl} alt="Campaign" className="w-full p-2 rounded-2xl" />
+                      <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">{data.description}</p>
+                    </div>
                     {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
                     {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
                       <form onSubmit={handleDonation} className="flex flex-col mb-2">
