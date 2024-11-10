@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import userRoute from "./routes/UserRoute.js";
 import commentRoute from "./routes/CommentRoute.js";
 import cors from "cors";
-import { ATLAS_URI, PORT } from "./config.js";
 import dotenv from "dotenv";
 import "./utils/Cloudinary.js";
 import cookieParser from "cookie-parser";
@@ -27,13 +26,13 @@ app.use("/user", userRoute);
 app.use("/comment", commentRoute);
 
 mongoose
-    .connect(ATLAS_URI, {
+    .connect(process.env.ATLAS_URI, {
         dbName: "crowdfunding-skripsi",
     })
     .then(() => {
         console.log("App connected to database");
-        app.listen(PORT, () => {
-            console.log(`App is listening on port: ${PORT}`);
+        app.listen(process.env.PORT, () => {
+            console.log(`App is listening on port: ${process.env.PORT}`);
         });
     })
     .catch((e) => {
