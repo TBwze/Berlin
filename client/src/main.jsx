@@ -5,14 +5,13 @@ import { RouterProvider } from 'react-router-dom';
 import { StateContextProvider } from './context';
 import router from './router/router';
 import './index.css';
-// import CONFIG from './config';
-import dotenv from 'dotenv';
+import CONFIG from './config';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <ThirdwebProvider activeChain={process.env.ACTIVE_CHAIN} clientId={process.env.THIRDWEB_CLIENT_ID}>
+    <ThirdwebProvider activeChain={CONFIG.activeChain} clientId={CONFIG.thirdwebClientId}>
       <StateContextProvider>
         <RouterProvider router={router} />
       </StateContextProvider>
