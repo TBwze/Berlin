@@ -24,6 +24,7 @@ export const Register = () => {
       username: "",
       email: "",
       password: "",
+      phonenumber: "",
       role: "user",
       account: "",
       profilePicture: ""
@@ -94,6 +95,7 @@ export const Register = () => {
       formData.append("lastname", form.getValues("lastname"));
       formData.append("username", form.getValues("username"));
       formData.append("email", form.getValues("email"));
+      formData.append("phonenumber", form.getValues("phonenumber"));
       formData.append("password", form.getValues("password"));
       formData.append("role", "user");
       formData.append("wallet", form.watch("account"));
@@ -197,6 +199,15 @@ export const Register = () => {
                 label="Password"
                 placeholder="Masukan password"
                 type="password"
+                control={form.control}
+                required
+              />
+
+              <TextFieldComponent
+                type="phonenumber"
+                name="phonenumber"
+                label="Nomor Telpon"
+                placeholder="Masukan nomor telpon"
                 control={form.control}
                 required
               />
