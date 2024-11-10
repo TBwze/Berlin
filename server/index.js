@@ -10,6 +10,8 @@ import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT;
+const ATLAS_URI = process.env.ATLAS_URI;
 
 app.use(
     cors({
