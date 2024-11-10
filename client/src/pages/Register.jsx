@@ -155,7 +155,7 @@ export const Register = () => {
           visible={popupVisible}
           onClose={handleClosePopup}
         />
-        <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md w-full max-w-md mt-5">
+        <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md max-w-md mt-5">
           <div className="text-center font-poppins font-bold text-2xl mb-6 mt-5">
             <h3>Buat akun baru</h3>
           </div>
@@ -204,7 +204,7 @@ export const Register = () => {
               />
 
               <TextFieldComponent
-                type="phonenumber"
+                type="number"
                 name="phonenumber"
                 label="Nomor Telpon"
                 placeholder="Masukan nomor telpon"

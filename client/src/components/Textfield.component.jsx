@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Controller } from 'react-hook-form';
+import React, { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Controller } from "react-hook-form";
 
 const TextFieldComponent = ({
   name,
   label,
-  type = 'text',
+  type = "text",
   placeholder,
   control,
   required = false,
   disabled = false,
   rows = 3,
-  addOrmentText = '',
-  errorMessage = ''
+  addOrmentText = "",
+  errorMessage = ""
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -20,7 +20,7 @@ const TextFieldComponent = ({
     setShowPassword(!showPassword);
   };
 
-  const inputType = type === 'password' && showPassword ? 'text' : type;
+  const inputType = type === "password" && showPassword ? "text" : type;
 
   return (
     <Controller
@@ -31,7 +31,7 @@ const TextFieldComponent = ({
         <div className="flex flex-col space-y-1 mt-4 mb-2">
           {label && <div className="text-xs text-black font-poppins">{label}</div>}
           <div className="relative flex items-center">
-            {type === 'textarea' ? (
+            {type === "textarea" ? (
               <textarea
                 rows={rows}
                 placeholder={placeholder}
@@ -42,7 +42,7 @@ const TextFieldComponent = ({
               />
             ) : (
               <input
-                type={inputType}
+                type={inputType === "number" ? "number" : inputType}
                 placeholder={placeholder}
                 className={`w-full p-2 pr-${
                   addOrmentText ? 16 : 10
@@ -53,7 +53,7 @@ const TextFieldComponent = ({
               />
             )}
 
-            {type === 'password' && (
+            {type === "password" && (
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
@@ -61,7 +61,7 @@ const TextFieldComponent = ({
                 {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
               </button>
             )}
-            {type === 'text' && addOrmentText && (
+            {type === "text" && addOrmentText && (
               <div className="absolute right-2 text-xs text-black font-bold">{addOrmentText}</div>
             )}
           </div>
