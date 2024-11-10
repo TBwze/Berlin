@@ -5,8 +5,9 @@ import { RouterProvider } from 'react-router-dom';
 import { StateContextProvider } from './context';
 import router from './router/router';
 import './index.css';
-// import CONFIG from './config';
 import dotenv from 'dotenv';
+
+dotenv.config();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
