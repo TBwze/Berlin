@@ -8,6 +8,7 @@ contract CrowdfundingCampaign {
     }
 
     struct Campaign {
+        uint256 campaignId;
         address owner;
         string title;
         string description;
@@ -71,6 +72,7 @@ contract CrowdfundingCampaign {
         require(_rewards.length <= 3, "Maximum of 3 rewards allowed."); // Ensure only 3 rewards
 
         campaignCount++;
+        campaigns[campaignCount].campaignId = campaignCount;  
         campaigns[campaignCount].owner = msg.sender;
         campaigns[campaignCount].title = _title;
         campaigns[campaignCount].description = _description;
@@ -334,5 +336,71 @@ contract CrowdfundingCampaign {
         );
 
         return i + 1;
+    }
+
+    function getDonorsWithRewards(
+        uint256 _campaignId
+    )
+        public
+        view
+        campaignExists(_campaignId)
+        returns (
+            string[] memory rewardTiers,
+            address[][] memory donors,
+            uint256[][] memory donationsList
+        )
+    {
+        Campaign storage campaign = campaigns[_campaignId];
+
+        // Define reward tier labels
+        string[] memory rewardTierLabels = new string[](3);
+        rewardTierLabels[0] = "Bronze";
+        rewardTierLabels[1] = "Silver";
+        rewardTierLabels[2] = "Gold";
+
+        // Initialize result arrays
+        address[][] memory rewardDonors = new address[][](3);
+        uint256[][] memory rewardDonations = new uint256[][](3);
+        uint256[] memory donorCounts = new uint256[](3);
+
+        for (uint256 i = 0; i < 3; i++) {
+            rewardDonors[i] = new address[](campaign.donors.length);
+            rewardDonations[i] = new uint256[](campaign.donors.length);
+        }
+
+        // Categorize donors into reward tiers based on total donations
+        for (uint256 i = 0; i < campaign.donors.length; i++) {
+            address donor = campaign.donors[i];
+            uint256 totalDonation = totalDonationsPerDonor[_campaignId][donor];
+
+            // Determine reward tier based on total donation
+            uint256 tierIndex;
+            if (totalDonation >= campaign.rewards[2].minAmount) {
+                tierIndex = 2; // Gold
+            } else if (totalDonation >= campaign.rewards[1].minAmount) {
+                tierIndex = 1; // Silver
+            } else {
+                tierIndex = 0; // Bronze
+            }
+
+            rewardDonors[tierIndex][donorCounts[tierIndex]] = donor;
+            rewardDonations[tierIndex][donorCounts[tierIndex]] = totalDonation;
+            donorCounts[tierIndex]++;
+        }
+
+        // Resize arrays to actual counts
+        for (uint256 i = 0; i < 3; i++) {
+            address[] memory tierDonors = new address[](donorCounts[i]);
+            uint256[] memory tierDonations = new uint256[](donorCounts[i]);
+
+            for (uint256 j = 0; j < donorCounts[i]; j++) {
+                tierDonors[j] = rewardDonors[i][j];
+                tierDonations[j] = rewardDonations[i][j];
+            }
+            rewardDonors[i] = tierDonors;
+            rewardDonations[i] = tierDonations;
+        }
+
+        return (rewardTierLabels, rewardDonors, rewardDonations);
     }
 }

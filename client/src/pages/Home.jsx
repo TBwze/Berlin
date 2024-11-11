@@ -22,6 +22,7 @@ const Home = () => {
       setIsLoading(true);
       const response = await getCampaigns();
       setData(response.data);
+    console.log(response.data)
     } catch (error) {
     } finally {
       setIsLoading(false);
@@ -35,19 +36,22 @@ const Home = () => {
         if (
           userDonation > 0 &&
           new Date(campaign.deadline).getTime() < Date.now() &&
-          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount) &&
-          campaign.exists === true
+          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
         ) {
+          console.log("campaign");
           await refundDonation(campaign.id);
           setPopupVisible(true);
           setPopupMessage(`Refunded for campaign ${campaign.title}`);
+          window.location.reload();
         }
       }
     } catch (error) {}
   };
 
   useEffect(() => {
-    if (contract) fetchCampaigns();
+    if (contract) {
+      fetchCampaigns();
+    }
   }, [contract, address]);
 
   useEffect(() => {

@@ -22,8 +22,15 @@ const CampaignDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [comments, setComments] = useState([]);
-  const { address, contract, getCampaignById, donateToCampaign, withdrawFunds, getLeaderboard } =
-    useStateContext();
+  const {
+    address,
+    contract,
+    getCampaignById,
+    donateToCampaign,
+    withdrawFunds,
+    getLeaderboard,
+    deleteCampaign
+  } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -191,6 +198,24 @@ const CampaignDetail = () => {
     }
   }, [wallet]);
 
+  let is_owner = form.watch("is_owner");
+  useEffect(() => {
+    if (is_owner && isDeadlinePassed && isTargetMet) {
+      // show the donor info with reward tier
+    }
+  }, []);
+
+  const removeCampaign = async () => {
+    setIsLoading(true);
+    try {
+      await deleteCampaign(id);
+      navigate("/");
+    } catch (error) {
+      alert(error.message);
+    }
+    setIsLoading(false);
+  };
+
   const closePopup = () => {
     setPopupVisible(false);
     window.location.reload();
@@ -217,6 +242,7 @@ const CampaignDetail = () => {
   const handleChangeLimitGrid = async (limit) => {
     await fetchDonors(form.watch("page"), limit);
   };
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading || loadingComments} />
@@ -236,11 +262,14 @@ const CampaignDetail = () => {
               <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center">
                   <img
-                  src={newProfilePict}
-                  alt="ProfilePicture"
-                  className="w-20 h-20 mr-2 rounded-full"
-                 />
-                  <h4 className="text-xl text-left font-bold">{data.username}<span className="font-normal"> is organizing this crowdfund</span></h4>
+                    src={newProfilePict}
+                    alt="ProfilePicture"
+                    className="w-20 h-20 mr-2 rounded-full"
+                  />
+                  <h4 className="text-xl text-left font-bold">
+                    {data.username}
+                    <span className="font-normal"> is organizing this crowdfund</span>
+                  </h4>
                 </div>
                 <div className="flex">
                   {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
@@ -256,7 +285,7 @@ const CampaignDetail = () => {
                   )}
                 </div>
               </div>
-              <hr style={{border: "1px solid #ccc"}} />
+              <hr style={{ border: "1px solid #ccc" }} />
               <div className="pb-4">
                 <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Proyek</h2>
                 <p className="text-balance text-justify pl-4">{data.description}</p>
@@ -344,12 +373,15 @@ const CampaignDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="w-[30vw] h-full sticky top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border">
+            <div className="w-[30vw] h-full top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border">
               <p className="font-bold text-right">
                 {data.amountCollected} / {data.targetAmount} Tercapai
               </p>
               <div className="flex flex-row items-center gap-3">
-                <progress className="progress progress-success w-full h-3.5" value={fundingPercentage} max="100"></progress>
+                <progress
+                  className="progress progress-success w-full h-3.5"
+                  value={fundingPercentage}
+                  max="100"></progress>
                 {percentage}%
               </div>
               <div className="flex flex-row justify-between">
@@ -359,8 +391,7 @@ const CampaignDetail = () => {
                   </h3>
                 </div>
               </div>
-              <div>
-              </div>
+              <div></div>
 
               {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
               {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
@@ -375,42 +406,49 @@ const CampaignDetail = () => {
                 </form>
               )}
 
-              <button className="btn btn-block bg-green-600 text-white hover:text-black" onClick={()=>document.getElementById('my_modal_2').showModal()}>Donasi</button>
-                <dialog id="my_modal_2" className="modal">
-                  <div className="modal-box">
-                    <div className="flex flex-col">
-                      <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
-                      <p className="text-sm">by <span>{data.username}</span></p>
-                      <img src={data.imageUrl} alt="Campaign" className="w-full p-2 rounded-2xl" />
-                      <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">{data.description}</p>
-                    </div>
-                    {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
-                    {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
-                      <form onSubmit={handleDonation} className="flex flex-col mb-2">
-                        <div className="mb-3">
-                          <TextFieldDecimalComponent
-                            name="minimal_eth"
-                            label="Masukkan Nominal Donasi"
-                            control={form.control}
-                            required
-                            addOrmentText="ETH"
-                          />
-                        </div>
-                        <CustomButton
-                          btnType="submit"
-                          title="Donasi"
-                          styles="rounded-2xl p-2 text-sm font-semibold"
-                          className="btn-block btn-outline btn-success bg-green-500"
-                          textColor="#ffffff"
-                        />
-
-                      </form>
-                    )}
+              <button
+                className="btn btn-block bg-green-600 text-white hover:text-black"
+                onClick={() => document.getElementById("my_modal_2").showModal()}>
+                Donasi
+              </button>
+              <dialog id="my_modal_2" className="modal">
+                <div className="modal-box">
+                  <div className="flex flex-col">
+                    <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
+                    <p className="text-sm">
+                      by <span>{data.username}</span>
+                    </p>
+                    <img src={data.imageUrl} alt="Campaign" className="w-full p-2 rounded-2xl" />
+                    <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">
+                      {data.description}
+                    </p>
                   </div>
-                  <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                  </form>
-                </dialog>
+                  {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
+                  {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
+                    <form onSubmit={handleDonation} className="flex flex-col mb-2">
+                      <div className="mb-3">
+                        <TextFieldDecimalComponent
+                          name="minimal_eth"
+                          label="Masukkan Nominal Donasi"
+                          control={form.control}
+                          required
+                          addOrmentText="ETH"
+                        />
+                      </div>
+                      <CustomButton
+                        btnType="submit"
+                        title="Donasi"
+                        styles="rounded-2xl p-2 text-sm font-semibold"
+                        className="btn-block btn-outline btn-success bg-green-500"
+                        textColor="#ffffff"
+                      />
+                    </form>
+                  )}
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                  <button>close</button>
+                </form>
+              </dialog>
 
               <DataGridComponent
                 columns={columns}

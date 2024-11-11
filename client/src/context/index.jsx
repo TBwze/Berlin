@@ -110,16 +110,17 @@ export const StateContextProvider = ({ children }) => {
 
   const parseCampaignData = (campaignArray) => {
     return {
-      owner: campaignArray[0],
-      title: campaignArray[1],
-      description: campaignArray[2],
-      targetAmount: campaignArray[3],
-      deadline: campaignArray[4],
-      amountCollected: campaignArray[5],
-      image: campaignArray[6],
-      rewards: campaignArray[7],
-      donors: campaignArray[8],
-      exists: campaignArray[9]
+      campaignId: campaignArray[0],
+      owner: campaignArray[1],
+      title: campaignArray[2],
+      description: campaignArray[3],
+      targetAmount: campaignArray[4],
+      deadline: campaignArray[5],
+      amountCollected: campaignArray[6],
+      image: campaignArray[7],
+      rewards: campaignArray[8],
+      donors: campaignArray[9],
+      exists: campaignArray[10]
     };
   };
 
@@ -162,10 +163,10 @@ export const StateContextProvider = ({ children }) => {
 
       // Parse and format the campaign data
       const parsedCampaigns = await Promise.all(
-        paginatedCampaigns.map(async (campaign, index) => {
+        paginatedCampaigns.map(async (campaign) => {
           const owner = await getAccountUsername(campaign.owner);
           return {
-            id: index + 1 + pagination.page * pagination.limit,
+            id: campaign.campaignId,
             wallet: campaign.owner,
             owner,
             title: campaign.title,
