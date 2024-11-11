@@ -1,6 +1,6 @@
 // CampaignDonatorsGrid.jsx
 import React from "react";
-import DataGridComponent from "./DataGridComponent";
+import DataGridComponent from "../components/DataGrid.component";
 
 const CampaignDonatorsGrid = ({ campaignId }) => {
   const [gridData, setGridData] = React.useState({
