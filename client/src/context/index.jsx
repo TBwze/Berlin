@@ -201,7 +201,8 @@ export const StateContextProvider = ({ children }) => {
         amountCollected,
         image,
         rewards,
-        donators
+        donators,
+        isWithdraw
       ] = response;
 
       const username = await getAccountUsername(owner);
@@ -218,7 +219,8 @@ export const StateContextProvider = ({ children }) => {
           minAmount: weiToEth(reward.minAmount),
           description: reward.description
         })),
-        donators: donators
+        donators: donators,
+        isWithdraw: isWithdraw
       };
 
       return formatResponse(formattedCampaign);
@@ -388,6 +390,73 @@ export const StateContextProvider = ({ children }) => {
       throw new Error("Failed to delete campaign");
     }
   };
+
+  const getCampaignDonators = async (campaignId, page = 0, limit = 10) => {
+    try {
+      if (!signer || !address) {
+        await connect(metamaskConfig);
+      }
+
+      if (!signer || !address) {
+        throw new Error("Wallet not connected. Please try connecting again.");
+      }
+
+      const data = await contract.call("getDonorsWithRewards", campaignId);
+      const [tiers, addresses, amounts] = data;
+
+      // First, flatten all data into single array of donor objects
+      const flatDonors = [];
+      tiers.forEach((tier, tierIndex) => {
+        addresses[tierIndex].forEach((address, addressIndex) => {
+          flatDonors.push({
+            tier,
+            address,
+            amount: amounts[tierIndex][addressIndex]
+              ? weiToEth(amounts[tierIndex][addressIndex])
+              : null
+          });
+        });
+      });
+
+      // Calculate pagination values
+      const totalRows = flatDonors.length;
+      const totalPages = Math.ceil(totalRows / limit);
+      const startIndex = page * limit;
+      const endIndex = startIndex + limit;
+
+      // Get paginated slice of donors
+      const paginatedDonors = flatDonors.slice(startIndex, endIndex);
+
+      // Group paginated donors by tier
+      const groupedByTier = paginatedDonors.reduce((acc, donor) => {
+        const existingTier = acc.find((t) => t.tier === donor.tier);
+
+        if (existingTier) {
+          existingTier.addresses.push(donor.address);
+          existingTier.amounts.push(donor.amount);
+        } else {
+          acc.push({
+            tier: donor.tier,
+            addresses: [donor.address],
+            amounts: [donor.amount]
+          });
+        }
+
+        return acc;
+      }, []);
+
+      return formatResponse(groupedByTier, {
+        page,
+        limit,
+        total_pages: totalPages,
+        total_rows: totalRows
+      });
+    } catch (error) {
+      console.error("Error fetching eligible rewards:", error);
+      return formatResponse([], { page: 0, limit: 3, total_pages: 0, total_rows: 0 });
+    }
+  };
+
   return (
     <stateContext.Provider
       value={{
@@ -404,7 +473,8 @@ export const StateContextProvider = ({ children }) => {
         getLeaderboard,
         withdrawFunds,
         deleteCampaign,
-        deleteUserCampaign
+        deleteUserCampaign,
+        getCampaignDonators
       }}>
       {children}
     </stateContext.Provider>

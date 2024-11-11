@@ -19,6 +19,7 @@ contract CrowdfundingCampaign {
         Reward[] rewards;
         address[] donors;
         bool exists;
+        bool isWithdraw;
     }
 
     mapping(uint256 => Campaign) public campaigns;
@@ -81,6 +82,7 @@ contract CrowdfundingCampaign {
         campaigns[campaignCount].amountCollected = 0;
         campaigns[campaignCount].image = _image;
         campaigns[campaignCount].exists = true;
+        campaigns[campaignCount].isWithdraw = false;
 
         // Copy rewards from memory to storage
         for (uint256 i = 0; i < _rewards.length; i++) {
@@ -249,6 +251,7 @@ contract CrowdfundingCampaign {
 
         payable(campaign.owner).transfer(campaign.amountCollected);
         campaign.amountCollected = 0;
+        campaign.isWithdraw = true;
     }
 
     // Function to get all donors along with their donation, ordered by donations (desc)

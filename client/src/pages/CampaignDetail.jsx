@@ -17,6 +17,7 @@ import CommentSection from "../components/Comment.component";
 import { postComment } from "../api/Comment/postComment.api";
 import CheckDonationAndReward from "../components/CheckDonationAndReward.component";
 import DataGridComponent from "../components/DataGrid.component";
+import CampaignDonatorsGrid from "./DonatorList";
 
 const CampaignDetail = () => {
   const { id } = useParams();
@@ -36,6 +37,7 @@ const CampaignDetail = () => {
   const [userId, setUserId] = useState(null);
   const [newProfilePict, setNewProfilePict] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [withdraw, setWithdraw] = useState(false);
   const [loadingComments, setLoadingComments] = useState(true);
   const [username, setUsername] = useState(null);
   const [userPicture, setUserPicture] = useState(null);
@@ -120,6 +122,7 @@ const CampaignDetail = () => {
       const campaignData = await getCampaignById(id);
       setData(campaignData.data);
       setWallet(campaignData.data.owner);
+      setWithdraw(campaignData.data.isWithdraw);
 
       const userDetails = await getUserDetails();
       setUserId(userDetails.data.wallet);
@@ -205,6 +208,24 @@ const CampaignDetail = () => {
     }
   }, []);
 
+  const getDonorWithReward = async () => {
+    setIsLoading(true);
+    try {
+      //call function from context
+    } catch (error) {
+      alert(error.message);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (withdraw === true) {
+      removeCampaign();
+    } else if (withdraw === false) {
+      handleWithdrawFunds();
+    }
+  }, []);
+
   const removeCampaign = async () => {
     setIsLoading(true);
     try {
@@ -283,6 +304,10 @@ const CampaignDetail = () => {
                       handleClick={handleWithdrawFunds}
                     />
                   )}
+
+                  {/* todo */}
+
+                  {/* <CampaignDonatorsGrid campaignId={id} />; */}
                 </div>
               </div>
               <hr style={{ border: "1px solid #ccc" }} />
