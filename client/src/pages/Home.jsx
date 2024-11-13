@@ -22,8 +22,8 @@ const Home = () => {
       setIsLoading(true);
       const response = await getCampaigns();
       setData(response.data);
-    console.log(response.data)
     } catch (error) {
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -38,14 +38,15 @@ const Home = () => {
           new Date(campaign.deadline).getTime() < Date.now() &&
           parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
         ) {
-          console.log("campaign");
           await refundDonation(campaign.id);
           setPopupVisible(true);
           setPopupMessage(`Refunded for campaign ${campaign.title}`);
           window.location.reload();
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -68,10 +69,10 @@ const Home = () => {
     })
     .slice(0, 3);
 
-  // Sort campaigns for "Projek Terbaru" by ID descending
-  const latestProjects = [...data].sort((a, b) => b.id - a.id).slice(0, 3); // Only take the latest 3
+  const latestProjects = [...data].sort((a, b) => b.id - a.id).slice(0, 3);
 
   if (!contract) return <PageLoad loading={true} />;
+
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white">
       <PageLoad loading={isLoading} />
@@ -86,49 +87,65 @@ const Home = () => {
         <>
           <section className="mb-12">
             <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-              {popularProjects.map((campaign) => (
-                <CardComponent
-                  key={campaign.id}
-                  id={campaign.id}
-                  creator={campaign.owner}
-                  title={campaign.title}
-                  targetAmount={campaign.targetAmount}
-                  amountCollected={campaign.amountCollected}
-                  deadline={campaign.deadline}
-                  imageUrl={campaign.imageUrl}
-                />
-              ))}
-            </div>
-            <button
-              className="mt-4 text-blue-500 hover:underline"
-              onClick={() => navigate("/campaign")}>
-              See More
-            </button>
+            {popularProjects.length > 0 ? (
+              <div>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                  {popularProjects.map((campaign) => (
+                    <CardComponent
+                      key={campaign.id}
+                      id={campaign.id}
+                      creator={campaign.owner}
+                      title={campaign.title}
+                      targetAmount={campaign.targetAmount}
+                      amountCollected={campaign.amountCollected}
+                      deadline={campaign.deadline}
+                      imageUrl={campaign.imageUrl}
+                    />
+                  ))}
+                </div>
+                <div>
+                  <button
+                    className="mt-4 text-blue-500 hover:underline"
+                    onClick={() => navigate("/campaign")}>
+                    See More
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500">No popular projects yet.</p>
+            )}
           </section>
 
           {/* Projek Terbaru Section */}
           <section className="mb-12">
             <h2 className="mb-6 text-xl font-bold">Projek Terbaru</h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-              {latestProjects.map((campaign) => (
-                <CardComponent
-                  key={campaign.id}
-                  id={campaign.id}
-                  creator={campaign.owner}
-                  title={campaign.title}
-                  targetAmount={campaign.targetAmount}
-                  amountCollected={campaign.amountCollected}
-                  deadline={campaign.deadline}
-                  imageUrl={campaign.imageUrl}
-                />
-              ))}
-            </div>
-            <button
-              className="mt-4 text-blue-500 hover:underline"
-              onClick={() => navigate("/campaign")}>
-              See More
-            </button>
+            {latestProjects.length > 0 ? (
+              <div>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                  {latestProjects.map((campaign) => (
+                    <CardComponent
+                      key={campaign.id}
+                      id={campaign.id}
+                      creator={campaign.owner}
+                      title={campaign.title}
+                      targetAmount={campaign.targetAmount}
+                      amountCollected={campaign.amountCollected}
+                      deadline={campaign.deadline}
+                      imageUrl={campaign.imageUrl}
+                    />
+                  ))}
+                </div>
+                <div>
+                  <button
+                    className="mt-4 text-blue-500 hover:underline"
+                    onClick={() => navigate("/campaign")}>
+                    See More
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500">No latest projects yet.</p>
+            )}
           </section>
 
           {/* Tutorial dan Tips Section */}

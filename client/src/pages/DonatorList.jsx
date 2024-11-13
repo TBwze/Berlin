@@ -1,6 +1,7 @@
-// CampaignDonatorsGrid.jsx
 import React from "react";
 import DataGridComponent from "../components/DataGrid.component";
+import { useStateContext } from "../context";
+import { getAccountByWallet } from "../api/User/getUserByWallet.api";
 
 const CampaignDonatorsGrid = ({ campaignId }) => {
   const [gridData, setGridData] = React.useState({
@@ -10,8 +11,8 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
     totalPages: 0,
     totalRows: 0
   });
+  const { getCampaignDonators } = useStateContext();
 
-  // Define columns for the grid
   const columns = [
     {
       field: "tier",
@@ -19,54 +20,88 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
       className: "font-semibold"
     },
     {
-      field: "address",
-      headerName: "Wallet Address",
-      className: "font-mono" // Monospace font for addresses
+      field: "username",
+      headerName: "Username",
+      className: "font-semibold"
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      className: "font-semibold"
+    },
+    {
+      field: "phoneNumber",
+      headerName: "Phone Number",
+      className: "font-semibold"
     },
     {
       field: "amount",
       headerName: "Amount (ETH)",
-      className: "text-right" // Right align numbers
+      className: "text-right"
     }
   ];
+
+  const getUserInfo = async (wallet) => {
+    try {
+      const response = await getAccountByWallet(wallet);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+      return { email: "", username: "", phoneNumber: "" };
+    }
+  };
 
   const fetchDonators = async (page, limit) => {
     try {
       const response = await getCampaignDonators(campaignId, page, limit);
 
-      // Transform the tiered response into flat rows
-      const flatRows = response.data.flatMap((tierGroup) =>
-        tierGroup.addresses.map((address, index) => ({
-          tier: tierGroup.tier,
-          address: address,
-          amount: `${Number(tierGroup.amounts[index]).toFixed(2)} ETH`
-        }))
-      );
+      const flatRows = (
+        await Promise.all(
+          response.data.map(async (tierGroup) =>
+            Promise.all(
+              tierGroup.addresses.map(async (address, index) => {
+                const userInfo = await getUserInfo(address);
+                return {
+                  tier: tierGroup.tier || "N/A",
+                  username: userInfo.username || "Anonymous",
+                  email: userInfo.email || "N/A",
+                  phoneNumber: userInfo.phoneNumber || null,
+                  amount: `${Number(tierGroup.amounts[index] || 0).toFixed(4)} ETH`
+                };
+              })
+            )
+          )
+        )
+      ).flat();
 
       setGridData({
         rows: flatRows,
-        page: response.pagination.page,
-        limit: response.pagination.limit,
-        totalPages: response.pagination.total_pages,
-        totalRows: response.pagination.total_rows
+        page: response.page || 0,
+        limit: response.limit || 10,
+        totalPages: response.total_pages || 1,
+        totalRows: response.total_rows || 0
       });
     } catch (error) {
       console.error("Error fetching donators:", error);
-      // Handle error state here
     }
   };
 
-  // Handle page change
   const handleChangePage = (newPage) => {
+    setGridData((prevData) => ({
+      ...prevData,
+      page: newPage
+    }));
     fetchDonators(newPage, gridData.limit);
   };
 
-  // Handle rows per page change
   const handleChangeLimit = (newLimit) => {
-    fetchDonators(0, newLimit); // Reset to first page when changing limit
+    setGridData((prevData) => ({
+      ...prevData,
+      limit: newLimit
+    }));
+    fetchDonators(0, newLimit);
   };
 
-  // Initial fetch
   React.useEffect(() => {
     fetchDonators(0, 10);
   }, [campaignId]);
@@ -78,10 +113,8 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
       page={gridData.page}
       limit={gridData.limit}
       totalPages={gridData.totalPages}
-      totalRows={gridData.totalRows}
       handleChangePage={handleChangePage}
       handleChangeLimit={handleChangeLimit}
-      rowsPerPageOptions={[3, 5, 10, 20]}
     />
   );
 };

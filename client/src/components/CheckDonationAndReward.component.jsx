@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useStateContext } from '../context';
-import silverBadge from '../assets/silver.png';
-import goldBadge from '../assets/gold.png';
-import bronzeBadge from '../assets/bronze.png';
+import React, { useEffect, useState } from "react";
+import { useStateContext } from "../context";
+import silverBadge from "../assets/silver.png";
+import goldBadge from "../assets/gold.png";
+import bronzeBadge from "../assets/bronze.png";
 
 const DonationDetails = ({ campaignId, username, profilePicture }) => {
   const { fetchUserDonation, fetchUserReward, address } = useStateContext();
@@ -24,11 +24,11 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
 
   const getRewardBadge = (reward) => {
     switch (reward) {
-      case 'Gold':
+      case "Gold":
         return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
-      case 'Silver':
+      case "Silver":
         return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
-      case 'Bronze':
+      case "Bronze":
         return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
       default:
         return null;
@@ -56,9 +56,9 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
       </div>
       <div className="bg-gray-100 p-4 rounded-md">
         {badgeImage && rewardTier ? (
-          <div className="flex items-center">
+          <div className="flex items-center justify-center">
             <p className="text-black">
-              <strong className="text-gray-800">Reward Tier:</strong> {badgeName}
+              <strong className="text-gray-800 text-center">Reward Tier:</strong> {badgeName}
             </p>
             {badgeImage} {/* Use the badgeImage directly */}
           </div>

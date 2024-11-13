@@ -18,7 +18,7 @@ const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract("0x724d274Ac1B9dd98ED6663429f6dCDF065B9c95F");
+  const { contract } = useContract("0xab51D0b2e42fECCD9224EB0d6314850F0e8D427B");
   // const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
@@ -453,7 +453,7 @@ export const StateContextProvider = ({ children }) => {
       });
     } catch (error) {
       console.error("Error fetching eligible rewards:", error);
-      return formatResponse([], { page: 0, limit: 3, total_pages: 0, total_rows: 0 });
+      return formatResponse([], { page: 0, limit: 10, total_pages: 0, total_rows: 0 });
     }
   };
 

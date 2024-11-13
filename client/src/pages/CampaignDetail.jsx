@@ -64,6 +64,8 @@ const CampaignDetail = () => {
 
   const isTargetMet = data.amountCollected >= data.targetAmount;
   const isDeadlinePassed = new Date(data.deadline) < new Date();
+  const isOneMonthPassed =
+    new Date(data.deadline).setMonth(new Date(data.deadline).getMonth() + 1) < new Date();
 
   const columns = [
     {
@@ -83,7 +85,7 @@ const CampaignDetail = () => {
   const fetchDonors = async (page, limit) => {
     setIsLoading(true);
     try {
-      const response = await getLeaderboard(id, (page = 0), (limit = 10));
+      const response = await getLeaderboard(id, page, limit);
       const transformedRows = await Promise.all(
         response.data.map(async (donor, index) => {
           try {
@@ -184,7 +186,7 @@ const CampaignDetail = () => {
   useEffect(() => {
     if (contract) {
       fetchCampaign();
-      fetchDonors();
+      fetchDonors(0, 10);
       fetchCommentsData();
     }
   }, [address, contract, id]);
@@ -219,10 +221,12 @@ const CampaignDetail = () => {
   };
 
   useEffect(() => {
-    if (withdraw === true) {
-      removeCampaign();
-    } else if (withdraw === false) {
-      handleWithdrawFunds();
+    if (is_owner && isOneMonthPassed && isTargetMet) {
+      if (withdraw === true) {
+        removeCampaign();
+      } else if (withdraw === false) {
+        handleWithdrawFunds();
+      }
     }
   }, []);
 
@@ -257,10 +261,12 @@ const CampaignDetail = () => {
   };
 
   const handleChangePageGrid = async (page) => {
+    form.setValue("page", page);
     await fetchDonors(page, form.watch("limit"));
   };
 
   const handleChangeLimitGrid = async (limit) => {
+    form.setValue("limit", limit);
     await fetchDonors(form.watch("page"), limit);
   };
 
@@ -271,7 +277,7 @@ const CampaignDetail = () => {
       {!isLoading && (
         <div className="flex flex-col text-center pb-4">
           <div className="Header font-bold text-2xl pb-4">
-            <h3 className="uppercase pb-4">{data.title}</h3>
+            <h1 className="uppercase py-8 text-5xl">{data.title}</h1>
           </div>
           <div className="flex flex-row justify-around">
             <div className="flex flex-col gap-4 w-[40vw]">
@@ -295,19 +301,32 @@ const CampaignDetail = () => {
                 <div className="flex">
                   {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
                   {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
-                    <CustomButton
-                      className="btn btn-outline btn-success bg-green-500"
-                      btnType="button"
-                      title="Withdraw Funds"
-                      styles="font-semibold rounded px-4"
-                      textColor="#ffffff"
-                      handleClick={handleWithdrawFunds}
-                    />
+                    <div>
+                      <CustomButton
+                        className="btn btn-outline btn-success bg-green-500"
+                        btnType="button"
+                        title="Withdraw Funds"
+                        styles="font-semibold rounded px-4"
+                        textColor="#ffffff"
+                        handleClick={handleWithdrawFunds}
+                      />
+                      <button
+                        className="btn btn-block bg-green-600 text-white hover:text-black"
+                        onClick={() => document.getElementById("my_modal").showModal()}>
+                        View Donators
+                      </button>
+                      <dialog id="my_modal" className="modal">
+                        <div className="modal-box w-full">
+                          <div className="flex flex-col">
+                            <CampaignDonatorsGrid campaignId={id} />
+                          </div>
+                        </div>
+                        <form method="dialog" className="modal-backdrop">
+                          <button>close</button>
+                        </form>
+                      </dialog>
+                    </div>
                   )}
-
-                  {/* todo */}
-
-                  {/* <CampaignDonatorsGrid campaignId={id} />; */}
                 </div>
               </div>
               <hr style={{ border: "1px solid #ccc" }} />
@@ -342,9 +361,9 @@ const CampaignDetail = () => {
                             <h3 className="text-lg font-bold">{badgeName}</h3>
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-sm font-bold mb-2 text-left">Description:</h3>
+                            <h3 className="text-sm font-bold mb-1 text-left">Description:</h3>
                             <p className="text-sm text-justify mb-2">{reward.description}</p>
-                            <h3 className="text-sm font-bold mb-2 text-left">Minimum Donation:</h3>
+                            <h3 className="text-sm font-bold mb-1 text-left">Minimum Donation:</h3>
                             <p className="text-sm text-left bg-gray-200 p-2 rounded-sm">
                               {">"} {reward.minAmount} ETH
                             </p>{" "}
@@ -420,22 +439,22 @@ const CampaignDetail = () => {
 
               {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
               {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
-                <form onSubmit={handleDonation} className="flex flex-col mb-2">
-                  <div>
-                    <CheckDonationAndReward
-                      campaignId={id}
-                      username={username}
-                      profilePicture={userPicture}
-                    />
-                  </div>
-                </form>
+                <div>
+                  <CheckDonationAndReward
+                    campaignId={id}
+                    username={username}
+                    profilePicture={userPicture}
+                  />
+                </div>
               )}
 
+              {/* {!form.watch("is_owner") && !isDeadlinePassed && ( */}
               <button
                 className="btn btn-block bg-green-600 text-white hover:text-black"
                 onClick={() => document.getElementById("my_modal_2").showModal()}>
                 Donasi
               </button>
+              {/* )} */}
               <dialog id="my_modal_2" className="modal">
                 <div className="modal-box">
                   <div className="flex flex-col">
@@ -448,27 +467,25 @@ const CampaignDetail = () => {
                       {data.description}
                     </p>
                   </div>
-                  {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
-                  {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
-                    <form onSubmit={handleDonation} className="flex flex-col mb-2">
-                      <div className="mb-3">
-                        <TextFieldDecimalComponent
-                          name="minimal_eth"
-                          label="Masukkan Nominal Donasi"
-                          control={form.control}
-                          required
-                          addOrmentText="ETH"
-                        />
-                      </div>
-                      <CustomButton
-                        btnType="submit"
-                        title="Donasi"
-                        styles="rounded-2xl p-2 text-sm font-semibold"
-                        className="btn-block btn-outline btn-success bg-green-500"
-                        textColor="#ffffff"
+
+                  <form onSubmit={handleDonation} className="flex flex-col mb-2">
+                    <div className="mb-3">
+                      <TextFieldDecimalComponent
+                        name="minimal_eth"
+                        label="Masukkan Nominal Donasi"
+                        control={form.control}
+                        required
+                        addOrmentText="ETH"
                       />
-                    </form>
-                  )}
+                    </div>
+                    <CustomButton
+                      btnType="submit"
+                      title="Donasi"
+                      styles="rounded-2xl p-2 text-sm font-semibold"
+                      className="btn-block btn-outline btn-success bg-green-500"
+                      textColor="#ffffff"
+                    />
+                  </form>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                   <button>close</button>
@@ -481,7 +498,6 @@ const CampaignDetail = () => {
                 page={form.watch("page")}
                 limit={form.watch("limit")}
                 totalPages={form.watch("total_pages")}
-                totalRows={form.watch("total_rows")}
                 handleChangePage={handleChangePageGrid}
                 handleChangeLimit={handleChangeLimitGrid}
               />

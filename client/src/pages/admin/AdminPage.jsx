@@ -94,10 +94,12 @@ const Admin = () => {
   }));
 
   const handleChangePageGrid = async (page) => {
+    form.setValue("page", page);
     await refreshGrid(page, form.watch("limit"));
   };
 
   const handleChangeLimitGrid = async (limit) => {
+    form.setValue("limit", limit);
     await refreshGrid(form.watch("page"), limit);
   };
 
@@ -113,7 +115,6 @@ const Admin = () => {
         page={form.watch("page")}
         limit={form.watch("limit")}
         totalPages={form.watch("total_pages")}
-        totalRows={form.watch("total_rows")}
         handleChangePage={handleChangePageGrid}
         handleChangeLimit={handleChangeLimitGrid}
       />
