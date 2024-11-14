@@ -126,14 +126,6 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaigns = async (page = 0, limit = 10, searchQuery = "", isOwner = false) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       const rawCampaigns = await contract.call("getAllCampaigns");
 
       // Parse the raw campaign data
@@ -265,13 +257,6 @@ export const StateContextProvider = ({ children }) => {
   };
   const fetchUserReward = async (campaignId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
       const rewardTier = await contract.call("getRewardTier", [campaignId, address]);
       return formatResponse(rewardTier);
     } catch (error) {
@@ -298,14 +283,6 @@ export const StateContextProvider = ({ children }) => {
 
   const getLeaderboard = async (campaignId, page = 0, limit = 10) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       // Get leaderboard data from contract
       const leaderboard = await contract.call("getLeaderboard", [campaignId]);
 
