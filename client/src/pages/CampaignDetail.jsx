@@ -303,28 +303,13 @@ const CampaignDetail = () => {
                   {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
                     <div>
                       <CustomButton
-                        className="btn btn-outline btn-success bg-green-500"
+                        className= "btn btn-success bg-green-500"
                         btnType="button"
                         title="Withdraw Funds"
-                        styles="font-semibold rounded px-4"
+                        styles="font-semibold rounded px-4 text-nowrap"
                         textColor="#ffffff"
                         handleClick={handleWithdrawFunds}
                       />
-                      <button
-                        className="btn btn-block bg-green-600 text-white hover:text-black"
-                        onClick={() => document.getElementById("my_modal").showModal()}>
-                        View Donators
-                      </button>
-                      <dialog id="my_modal" className="modal">
-                        <div className="modal-box w-full">
-                          <div className="flex flex-col">
-                            <CampaignDonatorsGrid campaignId={id} />
-                          </div>
-                        </div>
-                        <form method="dialog" className="modal-backdrop">
-                          <button>close</button>
-                        </form>
-                      </dialog>
                     </div>
                   )}
                 </div>
@@ -486,6 +471,23 @@ const CampaignDetail = () => {
                       textColor="#ffffff"
                     />
                   </form>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                  <button>close</button>
+                </form>
+              </dialog>
+
+              <button
+                className="btn btn-outline btn-ghost"
+                onClick={() => document.getElementById("my_modal").showModal()}>
+                View Donators
+              </button>
+              <dialog id="my_modal" className="modal">
+                  <div className="modal-box max-w-5xl">
+                    <div className="flex flex-col">
+                      <h1 className="font-bold text-2xl mb-4">Donations</h1>
+                      <CampaignDonatorsGrid campaignId={id} />
+                  </div>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                   <button>close</button>
