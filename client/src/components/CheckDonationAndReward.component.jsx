@@ -58,7 +58,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
           )}
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">{username}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 text-left">{username}</h2>
           <p className="text-sm text-gray-500">Campaign Supporter</p>
         </div>
       </div>
@@ -67,7 +67,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
       <div className="mb-6">
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg">
           <p className="text-sm font-medium text-blue-600 mb-1">Total Contribution</p>
-          <div className="flex items-baseline">
+          <div className="flex justify-center items-center">
             <span className="text-3xl font-bold text-blue-900">{donationAmount}</span>
             <span className="ml-1 text-lg font-medium text-blue-700">ETH</span>
           </div>
@@ -78,7 +78,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
       {badgeInfo ? (
         <div className={`${badgeInfo.bg} p-6 rounded-lg`}>
           <p className="text-sm font-medium mb-2 text-gray-600">Reward Tier</p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center">
             <span className={`text-xl font-bold ${badgeInfo.color}`}>{rewardTier} Supporter</span>
             <div className="flex items-center">
               <img src={badgeInfo.src} alt={`${rewardTier} Badge`} className="w-10 h-10" />
