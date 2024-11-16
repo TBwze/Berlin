@@ -252,11 +252,12 @@ const CampaignDetail = () => {
       await withdrawFunds(id);
       setPopupMessage("Funds withdrawn successfully!");
       setPopupVisible(true);
-      navigate("/");
+      document.getElementById("my_modal").showModal();
     } catch (error) {
       alert("Error withdrawing funds: " + error.message);
     } finally {
       setIsLoading(false);
+      window.location.reload();
     }
   };
 
@@ -267,6 +268,7 @@ const CampaignDetail = () => {
 
   const handleChangeLimitGrid = async (limit) => {
     form.setValue("limit", limit);
+    form.setValue("page", 0);
     await fetchDonors(form.watch("page"), limit);
   };
 
@@ -303,7 +305,7 @@ const CampaignDetail = () => {
                   {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
                     <div>
                       <CustomButton
-                        className= "btn btn-success bg-green-500"
+                        className="btn btn-success bg-green-500"
                         btnType="button"
                         title="Withdraw Funds"
                         styles="font-semibold rounded px-4 text-nowrap"
@@ -319,39 +321,69 @@ const CampaignDetail = () => {
                 <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Proyek</h2>
                 <p className="text-balance text-justify pl-4">{data.description}</p>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-6 p-4">
                 {data.rewards
                   ?.slice()
                   .reverse()
                   .map((reward, index) => {
                     let badgeImage;
                     let badgeName;
+                    let borderColor;
+                    let bgColor;
 
                     if (data.rewards.length - index === 3) {
                       badgeImage = goldBadge;
                       badgeName = "Gold";
+                      borderColor = "border-yellow-200";
+                      bgColor = "bg-yellow-50";
                     } else if (data.rewards.length - index === 2) {
                       badgeImage = silverBadge;
                       badgeName = "Silver";
+                      borderColor = "border-gray-200";
+                      bgColor = "bg-gray-50";
                     } else if (data.rewards.length - index === 1) {
                       badgeImage = bronzeBadge;
                       badgeName = "Bronze";
+                      borderColor = "border-orange-200";
+                      bgColor = "bg-orange-50";
                     }
 
                     return (
-                      <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="flex flex-col items-center text-center w-24">
-                            <img src={badgeImage} alt={badgeName} className="w-16 h-16 mb-2" />
-                            <h3 className="text-lg font-bold">{badgeName}</h3>
+                      <div
+                        key={index}
+                        className={`p-6 border-2 ${borderColor} ${bgColor} rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out`}>
+                        <div className="flex items-start gap-6">
+                          <div className="flex flex-col items-center text-center min-w-28">
+                            <div className="p-4 bg-white rounded-full shadow-sm mb-3">
+                              <img
+                                src={badgeImage}
+                                alt={badgeName}
+                                className="w-16 h-16 object-contain"
+                              />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">{badgeName}</h3>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="text-sm font-bold mb-1 text-left">Description:</h3>
-                            <p className="text-sm text-justify mb-2">{reward.description}</p>
-                            <h3 className="text-sm font-bold mb-1 text-left">Minimum Donation:</h3>
-                            <p className="text-sm text-left bg-gray-200 p-2 rounded-sm">
-                              {">"} {reward.minAmount} ETH
-                            </p>{" "}
+
+                          <div className="flex-1 space-y-4">
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                                Description
+                              </h3>
+                              <p className="text-sm leading-relaxed text-gray-600">
+                                {reward.description}
+                              </p>
+                            </div>
+
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                                Minimum Donation Required
+                              </h3>
+                              <div className="inline-block bg-white border border-gray-200 rounded-lg px-4 py-2">
+                                <span className="text-sm font-medium text-gray-800">
+                                  {reward.minAmount} ETH
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -414,17 +446,14 @@ const CampaignDetail = () => {
                 {percentage}%
               </div>
               <div className="flex flex-row justify-between">
-                <div className="flex flex-col">
-                  <h3>
-                    <b>Deadline</b>: {data.deadline}
-                  </h3>
-                </div>
+                <h3>
+                  <b>Deadline</b>: {data.deadline}
+                </h3>
               </div>
-              <div></div>
 
               {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
               {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
-                <div>
+                <div className="mb-2">
                   <CheckDonationAndReward
                     campaignId={id}
                     username={username}
@@ -435,7 +464,7 @@ const CampaignDetail = () => {
 
               {/* {!form.watch("is_owner") && !isDeadlinePassed && ( */}
               <button
-                className="btn btn-block bg-green-600 text-white hover:text-black"
+                className="btn btn-block bg-green-600 text-white hover:text-black my-1"
                 onClick={() => document.getElementById("my_modal_2").showModal()}>
                 Donasi
               </button>
@@ -476,17 +505,18 @@ const CampaignDetail = () => {
                   <button>close</button>
                 </form>
               </dialog>
-
+              {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
               <button
-                className="btn btn-outline btn-ghost"
+                className="btn btn-outline btn-ghost my-1"
                 onClick={() => document.getElementById("my_modal").showModal()}>
                 View Donators
               </button>
+              {/* )} */}
               <dialog id="my_modal" className="modal">
-                  <div className="modal-box max-w-5xl">
-                    <div className="flex flex-col">
-                      <h1 className="font-bold text-2xl mb-4">Donations</h1>
-                      <CampaignDonatorsGrid campaignId={id} />
+                <div className="modal-box max-w-5xl">
+                  <div className="flex flex-col">
+                    <h1 className="font-bold text-2xl mb-4">Donations</h1>
+                    <CampaignDonatorsGrid campaignId={id} />
                   </div>
                 </div>
                 <form method="dialog" className="modal-backdrop">

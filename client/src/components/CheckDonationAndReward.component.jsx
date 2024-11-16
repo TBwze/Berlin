@@ -25,47 +25,71 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
   const getRewardBadge = (reward) => {
     switch (reward) {
       case "Gold":
-        return <img src={goldBadge} alt="Gold Badge" className="w-8 h-8" />;
+        return { src: goldBadge, color: "text-yellow-600", bg: "bg-yellow-50" };
       case "Silver":
-        return <img src={silverBadge} alt="Silver Badge" className="w-8 h-8" />;
+        return { src: silverBadge, color: "text-gray-600", bg: "bg-gray-50" };
       case "Bronze":
-        return <img src={bronzeBadge} alt="Bronze Badge" className="w-8 h-8" />;
+        return { src: bronzeBadge, color: "text-orange-600", bg: "bg-orange-50" };
       default:
         return null;
     }
   };
 
-  // Determine the badge image and name based on the reward tier
-  const badgeImage = getRewardBadge(rewardTier);
-  const badgeName = rewardTier;
+  const badgeInfo = getRewardBadge(rewardTier);
 
   return (
-    <div className="bg-white border-2 shadow-md rounded-lg p-6 max-w-lg mx-auto mt-8">
-      <div className="flex items-center mb-4">
-        <img
-          src={profilePicture}
-          alt={`${username}'s profile`}
-          className="w-12 h-12 rounded-full mr-3"
-        />
-        <h2 className="text-xl font-semibold text-gray-800">{username}</h2>
+    <div className="bg-white border border-gray-200 shadow-lg rounded-xl p-8 max-w-lg mx-auto mt-8 hover:shadow-xl transition-shadow duration-300">
+      {/* Header Section */}
+      <div className="flex items-center space-x-4 mb-6">
+        <div className="relative">
+          <img
+            src={profilePicture}
+            alt={`${username}'s profile`}
+            className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md"
+          />
+          {badgeInfo && (
+            <div className="absolute -bottom-2 -right-2">
+              <img
+                src={badgeInfo.src}
+                alt={`${rewardTier} Badge`}
+                className="w-8 h-8 rounded-full shadow-sm"
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">{username}</h2>
+          <p className="text-sm text-gray-500">Campaign Supporter</p>
+        </div>
       </div>
-      <div className="bg-gray-100 p-4 rounded-md mb-4">
-        <p className="text-gray-600">
-          <strong className="text-gray-800">Amount Donated:</strong> {`${donationAmount} ETH`}
-        </p>
-      </div>
-      <div className="bg-gray-100 p-4 rounded-md">
-        {badgeImage && rewardTier ? (
-          <div className="flex items-center justify-center">
-            <p className="text-black">
-              <strong className="text-gray-800 text-center">Reward Tier:</strong> {badgeName}
-            </p>
-            {badgeImage} {/* Use the badgeImage directly */}
+
+      {/* Donation Amount Card */}
+      <div className="mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg">
+          <p className="text-sm font-medium text-blue-600 mb-1">Total Contribution</p>
+          <div className="flex items-baseline">
+            <span className="text-3xl font-bold text-blue-900">{donationAmount}</span>
+            <span className="ml-1 text-lg font-medium text-blue-700">ETH</span>
           </div>
-        ) : (
-          <p className="text-gray-600">Your donation isn't enough for a reward.</p>
-        )}
+        </div>
       </div>
+
+      {/* Reward Tier Section */}
+      {badgeInfo ? (
+        <div className={`${badgeInfo.bg} p-6 rounded-lg`}>
+          <p className="text-sm font-medium mb-2 text-gray-600">Reward Tier</p>
+          <div className="flex items-center justify-between">
+            <span className={`text-xl font-bold ${badgeInfo.color}`}>{rewardTier} Supporter</span>
+            <div className="flex items-center">
+              <img src={badgeInfo.src} alt={`${rewardTier} Badge`} className="w-10 h-10" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <p className="text-center text-gray-500">Continue donating to earn reward badges!</p>
+        </div>
+      )}
     </div>
   );
 };

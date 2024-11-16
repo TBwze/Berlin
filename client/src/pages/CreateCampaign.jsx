@@ -196,27 +196,29 @@ const CreateCampaign = () => {
             />
           </div>
           {/* Upload Image */}
-          <div className="flex flex-col items-center mt-2">
+          <div className="flex flex-col items-start mt-6">
+            <div className="text-xs text-black font-poppins">Masukkan gambar</div>
             <input
               type="file"
               id="profilePicture"
               onChange={handleFileChange}
               accept="image/*"
               className="w-full text-sm text-gray-500
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded-lg file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-blue-50 file:text-blue-700
-                       hover:file:bg-blue-100 mt-4"
+             file:mr-4 file:py-2 file:px-4
+             file:rounded-lg file:border-0
+             file:text-sm file:font-semibold
+             file:bg-blue-50 file:text-blue-700
+             hover:file:bg-blue-100 border mt-1 border-black/50 rounded-lg"
             />
             {selectedFile && (
               <img
                 src={URL.createObjectURL(selectedFile)}
-                alt=""
-                className="object-cover mb-3 w-full h-60 center mt-5"
+                alt="Uploaded preview"
+                className="object-cover mb-3 w-full h-60 rounded-lg mt-5"
               />
             )}
           </div>
+
           <CustomButton
             btnType="submit"
             title="Create"

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useContract } from "@thirdweb-dev/react";
 import CardComponent from "../components/Card.component";
-import { ethers } from "ethers";
-import { getAccountByWallet } from "../api/User/getUserByWallet.api";
-import { formatDate } from "../utils/date.utils";
 import { useNavigate } from "react-router-dom";
 import PageLoad from "../components/Loading.component";
 import { useStateContext } from "../context";
 import PopupComponent from "../components/PopUp.component";
+import { HiArrowLongRight, HiChartBar, HiClock, HiBookOpen } from "react-icons/hi2";
 
 const Home = () => {
   const [data, setData] = useState([]);
@@ -74,98 +71,114 @@ const Home = () => {
   if (!contract) return <PageLoad loading={true} />;
 
   return (
-    <div className="max-w-[1280px] mx-auto p-4 bg-white">
-      <PageLoad loading={isLoading} />
-      <PopupComponent
-        message={popupMessage}
-        visible={popupVisible}
-        onClose={() => setPopupVisible(false)}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-[1280px] mx-auto p-6 md:p-8">
+        <PageLoad loading={isLoading} />
+        <PopupComponent
+          message={popupMessage}
+          visible={popupVisible}
+          onClose={() => setPopupVisible(false)}
+        />
 
-      {/* Projek Populer Section */}
-      {!isLoading && (
-        <>
-          <section className="mb-12">
-            <h2 className="mb-6 text-xl font-bold">Projek Populer</h2>
-            {popularProjects.length > 0 ? (
-              <div>
+        {!isLoading && (
+          <div className="space-y-12">
+            {/* Popular Projects Section */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-yellow-100 rounded-lg">
+                    <HiChartBar className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Projek Populer</h2>
+                </div>
+                <button
+                  onClick={() => navigate("/campaign")}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  See All
+                  <HiArrowLongRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {popularProjects.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {popularProjects.map((campaign) => (
-                    <CardComponent
-                      key={campaign.id}
-                      id={campaign.id}
-                      creator={campaign.owner}
-                      title={campaign.title}
-                      targetAmount={campaign.targetAmount}
-                      amountCollected={campaign.amountCollected}
-                      deadline={campaign.deadline}
-                      imageUrl={campaign.imageUrl}
-                    />
+                    <CardComponent key={campaign.id} {...campaign} />
                   ))}
                 </div>
-                <div>
-                  <button
-                    className="mt-4 text-blue-500 hover:underline"
-                    onClick={() => navigate("/campaign")}>
-                    See More
-                  </button>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                  <p className="text-gray-500">No popular projects available yet.</p>
                 </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">No popular projects yet.</p>
-            )}
-          </section>
+              )}
+            </section>
 
-          {/* Projek Terbaru Section */}
-          <section className="mb-12">
-            <h2 className="mb-6 text-xl font-bold">Projek Terbaru</h2>
-            {latestProjects.length > 0 ? (
-              <div>
+            {/* Latest Projects Section */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <HiClock className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Projek Terbaru</h2>
+                </div>
+                <button
+                  onClick={() => navigate("/campaign")}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  See All
+                  <HiArrowLongRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {latestProjects.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {latestProjects.map((campaign) => (
-                    <CardComponent
-                      key={campaign.id}
-                      id={campaign.id}
-                      creator={campaign.owner}
-                      title={campaign.title}
-                      targetAmount={campaign.targetAmount}
-                      amountCollected={campaign.amountCollected}
-                      deadline={campaign.deadline}
-                      imageUrl={campaign.imageUrl}
-                    />
+                    <CardComponent key={campaign.id} {...campaign} />
                   ))}
                 </div>
-                <div>
-                  <button
-                    className="mt-4 text-blue-500 hover:underline"
-                    onClick={() => navigate("/campaign")}>
-                    See More
-                  </button>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                  <p className="text-gray-500">No latest projects available yet.</p>
                 </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">No latest projects yet.</p>
-            )}
-          </section>
+              )}
+            </section>
 
-          {/* Tutorial dan Tips Section */}
-          <section>
-            <h2 className="mb-6 text-xl font-bold">Tutorial dan Tips</h2>
-            <div className="space-y-6">
-              {Array(2)
-                .fill("")
-                .map((_, index) => (
-                  <div key={index} className="p-4 bg-gray-200 rounded-lg hover:bg-gray-300">
-                    <p className="text-sm text-gray-700">
-                      Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur,
-                      adipisci velit.
-                    </p>
-                  </div>
-                ))}
-            </div>
-          </section>
-        </>
-      )}
+            {/* Tutorial and Tips Section */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <HiBookOpen className="w-6 h-6 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">Tutorial dan Tips</h2>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {Array(2)
+                  .fill("")
+                  .map((_, index) => (
+                    <div
+                      key={index}
+                      className="p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                          <span className="text-xl font-bold text-gray-400">{index + 1}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                            Tips untuk Campaign Sukses
+                          </h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
+                            consectetur, adipisci velit.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

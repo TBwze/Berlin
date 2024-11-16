@@ -100,6 +100,7 @@ const Admin = () => {
 
   const handleChangeLimitGrid = async (limit) => {
     form.setValue("limit", limit);
+    form.setValue("page", 0);
     await refreshGrid(form.watch("page"), limit);
   };
 
