@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import CustomButton from '../components/CustomButton.component';
-import TextFieldComponent from '../components/Textfield.component';
-import PageLoad from '../components/Loading.component';
-import { getUserDetails } from '../api/User/getUserDetails.api';
-import { API_BASE_URL } from '../utils/api.utils';
-import { updateUserProfile } from '../api/User/updateUser.api';
-import AlertComponent from '../components/Alert.component';
-import PopupComponent from '../components/PopUp.component';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import CustomButton from "../components/CustomButton.component";
+import TextFieldComponent from "../components/Textfield.component";
+import PageLoad from "../components/Loading.component";
+import { getUserDetails } from "../api/User/getUserDetails.api";
+import { API_BASE_URL } from "../utils/api.utils";
+import { updateUserProfile } from "../api/User/updateUser.api";
+import AlertComponent from "../components/Alert.component";
+import PopupComponent from "../components/PopUp.component";
+import PhoneNumberInput from "../components/PhoneNumber.component";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -16,39 +17,41 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [alert, setAlert] = useState({
     visible: false,
-    message: '',
-    type: ''
+    message: "",
+    type: ""
   });
+  const [phonenumber, setPhonenumber] = useState("");
   const [popupVisible, setPopupVisible] = useState(false);
   const form = useForm({
     defaultValues: {
-      id: '',
-      username: '',
-      firstname: '',
-      lastname: '',
-      email: '',
-      password: '',
-      image: ''
+      id: "",
+      username: "",
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+      image: ""
     }
   });
 
   useEffect(() => {
     getUserDetails()
       .then((response) => {
-        form.setValue('id', response.data._id);
-        form.setValue('username', response.data.username);
-        form.setValue('firstname', response.data.firstname);
-        form.setValue('lastname', response.data.lastname);
-        form.setValue('email', response.data.email);
+        form.setValue("id", response.data._id);
+        form.setValue("username", response.data.username);
+        form.setValue("firstname", response.data.firstname);
+        form.setValue("lastname", response.data.lastname);
+        setPhonenumber(response.data.phonenumber);
+        form.setValue("email", response.data.email);
         if (response.data.profilePicture !== null) {
-          form.setValue('image', response.data.profilePicture);
+          form.setValue("image", response.data.profilePicture);
         }
       })
       .catch((error) => {
         setAlert({
           visible: true,
           message: error.message,
-          type: 'error'
+          type: "error"
         });
       });
   }, []);
@@ -57,18 +60,19 @@ const Profile = () => {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append('username', form.getValues('username'));
-    formData.append('firstname', form.getValues('firstname'));
-    formData.append('lastname', form.getValues('lastname'));
-    formData.append('email', form.getValues('email'));
+    formData.append("username", form.getValues("username"));
+    formData.append("firstname", form.getValues("firstname"));
+    formData.append("lastname", form.getValues("lastname"));
+    formData.append("email", form.getValues("email"));
+    formData.append("phonenumber", phonenumber);
 
-    const password = form.getValues('password');
-    if (password !== '') {
-      formData.append('password', password);
+    const password = form.getValues("password");
+    if (password !== "") {
+      formData.append("password", password);
     }
 
     if (selectedFile) {
-      formData.append('profilePicture', selectedFile);
+      formData.append("profilePicture", selectedFile);
     }
 
     try {
@@ -78,7 +82,7 @@ const Profile = () => {
       setAlert({
         visible: true,
         message: error.message,
-        type: 'error'
+        type: "error"
       });
     }
 
@@ -87,25 +91,25 @@ const Profile = () => {
 
   const handleClosePopup = () => {
     setPopupVisible(false);
-    navigate('/');
+    navigate("/");
   };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      form.setValue('image', URL.createObjectURL(file));
+      form.setValue("image", URL.createObjectURL(file));
     }
   };
 
   useEffect(() => {
-    const imageValue = form.getValues('image');
+    const imageValue = form.getValues("image");
     return () => {
-      if (imageValue && imageValue.startsWith('blob:')) {
+      if (imageValue && imageValue.startsWith("blob:")) {
         URL.revokeObjectURL(imageValue);
       }
     };
-  }, [form.watch('image')]);
+  }, [form.watch("image")]);
 
   return (
     <div>
@@ -129,7 +133,7 @@ const Profile = () => {
           <div className="w-1/3 flex flex-col justify-center p-4 items-center">
             <img
               src={
-                form.watch('image') !== '' ? form.watch('image') : 'src/assets/ProfilePicture.png'
+                form.watch("image") !== "" ? form.watch("image") : "src/assets/ProfilePicture.png"
               }
               alt="Profile"
               className="rounded-full object-cover mb-4 w-auto h-56"
@@ -169,6 +173,7 @@ const Profile = () => {
                 control={form.control}
                 required
               />
+              <PhoneNumberInput value={phonenumber} onChange={setPhonenumber} defaultCountry="ID" />
               <TextFieldComponent
                 name="email"
                 label="Email"
@@ -194,7 +199,7 @@ const Profile = () => {
                 <CustomButton
                   title="Cancel"
                   bgColor="#C70000"
-                  handleClick={() => navigate('/')}
+                  handleClick={() => navigate("/")}
                   textColor="#ffffff"
                   className="px-4 font-medium"
                 />

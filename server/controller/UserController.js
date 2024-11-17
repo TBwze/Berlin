@@ -16,7 +16,8 @@ export const create = async (request, response) => {
             !request.body.lastname ||
             !request.body.username ||
             !request.body.email ||
-            !request.body.password || !request.body.phonenumber
+            !request.body.password ||
+            !request.body.phonenumber
         ) {
             return handleErrorResponse(
                 response,
@@ -165,7 +166,8 @@ export const edit = async (request, response) => {
             return response.status(404).json({ message: "User not found" });
         }
 
-        const { firstname, lastname, username, email, password, phonenumber } = request.body;
+        const { firstname, lastname, username, email, password, phonenumber } =
+            request.body;
 
         if (firstname) user.firstname = firstname;
         if (lastname) user.lastname = lastname;
