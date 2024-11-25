@@ -8,11 +8,20 @@ import { HiArrowLongRight, HiChartBar, HiClock, HiBookOpen } from "react-icons/h
 
 const Home = () => {
   const [data, setData] = useState([]);
+  const [allCampaigns, setAllCampaigns] = useState([]);
   const navigate = useNavigate();
-  const { contract, address, getCampaigns, fetchUserDonation, refundDonation } = useStateContext();
+  const {
+    contract,
+    address,
+    getCampaigns,
+    fetchUserDonation,
+    refundDonation,
+    getCampaignsWithoutPagination
+  } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [refundedCampaigns, setRefundedCampaigns] = useState(new Set());
 
   const fetchCampaigns = async () => {
     try {
@@ -25,20 +34,36 @@ const Home = () => {
       setIsLoading(false);
     }
   };
+  const getAllCampaigns = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getCampaignsWithoutPagination();
+      setAllCampaigns(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const checkAndRefund = async () => {
     try {
-      for (const campaign of data) {
+      for (const campaign of allCampaigns) {
         const userDonation = await fetchUserDonation(campaign.id);
         if (
-          userDonation > 0 &&
+          userDonation.data > 0 &&
           new Date(campaign.deadline).getTime() < Date.now() &&
           parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
         ) {
-          await refundDonation(campaign.id);
-          setPopupVisible(true);
-          setPopupMessage(`Refunded for campaign ${campaign.title}`);
-          window.location.reload();
+          if (!refundedCampaigns.has(campaign.id)) {
+            await refundDonation(campaign.id);
+            setPopupVisible(true);
+            setPopupMessage(`Refunded for campaign ${campaign.title}`);
+
+            // Mark the campaign as refunded in the state
+            setRefundedCampaigns((prev) => new Set(prev).add(campaign.id));
+            window.location.reload();
+          }
         }
       }
     } catch (error) {
@@ -49,6 +74,7 @@ const Home = () => {
   useEffect(() => {
     if (contract) {
       fetchCampaigns();
+      getAllCampaigns();
     }
   }, [contract, address]);
 
@@ -71,7 +97,7 @@ const Home = () => {
   if (!contract) return <PageLoad loading={true} />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-[1280px] mx-auto p-6 md:p-8">
         <PageLoad loading={isLoading} />
         <PopupComponent
@@ -83,7 +109,7 @@ const Home = () => {
         {!isLoading && (
           <div className="space-y-12">
             {/* Popular Projects Section */}
-            <section className="bg-white rounded-2xl p-6 shadow-sm">
+            <section className="bg-white rounded-2xl p-6 shadow-lg">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-yellow-100 rounded-lg">
@@ -113,7 +139,7 @@ const Home = () => {
             </section>
 
             {/* Latest Projects Section */}
-            <section className="bg-white rounded-2xl p-6 shadow-sm">
+            <section className="bg-white rounded-2xl p-6 shadow-lg">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">

@@ -30,14 +30,13 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
       className: "font-semibold"
     },
     {
-      field: "phoneNumber",
+      field: "phonenumber",
       headerName: "Phone Number",
       className: "font-semibold"
     },
     {
       field: "amount",
       headerName: "Amount (ETH)",
-      className: "text-right"
     }
   ];
 
@@ -47,7 +46,7 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
       return response.data;
     } catch (error) {
       console.error("Error fetching user info:", error);
-      return { email: "", username: "", phoneNumber: "" };
+      return { email: "", username: "", phonenumber: "" };
     }
   };
 
@@ -65,7 +64,7 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
                   tier: tierGroup.tier || "N/A",
                   username: userInfo.username || "Anonymous",
                   email: userInfo.email || "N/A",
-                  phoneNumber: userInfo.phoneNumber || null,
+                  phonenumber: userInfo.phonenumber || null,
                   amount: `${Number(tierGroup.amounts[index] || 0).toFixed(4)} ETH`
                 };
               })

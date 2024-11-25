@@ -73,7 +73,7 @@ contract CrowdfundingCampaign {
         require(_rewards.length <= 3, "Maximum of 3 rewards allowed."); // Ensure only 3 rewards
 
         campaignCount++;
-        campaigns[campaignCount].campaignId = campaignCount;  
+        campaigns[campaignCount].campaignId = campaignCount;
         campaigns[campaignCount].owner = msg.sender;
         campaigns[campaignCount].title = _title;
         campaigns[campaignCount].description = _description;
@@ -232,7 +232,6 @@ contract CrowdfundingCampaign {
 
         donations[_campaignId][msg.sender] = 0;
         payable(msg.sender).transfer(donatedAmount);
-        campaign.exists = false;
     }
 
     // Function to withdraw funds from a successful campaign
@@ -287,7 +286,14 @@ contract CrowdfundingCampaign {
     function deleteAllOwnerCampaigns(address _owner) public {
         for (uint256 i = 0; i < campaignCount; i++) {
             if (campaigns[i].owner == _owner && campaigns[i].exists) {
-                campaigns[i].exists = false;
+                campaigns[i].deadline = block.timestamp - 1;
+
+                // Ensure targetAmount is greater than amountCollected
+                if (campaigns[i].targetAmount <= campaigns[i].amountCollected) {
+                    campaigns[i].targetAmount =
+                        campaigns[i].amountCollected +
+                        1;
+                }
             }
         }
     }

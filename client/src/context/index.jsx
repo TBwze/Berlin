@@ -43,6 +43,7 @@ export const StateContextProvider = ({ children }) => {
 
       const targetInWei = ethToWei(targetAmount);
       const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      // const deadlineTimestamp = dayjs().add(1, "hour").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -124,7 +125,13 @@ export const StateContextProvider = ({ children }) => {
     };
   };
 
-  const getCampaigns = async (page = 0, limit = 10, searchQuery = "", isOwner = false) => {
+  const getCampaigns = async (
+    page = 0,
+    limit = 10,
+    searchQuery = "",
+    isOwner = false,
+    walletAddress = null
+  ) => {
     try {
       const rawCampaigns = await contract.call("getAllCampaigns");
 
@@ -138,10 +145,19 @@ export const StateContextProvider = ({ children }) => {
         );
       }
 
+      if (walletAddress) {
+        campaigns = campaigns.filter((campaign) =>
+          campaign.donors.some((donor) => donor.toLowerCase() === walletAddress.toLowerCase())
+        );
+      }
+
       // Filter by search query
       let filteredCampaigns = campaigns.filter((campaign) =>
         campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
+
+      const now = Date.now();
+      campaigns = campaigns.filter((campaign) => new Date(campaign.deadline).getTime() > now);
 
       // Calculate pagination
       const totalItems = filteredCampaigns.length;
@@ -168,6 +184,7 @@ export const StateContextProvider = ({ children }) => {
             imageUrl: campaign.image,
             exists: campaign.exists,
             description: campaign.description,
+            donors: campaign.donors,
             rewards: campaign.rewards.map((reward) => ({
               minAmount: weiToEth(reward[0].hex || reward[0]),
               description: reward[1]
@@ -178,6 +195,39 @@ export const StateContextProvider = ({ children }) => {
       return formatResponse(parsedCampaigns, pagination);
     } catch (error) {
       return formatResponse([], { page: 0, limit: 10, total_rows: 0, total_pages: 0 });
+    }
+  };
+  const getCampaignsWithoutPagination = async () => {
+    try {
+      const rawCampaigns = await contract.call("getAllCampaigns");
+
+      let campaigns = rawCampaigns.map(parseCampaignData);
+
+      const parsedCampaigns = await Promise.all(
+        campaigns.map(async (campaign) => {
+          const owner = await getAccountUsername(campaign.owner);
+          return {
+            id: campaign.campaignId,
+            wallet: campaign.owner,
+            owner,
+            title: campaign.title,
+            targetAmount: weiToEth(campaign.targetAmount.hex || campaign.targetAmount),
+            amountCollected: weiToEth(campaign.amountCollected.hex || campaign.amountCollected),
+            deadline: formatDate(campaign.deadline.hex || campaign.deadline),
+            imageUrl: campaign.image,
+            exists: campaign.exists,
+            description: campaign.description,
+            donors: campaign.donors,
+            rewards: campaign.rewards.map((reward) => ({
+              minAmount: weiToEth(reward[0].hex || reward[0]),
+              description: reward[1]
+            }))
+          };
+        })
+      );
+      return formatResponse(parsedCampaigns);
+    } catch (error) {
+      return formatResponse([]);
     }
   };
 
@@ -196,6 +246,12 @@ export const StateContextProvider = ({ children }) => {
         donators,
         isWithdraw
       ] = response;
+
+      const deadlineTimestamp = new Date(deadline * 1000).getTime();
+      const now = Date.now();
+      if (deadlineTimestamp < now && targetAmount > amountCollected) {
+        throw new Error("Campaign has expired.");
+      }
 
       const username = await getAccountUsername(owner);
       const formattedCampaign = {
@@ -250,7 +306,7 @@ export const StateContextProvider = ({ children }) => {
 
       const donation = await contract.call("donations", [campaignId, address]);
       const donationEth = weiToEth(donation);
-      return formatResponse(donation == 0 ? donation : donationEth);
+      return formatResponse(donationEth == 0.0 ? 0 : donationEth);
     } catch (error) {
       throw new Error("Failed to get user donation");
     }
@@ -442,6 +498,7 @@ export const StateContextProvider = ({ children }) => {
         connect,
         createCampaign: publishCampaign,
         getCampaigns,
+        getCampaignsWithoutPagination,
         getCampaignById,
         donateToCampaign,
         fetchUserDonation,
