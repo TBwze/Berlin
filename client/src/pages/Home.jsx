@@ -5,6 +5,7 @@ import PageLoad from "../components/Loading.component";
 import { useStateContext } from "../context";
 import PopupComponent from "../components/PopUp.component";
 import { HiArrowLongRight, HiChartBar, HiClock, HiBookOpen } from "react-icons/hi2";
+import { getUserDetails } from "../api/User/getUserDetails.api";
 
 const Home = () => {
   const [data, setData] = useState([]);
@@ -20,69 +21,52 @@ const Home = () => {
   } = useStateContext();
   const [isLoading, setIsLoading] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const [refundedCampaigns, setRefundedCampaigns] = useState(new Set());
-
-  const fetchCampaigns = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getCampaigns();
-      setData(response.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const getAllCampaigns = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getCampaignsWithoutPagination();
-      setAllCampaigns(response.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const checkAndRefund = async () => {
-    try {
-      for (const campaign of allCampaigns) {
-        const userDonation = await fetchUserDonation(campaign.id);
-        if (
-          userDonation.data > 0 &&
-          new Date(campaign.deadline).getTime() < Date.now() &&
-          parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
-        ) {
-          if (!refundedCampaigns.has(campaign.id)) {
-            await refundDonation(campaign.id);
-            setPopupVisible(true);
-            setPopupMessage(`Refunded for campaign ${campaign.title}`);
-
-            // Mark the campaign as refunded in the state
-            setRefundedCampaigns((prev) => new Set(prev).add(campaign.id));
-            window.location.reload();
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
-    if (contract) {
-      fetchCampaigns();
-      getAllCampaigns();
+    if (contract && address) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+          const campaignsResponse = await getCampaigns();
+          const allCampaignsResponse = await getCampaignsWithoutPagination();
+          setData(campaignsResponse.data);
+          setAllCampaigns(allCampaignsResponse.data);
+
+          await getUserDetails();
+          setIsLoggedIn(true);
+
+          if (allCampaignsResponse.data.length > 0 && isLoggedIn === true) {
+            await checkAndRefund(allCampaignsResponse.data);
+          }
+        } catch (error) {
+          console.error(error);
+          setIsLoggedIn(false);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchData();
     }
   }, [contract, address]);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      checkAndRefund();
+  const checkAndRefund = async (campaigns) => {
+    for (const campaign of campaigns) {
+      const userDonation = await fetchUserDonation(campaign.id);
+      if (
+        userDonation.data > 0 &&
+        new Date(campaign.deadline).getTime() < Date.now() &&
+        parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
+      ) {
+        await refundDonation(campaign.id);
+        setPopupVisible(true);
+        setPopupMessage(`Refunded for campaign ${campaign.title}`);
+        window.location.reload();
+      }
     }
-  }, [data]);
+  };
 
   const popularProjects = [...data]
     .sort((a, b) => {
@@ -119,7 +103,7 @@ const Home = () => {
                 </div>
                 <button
                   onClick={() => navigate("/campaign")}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-500 hover:text-blue-700 transition-colors">
                   See All
                   <HiArrowLongRight className="w-4 h-4" />
                 </button>
@@ -128,7 +112,16 @@ const Home = () => {
               {popularProjects.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {popularProjects.map((campaign) => (
-                    <CardComponent key={campaign.id} {...campaign} />
+                    <CardComponent
+                      key={campaign.id}
+                      id={campaign.id}
+                      creator={campaign.owner}
+                      title={campaign.title}
+                      targetAmount={campaign.targetAmount}
+                      amountCollected={campaign.amountCollected}
+                      deadline={campaign.deadline}
+                      imageUrl={campaign.imageUrl}
+                    />
                   ))}
                 </div>
               ) : (
@@ -149,7 +142,7 @@ const Home = () => {
                 </div>
                 <button
                   onClick={() => navigate("/campaign")}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-500 hover:text-blue-700 transition-colors">
                   See All
                   <HiArrowLongRight className="w-4 h-4" />
                 </button>
@@ -158,7 +151,16 @@ const Home = () => {
               {latestProjects.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                   {latestProjects.map((campaign) => (
-                    <CardComponent key={campaign.id} {...campaign} />
+                    <CardComponent
+                      key={campaign.id}
+                      id={campaign.id}
+                      creator={campaign.owner}
+                      title={campaign.title}
+                      targetAmount={campaign.targetAmount}
+                      amountCollected={campaign.amountCollected}
+                      deadline={campaign.deadline}
+                      imageUrl={campaign.imageUrl}
+                    />
                   ))}
                 </div>
               ) : (

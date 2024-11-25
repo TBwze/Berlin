@@ -18,7 +18,7 @@ const Campaign = () => {
       limit: 10,
       total_pages: 0,
       total_rows: 0,
-      PageOptions : [1, 10, 20, 50]
+      PageOptions: [1, 10, 20, 50]
     }
   });
 
@@ -99,7 +99,6 @@ const Campaign = () => {
       {/* Pagination Controls */}
       <div className="flex flex-row items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center space-x-4 text-sm text-gray-600">
-
           {/* Rows per page selector */}
           <div className="flex items-center space-x-2">
             <label htmlFor="limit" className="text-sm text-gray-600 text-nowrap">
@@ -121,7 +120,7 @@ const Campaign = () => {
 
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => handleChangePage(watchedPage - 1)}
+            onClick={() => handlePageChange(watchedPage - 1)}
             disabled={watchedPage === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
             <FaChevronLeft className="h-4 w-4" />
@@ -132,7 +131,7 @@ const Campaign = () => {
             {Array.from({ length: watchedTotalPages }, (_, i) => i).map((p) => (
               <button
                 key={p}
-                onClick={() => handleChangePage(p)}
+                onClick={() => handlePageChange(p)}
                 className={`relative inline-flex items-center px-3 py-2 text-sm font-medium ${
                   watchedPage === p ? "z-10 bg-[#2E6950] text-white" : "text-black hover:bg-gray-50"
                 } rounded-md`}>
@@ -142,7 +141,7 @@ const Campaign = () => {
           </div>
 
           <button
-            onClick={() => handleChangePage(watchedPage + 1)}
+            onClick={() => handlePageChange(watchedPage + 1)}
             disabled={watchedPage === watchedTotalPages - 1 || watchedPage === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
             <span className="mr-1">Next</span>

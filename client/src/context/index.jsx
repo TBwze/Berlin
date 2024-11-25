@@ -18,7 +18,7 @@ const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract("0xab51D0b2e42fECCD9224EB0d6314850F0e8D427B");
+  const { contract } = useContract("0x9e51229DE2980fFfEbf4B2D5a6dDB1F290E14CAe");
   // const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
@@ -43,7 +43,6 @@ export const StateContextProvider = ({ children }) => {
 
       const targetInWei = ethToWei(targetAmount);
       const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-      // const deadlineTimestamp = dayjs().add(1, "hour").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -151,13 +150,17 @@ export const StateContextProvider = ({ children }) => {
         );
       }
 
+      // Filter by deadline (only include campaigns where the deadline is in the future)
+      const now = Date.now();
+      campaigns = campaigns.filter((campaign) => {
+        const deadline = BigInt(campaign.deadline.hex || campaign.deadline); // Convert to BigInt
+        return deadline > BigInt(now);
+      });
+
       // Filter by search query
       let filteredCampaigns = campaigns.filter((campaign) =>
         campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
-
-      const now = Date.now();
-      campaigns = campaigns.filter((campaign) => new Date(campaign.deadline).getTime() > now);
 
       // Calculate pagination
       const totalItems = filteredCampaigns.length;
@@ -172,6 +175,7 @@ export const StateContextProvider = ({ children }) => {
       // Parse and format the campaign data
       const parsedCampaigns = await Promise.all(
         paginatedCampaigns.map(async (campaign) => {
+          console.log(campaign.deadline);
           const owner = await getAccountUsername(campaign.owner);
           return {
             id: campaign.campaignId,

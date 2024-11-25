@@ -204,21 +204,6 @@ const CampaignDetail = () => {
   }, [wallet]);
 
   let is_owner = form.watch("is_owner");
-  useEffect(() => {
-    if (is_owner && isDeadlinePassed && isTargetMet) {
-      // show the donor info with reward tier
-    }
-  }, []);
-
-  const getDonorWithReward = async () => {
-    setIsLoading(true);
-    try {
-      //call function from context
-    } catch (error) {
-      alert(error.message);
-    }
-    setIsLoading(false);
-  };
 
   useEffect(() => {
     if (is_owner && isOneMonthPassed && isTargetMet) {
@@ -301,8 +286,7 @@ const CampaignDetail = () => {
                   </h4>
                 </div>
                 <div className="flex">
-                  {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
-                  {form.watch("content") !== "asdfasdfannnbbbbbbbbbb" && (
+                  {form.watch("is_owner") && isTargetMet && isDeadlinePassed && (
                     <div>
                       <CustomButton
                         className="btn btn-success bg-green-500"
@@ -451,8 +435,7 @@ const CampaignDetail = () => {
                 </h3>
               </div>
 
-              {/* {!form.watch('is_owner') && !isDeadlinePassed && ( */}
-              {form.watch("content") !== "i[qwpoeoirq[pwoier" && (
+              {!form.watch("is_owner") && !isDeadlinePassed && (
                 <div className="mb-2">
                   <CheckDonationAndReward
                     campaignId={id}
@@ -462,13 +445,13 @@ const CampaignDetail = () => {
                 </div>
               )}
 
-              {/* {!form.watch("is_owner") && !isDeadlinePassed && ( */}
-              <button
-                className="btn btn-block bg-green-600 text-white hover:text-black my-1"
-                onClick={() => document.getElementById("my_modal_2").showModal()}>
-                Donasi
-              </button>
-              {/* )} */}
+              {!form.watch("is_owner") && !isDeadlinePassed && (
+                <button
+                  className="btn btn-block bg-green-600 text-white hover:bg-green-800 my-1"
+                  onClick={() => document.getElementById("my_modal_2").showModal()}>
+                  Donasi
+                </button>
+              )}
               <dialog id="my_modal_2" className="modal">
                 <div className="modal-box">
                   <div className="flex flex-col">
@@ -505,13 +488,13 @@ const CampaignDetail = () => {
                   <button>close</button>
                 </form>
               </dialog>
-              {/* {form.watch('is_owner') && isTargetMet && isDeadlinePassed && ( */}
-              <button
-                className="btn btn-outline btn-ghost my-1"
-                onClick={() => document.getElementById("my_modal").showModal()}>
-                View Donators
-              </button>
-              {/* )} */}
+              {!form.watch("is_owner") && isTargetMet && isDeadlinePassed && (
+                <button
+                  className="btn btn-outline btn-ghost my-1"
+                  onClick={() => document.getElementById("my_modal").showModal()}>
+                  View Donators
+                </button>
+              )}
               <dialog id="my_modal" className="modal">
                 <div className="modal-box max-w-5xl">
                   <div className="flex flex-col">
