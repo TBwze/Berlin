@@ -58,7 +58,6 @@ const Home = () => {
         await refundDonation(campaign.id);
         setPopupVisible(true);
         setPopupMessage(`Refunded for campaign ${campaign.title}`);
-        window.location.reload();
       }
     }
     setIsLoading(false);
@@ -83,7 +82,10 @@ const Home = () => {
         <PopupComponent
           message={popupMessage}
           visible={popupVisible}
-          onClose={() => setPopupVisible(false)}
+          onClose={() => {
+            setPopupVisible(false);
+            window.location.reload();
+          }}
         />
 
         {!isLoading && (
