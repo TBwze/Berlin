@@ -65,11 +65,11 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
 
       {/* Donation Amount Card */}
       <div className="mb-6">
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg">
-          <p className="text-sm font-medium text-blue-600 mb-1">Total Contribution</p>
+        <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg">
+          <p className="text-sm font-medium text-black mb-1">Total Contribution</p>
           <div className="flex justify-center items-center">
-            <span className="text-3xl font-bold text-blue-900">{donationAmount}</span>
-            <span className="ml-1 text-lg font-medium text-blue-700">ETH</span>
+            <span className="text-3xl font-bold text-green-900">{donationAmount}</span>
+            <span className="ml-1 text-lg font-medium text-green-700">ETH</span>
           </div>
         </div>
       </div>

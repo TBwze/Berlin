@@ -130,7 +130,8 @@ const Navbar = () => {
           btnType="button"
           title="Create Campaign"
           bgColor="bg-white"
-          styles="btn btn-outline btn-success border-2"
+          styles="border-2 px-4 font-semibold h-8"
+          className="hover:bg-green-200"
           textColor="#000000"
           borderColor="#2E6950"
           handleClick={() => navigate("/create-campaign")}

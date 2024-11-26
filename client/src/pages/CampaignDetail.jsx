@@ -319,17 +319,17 @@ const CampaignDetail = () => {
                       badgeImage = goldBadge;
                       badgeName = "Gold";
                       borderColor = "border-yellow-200";
-                      bgColor = "bg-yellow-50";
+                      bgColor = "bg-yellow-100";
                     } else if (data.rewards.length - index === 2) {
                       badgeImage = silverBadge;
                       badgeName = "Silver";
                       borderColor = "border-gray-200";
-                      bgColor = "bg-gray-50";
+                      bgColor = "bg-gray-100";
                     } else if (data.rewards.length - index === 1) {
                       badgeImage = bronzeBadge;
                       badgeName = "Bronze";
                       borderColor = "border-orange-200";
-                      bgColor = "bg-orange-50";
+                      bgColor = "bg-orange-100";
                     }
 
                     return (

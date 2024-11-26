@@ -19,7 +19,7 @@ const Home = () => {
     refundDonation,
     getCampaignsWithoutPagination
   } = useStateContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -36,7 +36,6 @@ const Home = () => {
 
           await getUserDetails();
           setIsLoggedIn(true);
-
           if (allCampaignsResponse.data.length > 0 && isLoggedIn === true) {
             await checkAndRefund(allCampaignsResponse.data);
           }
@@ -53,7 +52,9 @@ const Home = () => {
   }, [contract, address]);
 
   const checkAndRefund = async (campaigns) => {
+    setIsLoading(true);
     for (const campaign of campaigns) {
+      console.log("check ", campaign.id);
       const userDonation = await fetchUserDonation(campaign.id);
       if (
         userDonation.data > 0 &&
@@ -66,6 +67,7 @@ const Home = () => {
         window.location.reload();
       }
     }
+    setIsLoading(false);
   };
 
   const popularProjects = [...data]

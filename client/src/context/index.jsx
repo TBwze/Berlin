@@ -114,7 +114,6 @@ export const StateContextProvider = ({ children }) => {
           campaign.donors.some((donor) => donor.toLowerCase() === walletAddress.toLowerCase())
         );
       }
-
       const now = BigInt(Math.floor(Date.now() / 1000)); // Convert current time to seconds
       campaigns = campaigns.filter((campaign) => {
         const deadline = BigInt(campaign.deadline.hex || campaign.deadline); // Ensure deadline is BigInt
