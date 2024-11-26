@@ -31,10 +31,10 @@ const Home = () => {
         const allCampaignsResponse = await getCampaignsWithoutPagination();
         setData(campaignsResponse.data);
         setAllCampaigns(allCampaignsResponse.data);
-
-        const response = await getUserDetails();
-        if (allCampaignsResponse.data.length > 0 && response) {
-          await checkAndRefund(allCampaignsResponse.data);
+        if (contract && address) {
+          if (allCampaignsResponse.data.length > 0) {
+            await checkAndRefund(allCampaignsResponse.data);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -44,12 +44,11 @@ const Home = () => {
     };
 
     fetchData();
-  }, [window.location.pathname, location]); // Will run on every page load
+  }, [contract, address]);
 
   const checkAndRefund = async (campaigns) => {
     setIsLoading(true);
     for (const campaign of campaigns) {
-      console.log("check ", campaign.id);
       const userDonation = await fetchUserDonation(campaign.id);
       if (
         userDonation.data > 0 &&
