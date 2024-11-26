@@ -21,35 +21,30 @@ const Home = () => {
   } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
   useEffect(() => {
-    if (contract && address) {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const campaignsResponse = await getCampaigns();
-          const allCampaignsResponse = await getCampaignsWithoutPagination();
-          setData(campaignsResponse.data);
-          setAllCampaigns(allCampaignsResponse.data);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const campaignsResponse = await getCampaigns();
+        const allCampaignsResponse = await getCampaignsWithoutPagination();
+        setData(campaignsResponse.data);
+        setAllCampaigns(allCampaignsResponse.data);
 
-          await getUserDetails();
-          setIsLoggedIn(true);
-          if (allCampaignsResponse.data.length > 0 && isLoggedIn === true) {
-            await checkAndRefund(allCampaignsResponse.data);
-          }
-        } catch (error) {
-          console.error(error);
-          setIsLoggedIn(false);
-        } finally {
-          setIsLoading(false);
+        const response = await getUserDetails();
+        if (allCampaignsResponse.data.length > 0 && response) {
+          await checkAndRefund(allCampaignsResponse.data);
         }
-      };
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      fetchData();
-    }
-  }, [contract, address]);
+    fetchData();
+  }, [window.location.pathname, location]); // Will run on every page load
 
   const checkAndRefund = async (campaigns) => {
     setIsLoading(true);
