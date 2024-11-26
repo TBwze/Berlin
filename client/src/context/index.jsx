@@ -42,14 +42,14 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      // const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      const deadlineTimestamp = dayjs().add(30, "minute").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
         description: reward.description
       }));
 
-      // Using contract.call instead of useContractWrite
       const result = await contract.call("createCampaign", [
         title,
         description,
@@ -64,40 +64,6 @@ export const StateContextProvider = ({ children }) => {
       throw new Error("Failed to create campaign");
     }
   };
-
-  // const publishCampaign = async (form) => {
-  //   try {
-  //     const { title, description, targetAmount, deadline, image, rewards } = form;
-
-  //     if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
-  //       throw new Error("Fill in all fields!");
-  //     }
-
-  //     if (!signer || !address) {
-  //       await connect(metamaskConfig);
-  //     }
-
-  //     if (!signer || !address) {
-  //       throw new Error("Wallet not connected. Please try connecting again.");
-  //     }
-
-  //     const targetInWei = ethToWei(targetAmount);
-  //     const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-
-  //     const formattedRewards = rewards.map((reward) => ({
-  //       minAmount: ethToWei(reward.minAmount),
-  //       description: reward.description
-  //     }));
-
-  //     const result = await createCampaignWrite({
-  //       args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards]
-  //     });
-
-  //     return result;
-  //   } catch (error) {
-  //     throw new Error("Failed to create campaign");
-  //   }
-  // };
 
   const getAccountUsername = async (wallet) => {
     try {
@@ -133,7 +99,6 @@ export const StateContextProvider = ({ children }) => {
   ) => {
     try {
       const rawCampaigns = await contract.call("getAllCampaigns");
-
       // Parse the raw campaign data
       let campaigns = rawCampaigns.map(parseCampaignData);
 
@@ -150,11 +115,10 @@ export const StateContextProvider = ({ children }) => {
         );
       }
 
-      // Filter by deadline (only include campaigns where the deadline is in the future)
-      const now = Date.now();
+      const now = BigInt(Math.floor(Date.now() / 1000)); // Convert current time to seconds
       campaigns = campaigns.filter((campaign) => {
-        const deadline = BigInt(campaign.deadline.hex || campaign.deadline); // Convert to BigInt
-        return deadline > BigInt(now);
+        const deadline = BigInt(campaign.deadline.hex || campaign.deadline); // Ensure deadline is BigInt
+        return deadline > now;
       });
 
       // Filter by search query
@@ -175,7 +139,6 @@ export const StateContextProvider = ({ children }) => {
       // Parse and format the campaign data
       const parsedCampaigns = await Promise.all(
         paginatedCampaigns.map(async (campaign) => {
-          console.log(campaign.deadline);
           const owner = await getAccountUsername(campaign.owner);
           return {
             id: campaign.campaignId,
