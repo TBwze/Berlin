@@ -19,37 +19,35 @@ const Home = () => {
     refundDonation,
     getCampaignsWithoutPagination
   } = useStateContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
   useEffect(() => {
-    if (contract && address) {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const campaignsResponse = await getCampaigns();
-          const allCampaignsResponse = await getCampaignsWithoutPagination();
-          setData(campaignsResponse.data);
-          setAllCampaigns(allCampaignsResponse.data);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const campaignsResponse = await getCampaigns();
+        const allCampaignsResponse = await getCampaignsWithoutPagination();
+        setData(campaignsResponse.data);
+        setAllCampaigns(allCampaignsResponse.data);
 
-          await getUserDetails();
-          setIsLoggedIn(true);
+        await getUserDetails();
+        setIsLoggedIn(true);
 
-          if (allCampaignsResponse.data.length > 0 && isLoggedIn === true) {
-            await checkAndRefund(allCampaignsResponse.data);
-          }
-        } catch (error) {
-          console.error(error);
-          setIsLoggedIn(false);
-        } finally {
-          setIsLoading(false);
+        if (allCampaignsResponse.data.length > 0 && isLoggedIn === true) {
+          await checkAndRefund(allCampaignsResponse.data);
         }
-      };
+      } catch (error) {
+        console.error(error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
 
       fetchData();
-    }
+    };
   }, [contract, address]);
 
   const checkAndRefund = async (campaigns) => {

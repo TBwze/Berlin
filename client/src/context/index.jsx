@@ -19,11 +19,22 @@ const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract("0x9e51229DE2980fFfEbf4B2D5a6dDB1F290E14CAe");
-  // const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
   const connect = useConnect();
   const signer = useSigner();
+
+  const ensureConnection = async () => {
+    if (!signer || !address) {
+      try {
+        await connect(metamaskConfig);
+      } catch (error) {
+        console.warn("Connection not required or failed:", error);
+        return false;
+      }
+    }
+    return true;
+  };
 
   const publishCampaign = async (form) => {
     try {
@@ -33,16 +44,11 @@ export const StateContextProvider = ({ children }) => {
         throw new Error("Fill in all fields!");
       }
 
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
+      await ensureConnection();
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      // const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      const deadlineTimestamp = dayjs().add(20, "minute").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -64,40 +70,6 @@ export const StateContextProvider = ({ children }) => {
       throw new Error("Failed to create campaign");
     }
   };
-
-  // const publishCampaign = async (form) => {
-  //   try {
-  //     const { title, description, targetAmount, deadline, image, rewards } = form;
-
-  //     if (!title || !description || !targetAmount || !deadline || !image || rewards.length === 0) {
-  //       throw new Error("Fill in all fields!");
-  //     }
-
-  //     if (!signer || !address) {
-  //       await connect(metamaskConfig);
-  //     }
-
-  //     if (!signer || !address) {
-  //       throw new Error("Wallet not connected. Please try connecting again.");
-  //     }
-
-  //     const targetInWei = ethToWei(targetAmount);
-  //     const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-
-  //     const formattedRewards = rewards.map((reward) => ({
-  //       minAmount: ethToWei(reward.minAmount),
-  //       description: reward.description
-  //     }));
-
-  //     const result = await createCampaignWrite({
-  //       args: [title, description, targetInWei, deadlineTimestamp, image, formattedRewards]
-  //     });
-
-  //     return result;
-  //   } catch (error) {
-  //     throw new Error("Failed to create campaign");
-  //   }
-  // };
 
   const getAccountUsername = async (wallet) => {
     try {
@@ -175,7 +147,6 @@ export const StateContextProvider = ({ children }) => {
       // Parse and format the campaign data
       const parsedCampaigns = await Promise.all(
         paginatedCampaigns.map(async (campaign) => {
-          console.log(campaign.deadline);
           const owner = await getAccountUsername(campaign.owner);
           return {
             id: campaign.campaignId,
@@ -283,13 +254,8 @@ export const StateContextProvider = ({ children }) => {
 
   const donateToCampaign = async (campaignId, amount) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
+      await ensureConnection();
 
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
       const transaction = await contract.call("donateToCampaign", campaignId, {
         value: ethToWei(amount.toString())
       });
@@ -300,14 +266,6 @@ export const StateContextProvider = ({ children }) => {
 
   const fetchUserDonation = async (campaignId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       const donation = await contract.call("donations", [campaignId, address]);
       const donationEth = weiToEth(donation);
       return formatResponse(donationEth == 0.0 ? 0 : donationEth);
@@ -326,13 +284,7 @@ export const StateContextProvider = ({ children }) => {
 
   const refundDonation = async (campaignId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
+      await ensureConnection();
 
       const transaction = await contract.call("refundDonation", [campaignId]);
       return transaction;
@@ -378,13 +330,7 @@ export const StateContextProvider = ({ children }) => {
 
   const withdrawFunds = async (campaignId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
+      await ensureConnection();
 
       const transaction = await contract.call("withdrawFunds", [campaignId]);
       return transaction;
@@ -395,14 +341,6 @@ export const StateContextProvider = ({ children }) => {
 
   const deleteCampaign = async (campaignId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       const transaction = await contract.call("deleteCampaign", [campaignId]);
 
       return transaction;
@@ -412,14 +350,6 @@ export const StateContextProvider = ({ children }) => {
   };
   const deleteUserCampaign = async (userId) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       const transaction = await contract.call("deleteAllOwnerCampaigns", [userId]);
 
       return transaction;
@@ -430,14 +360,6 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaignDonators = async (campaignId, page = 0, limit = 10) => {
     try {
-      if (!signer || !address) {
-        await connect(metamaskConfig);
-      }
-
-      if (!signer || !address) {
-        throw new Error("Wallet not connected. Please try connecting again.");
-      }
-
       const data = await contract.call("getDonorsWithRewards", campaignId);
       const [tiers, addresses, amounts] = data;
 
