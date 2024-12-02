@@ -45,11 +45,11 @@ const Footer = () => {
           Home
         </Link>
         <span>|</span>
-        <Link to="/about" className="hover:text-gray-700">
+        <Link to="/about-us" className="hover:text-gray-700">
           About Us
         </Link>
         <span>|</span>
-        <Link to="/contact" className="hover:text-gray-700">
+        <Link to="/contact-us" className="hover:text-gray-700">
           Contact Us
         </Link>
       </div>

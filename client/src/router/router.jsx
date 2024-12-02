@@ -11,6 +11,8 @@ import ProtectedRoute from "../components/ProtectedRoute.component";
 import NotAuthorize from "../pages/NotAuthorize";
 import Admin from "../pages/admin/AdminPage";
 import MyCampaign from "../pages/MyCampaign";
+import ContactUs from "../pages/ContactUs";
+import AboutUs from "../pages/AboutUs";
 
 const router = createBrowserRouter([
   {
@@ -56,6 +58,14 @@ const router = createBrowserRouter([
       {
         path: "not-authorized",
         element: <ProtectedRoute element={<NotAuthorize />} />
+      },
+      {
+        path: "contact-us",
+        element: <ContactUs />
+      },
+      {
+        path: "about-us",
+        element: <AboutUs />
       }
     ]
   }
