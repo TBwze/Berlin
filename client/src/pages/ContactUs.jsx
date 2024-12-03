@@ -4,10 +4,14 @@ import { FaPhoneSquareAlt } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
 import { FaLocationDot } from "react-icons/fa6"
 import { FaPhone } from 'react-icons/fa6'
+import AlertComponent from '../components/Alert.component'
+import PopupComponent from '../components/PopUp.component'
 
 
 const ContactUs = () => {
     const [result, setResult] = useState("");
+    const [alert, setAlert] = useState({ type: "", message: "", visible: false });
+    const [popupVisible, setPopupVisible] = useState(false);
 
     const sendEmail = async (event) => {
         event.preventDefault();
@@ -26,25 +30,26 @@ const ContactUs = () => {
         if (data.success) {
             setResult("Success");
             event.target.reset();
+            setPopupVisible(true);
 
-            // Clear the success message after 3 seconds
-            setTimeout(() => {
-                setResult("");
-            }, 3000); // 3000ms = 3 seconds
         } else {
             console.log("Error", data);
             setResult(data.message);
+            setAlert({
+                type: "error",
+                message: data.message,
+                visible: true
+            })
 
-            // Clear the error message after 3 seconds (optional)
-            setTimeout(() => {
-                setResult("");
-            }, 3000);
         }
+    };
+    const closePopup = () => {
+        setPopupVisible(false);
     };
     
     return (
         <div className='flex justify-center'>
-            {result === "Success" && (
+            {/* {result === "Success" && (
                 <motion.div
                     initial = {{opacity : 1}}
                     animate = {{opacity : 0}}
@@ -68,8 +73,17 @@ const ContactUs = () => {
                     </svg>
                     <span className="text-white font-semibold">Message Berhasil Dikirim</span>
                 </motion.div >
-            )}
+            )} */}
+
             <div className='flex flex-col items-center'>
+                <AlertComponent
+                    type={alert.type}
+                    message={alert.message}
+                    visible={alert.visible}
+                    onClose={() => setAlert({ ...alert, visible: false })}
+                />
+
+                <PopupComponent message="Message Sent Successfully" visible={popupVisible} onClose={closePopup} />
                 <div className='flex flex-col items-center py-10 px-20 rounded-lg bg-base-200'>
                     <h1 className='font-bold text-3xl mb-10'>Get In Touch</h1>
                     <div className='flex flex-row gap-4'>
@@ -148,11 +162,11 @@ const ContactUs = () => {
                 <div className='flex flex-row justify-around w-full py-10 rounded-lg bg-base-200 mt-10'>
                     <div className='flex flex-col'>
                         <h1 className='font-bold text-4xl'>Contact Us</h1>
-                        <p className='text-balance w-96 mb-4 mt-4'>
+                        <p className='text-balance w-[30vw] mb-4 mt-4'>
                             Ada pertanyaan, masukan, atau butuh bantuan? Kami siap membantu! Apakah 
                             Anda seorang pembuat kampanye atau pendukung, jangan ragu untuk menghubungi kami. 
                         </p>
-                        <p className='text-balance w-96'>
+                        <p className='text-balance w-[30vw]'>
                             Tim kami berdedikasi untuk memastikan pengalaman crowdfunding Anda lancar 
                             dan sukses.    
                         </p>
