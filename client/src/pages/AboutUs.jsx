@@ -16,11 +16,11 @@ const AboutUs = () =>{
                     <div className="flex flex-col">
                         <h2 className="font-bold text-2xl mb-5">Who We Are?</h2>
                         <p className="text-wrap  w-[30vw] text-left">
-                            Welcome to SharedFuture, the platform where dreams meet opportunity. 
-                            We are a crowdfunding website dedicated to connecting visionaries 
-                            with supporters who believe in their ideas.Whether you’re starting a business, 
-                            funding a creative project,or supporting a social cause, SharedFuture is here 
-                            to make your journey possible.
+                            Selamat datang di SharedFuture, platform di mana mimpi bertemu dengan peluang. 
+                            Kami adalah situs web crowdfunding yang didedikasikan untuk menghubungkan para visioner 
+                            dengan para pendukung yang percaya pada ide-ide mereka, baik Anda sedang memulai bisnis 
+                            mendanai proyek kreatif, atau mendukung tujuan sosial, SharedFuture ada di sini 
+                            untuk membuat perjalanan Anda menjadi mungkin.
                         </p>
                     </div>
                     <img 
@@ -37,10 +37,10 @@ const AboutUs = () =>{
                     <div className="flex flex-col">
                         <h2 className="font-bold text-2xl mb-5 text-right">Our Mission</h2>
                         <p className="text-wrap w-[30vw] text-right">
-                            Our mission is to empower individuals and organizations by 
-                            providing a seamless platform to share their stories, reach 
-                            their goals, and make a lasting impact. We believe in the power 
-                            of communities coming together to turn aspirations into reality.
+                            Misi kami adalah memberdayakan individu dan organisasi dengan 
+                            menyediakan platform tanpa batas untuk berbagi cerita mereka, mencapai 
+                            mencapai tujuan mereka, dan membuat dampak yang berkelanjutan. Kami percaya pada kekuatan 
+                            komunitas yang bersatu untuk mengubah aspirasi menjadi kenyataan.
                         </p>
                     </div>
                 </div>
@@ -49,8 +49,9 @@ const AboutUs = () =>{
                     <div className="flex flex-col">
                         <h2 className="font-bold text-2xl mb-5">Our Vision</h2>
                         <p className="text-wrap w-[30vw] text-left">
-                            To be the world’s most trusted and inclusive crowdfunding platform,
-                            enabling people everywhere to achieve their dreams and create a brighter future.
+                            Menjadi platform urun dana yang paling tepercaya dan inklusif di dunia,
+                            yang memungkinkan semua orang di mana pun untuk mencapai impian mereka 
+                            dan menciptakan masa depan yang lebih cerah.
                         </p>
                     </div>
                     <img 

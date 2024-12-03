@@ -66,7 +66,7 @@ const ContactUs = () => {
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                     </svg>
-                    <span className="text-white font-semibold">Message sent Successfully</span>
+                    <span className="text-white font-semibold">Message Berhasil Dikirim</span>
                 </motion.div >
             )}
             <div className='flex flex-col items-center'>
@@ -149,12 +149,12 @@ const ContactUs = () => {
                     <div className='flex flex-col'>
                         <h1 className='font-bold text-4xl'>Contact Us</h1>
                         <p className='text-balance w-96 mb-4 mt-4'>
-                            Have questions, feedback, or need assistance? We're here to help! Whether 
-                            you're a campaign creator or a supporter, feel free to reach out to us. 
+                            Ada pertanyaan, masukan, atau butuh bantuan? Kami siap membantu! Apakah 
+                            Anda seorang pembuat kampanye atau pendukung, jangan ragu untuk menghubungi kami. 
                         </p>
                         <p className='text-balance w-96'>
-                            Our team is dedicated to ensuring your crowdfunding experience is seamless 
-                            and successful.    
+                            Tim kami berdedikasi untuk memastikan pengalaman crowdfunding Anda lancar 
+                            dan sukses.    
                         </p>
                     </div>
                     <form className='flex flex-col gap-4' onSubmit={sendEmail}>
