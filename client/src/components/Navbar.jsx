@@ -111,7 +111,7 @@ const Navbar = () => {
           <CustomButton
             btnType="button"
             title="Jelajahi"
-            styles="rounded hover:underline text-lg mr-10"
+            styles="rounded hover:underline text-lg"
             textColor="#000000"
             handleClick={() => navigate("/campaign")}
           />
@@ -121,6 +121,20 @@ const Navbar = () => {
             styles="rounded hover:underline text-lg ml-10"
             textColor="#000000"
             handleClick={() => navigate("/my-campaign")}
+          />
+          <CustomButton
+            btnType="button"
+            title="About Us"
+            styles="rounded hover:underline text-lg ml-10"
+            textColor="#000000"
+            handleClick={() => navigate("/about-us")}
+          />
+          <CustomButton
+            btnType="button"
+            title="Contact Us"
+            styles="rounded hover:underline text-lg ml-10"
+            textColor="#000000"
+            handleClick={() => navigate("/contact-us")}
           />
         </div>
       </div>

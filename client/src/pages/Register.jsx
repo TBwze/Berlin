@@ -9,6 +9,7 @@ import PageLoad from "../components/Loading.component";
 import AlertComponent from "../components/Alert.component";
 import PopupComponent from "../components/PopUp.component";
 import { getUserDetails } from "../api/User/getUserDetails.api";
+import PhoneNumberInput from "../components/PhoneNumber.component";
 
 export const Register = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -16,7 +17,7 @@ export const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({ type: "", message: "", visible: false });
   const [popupVisible, setPopupVisible] = useState(false);
-
+  const [phonenumber, setPhonenumber] = useState("");
   const form = useForm({
     defaultValues: {
       firstname: "",
@@ -24,7 +25,6 @@ export const Register = () => {
       username: "",
       email: "",
       password: "",
-      phonenumber: "",
       role: "user",
       account: "",
       profilePicture: ""
@@ -95,7 +95,7 @@ export const Register = () => {
       formData.append("lastname", form.getValues("lastname"));
       formData.append("username", form.getValues("username"));
       formData.append("email", form.getValues("email"));
-      formData.append("phonenumber", form.getValues("phonenumber"));
+      formData.append("phonenumber", phonenumber);
       formData.append("password", form.getValues("password"));
       formData.append("role", "user");
       formData.append("wallet", form.watch("account"));
@@ -203,14 +203,7 @@ export const Register = () => {
                 required
               />
 
-              <TextFieldComponent
-                type="number"
-                name="phonenumber"
-                label="Nomor Telpon"
-                placeholder="Masukan nomor telpon"
-                control={form.control}
-                required
-              />
+              <PhoneNumberInput value={phonenumber} onChange={setPhonenumber} defaultCountry="ID" />
 
               <div className="flex flex-col items-start mt-4 w-full">
                 <label htmlFor="profilePicture" className="font-poppins text-black mb-1 text-xs">

@@ -183,7 +183,7 @@ const Home = () => {
                   .map((_, index) => (
                     <div
                       key={index}
-                      className="p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group">
+                      className="p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm">
                           <span className="text-xl font-bold text-gray-400">{index + 1}</span>
