@@ -124,9 +124,9 @@ const MyCampaign = () => {
         {/* My Projects Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Projek Saya</h2>
+            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Kampanye Saya</h2>
             <div className="w-full md:w-96">
-              <SearchBarComponent onSearch={handleSearch} placeholder="Cari Projek Anda..." />
+              <SearchBarComponent onSearch={handleSearch} placeholder="Cari Kampanye Anda..." />
             </div>
           </div>
 
@@ -149,7 +149,7 @@ const MyCampaign = () => {
             </section>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 rounded-lg">
-              <p className="text-gray-500 text-lg">Projek tidak ditemukan.</p>
+              <p className="text-gray-500 text-lg">Kampanye tidak ditemukan.</p>
             </div>
           )}
 
@@ -157,7 +157,7 @@ const MyCampaign = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
               <label htmlFor="limit" className="font-medium">
-                Projek per halaman:
+                Kampanye per halaman:
               </label>
               <select
                 id="limit"
@@ -214,7 +214,7 @@ const MyCampaign = () => {
             <div className="w-full md:w-96">
               <SearchBarComponent
                 onSearch={handleSearch2}
-                placeholder="Cari Projek yang telah anda donasikan..."
+                placeholder="Cari Kampanye yang telah saya donasikan..."
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ const MyCampaign = () => {
             </section>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 rounded-lg">
-              <p className="text-gray-500 text-lg">Projek tidak ditemukan.</p>
+              <p className="text-gray-500 text-lg">Kampanye tidak ditemukan.</p>
             </div>
           )}
 
@@ -246,7 +246,7 @@ const MyCampaign = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
               <label htmlFor="limit" className="font-medium">
-                Projek per halaman:
+                Kampanye per halaman:
               </label>
               <select
                 id="limit"

@@ -185,7 +185,7 @@ const Profile = () => {
                 name="password"
                 label="Password"
                 type="password"
-                placeholder="Change password"
+                placeholder="Ubah password"
                 control={form.control}
               />
               <div className="flex gap-4 mt-5">

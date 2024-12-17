@@ -351,7 +351,7 @@ const CampaignDetail = () => {
                           <div className="flex-1 space-y-4">
                             <div>
                               <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                                Informasi Penghargaan
+                                Informasi Peringkat
                               </h3>
                               <p className="text-sm leading-relaxed text-gray-600">
                                 {reward.description}
