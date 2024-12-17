@@ -10,11 +10,11 @@ const AboutUs = () =>{
 
     return(
         <div className="flex flex-col items-center justify-center">
-            <h1 className="font-bold text-4xl mb-10 mt-10">About Us</h1>
+            <h1 className="font-bold text-4xl mb-10 mt-10">Tentang Kami</h1>
             <div className="flex flex-col gap-10">
                 <div className="flex flex-row items-center justify-around w-[50vw]">
                     <div className="flex flex-col">
-                        <h2 className="font-bold text-2xl mb-5">Who We Are?</h2>
+                        <h2 className="font-bold text-2xl mb-5">Siapa Kami?</h2>
                         <p className="text-wrap  w-[30vw] text-left">
                             Selamat datang di SharedFuture, platform di mana mimpi bertemu dengan peluang. 
                             Kami adalah situs web crowdfunding yang didedikasikan untuk menghubungkan para visioner 
@@ -35,7 +35,7 @@ const AboutUs = () =>{
                             className="w-48 h-48" 
                         />
                     <div className="flex flex-col">
-                        <h2 className="font-bold text-2xl mb-5 text-right">Our Mission</h2>
+                        <h2 className="font-bold text-2xl mb-5 text-right">Misi Kami</h2>
                         <p className="text-wrap w-[30vw] text-right">
                             Misi kami adalah memberdayakan individu dan organisasi dengan 
                             menyediakan platform tanpa batas untuk berbagi cerita mereka, mencapai 
@@ -47,7 +47,7 @@ const AboutUs = () =>{
 
                 <div className="flex flex-row items-center justify-around w-[50vw]">
                     <div className="flex flex-col">
-                        <h2 className="font-bold text-2xl mb-5">Our Vision</h2>
+                        <h2 className="font-bold text-2xl mb-5">Visi Kami</h2>
                         <p className="text-wrap w-[30vw] text-left">
                             Menjadi platform urun dana yang paling tepercaya dan inklusif di dunia,
                             yang memungkinkan semua orang di mana pun untuk mencapai impian mereka 
@@ -61,7 +61,7 @@ const AboutUs = () =>{
                 </div>
             </div>
             <CustomButton 
-                title="See Projects"
+                title="Lihat Kampanye"
                 className="btn btn-outline btn-success w-[30vw] my-10 font-bold text-sm"
                 handleClick={() => navigate("/")}
             />

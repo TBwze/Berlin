@@ -46,16 +46,16 @@ const Footer = () => {
         </Link>
         <span>|</span>
         <Link to="/about-us" className="hover:text-gray-700">
-          About Us
+          Tentang Kami
         </Link>
         <span>|</span>
         <Link to="/contact-us" className="hover:text-gray-700">
-          Contact Us
+          Hubungi Kami
         </Link>
       </div>
 
       <div className="text-center text-black text-sm">
-        © Copyright. All rights reserved.
+        © 2024
       </div>
     </footer>
   );

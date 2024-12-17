@@ -5,7 +5,6 @@ import PageLoad from "../components/Loading.component";
 import { useStateContext } from "../context";
 import PopupComponent from "../components/PopUp.component";
 import { HiArrowLongRight, HiChartBar, HiClock, HiBookOpen } from "react-icons/hi2";
-import { getUserDetails } from "../api/User/getUserDetails.api";
 
 const Home = () => {
   const [data, setData] = useState([]);
@@ -22,7 +21,20 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-
+  const [tips] = useState([
+    {
+      id: 1,
+      title: "Tentukan Target yang Realistis",
+      description:
+        "Pastikan target penggalangan dana Anda masuk akal, sesuai dengan kebutuhan, dan mudah dipahami oleh pendukung Anda."
+    },
+    {
+      id: 2,
+      title: "Buat Deskripsi yang Jelas",
+      description:
+        "Tulis deskripsi kampanye yang informatif dan menyentuh, menjelaskan mengapa tujuan ini penting."
+    }
+  ]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,7 +69,7 @@ const Home = () => {
       ) {
         await refundDonation(campaign.id);
         setPopupVisible(true);
-        setPopupMessage(`Refunded for campaign ${campaign.title}`);
+        setPopupMessage(`Refund dari campaign ${campaign.title}`);
       }
     }
     setIsLoading(false);
@@ -97,12 +109,12 @@ const Home = () => {
                   <div className="p-2 bg-yellow-100 rounded-lg">
                     <HiChartBar className="w-6 h-6 text-yellow-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Projek Populer</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Kampanye Populer</h2>
                 </div>
                 <button
                   onClick={() => navigate("/campaign")}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-500 hover:text-blue-700 transition-colors">
-                  See All
+                  Lihat Semua
                   <HiArrowLongRight className="w-4 h-4" />
                 </button>
               </div>
@@ -124,7 +136,7 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">No popular projects available yet.</p>
+                  <p className="text-gray-500">Belum ada kampanye populer saat ini.</p>
                 </div>
               )}
             </section>
@@ -136,12 +148,12 @@ const Home = () => {
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <HiClock className="w-6 h-6 text-blue-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Projek Terbaru</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Kampanye Terbaru</h2>
                 </div>
                 <button
                   onClick={() => navigate("/campaign")}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-500 hover:text-blue-700 transition-colors">
-                  See All
+                  Lihat Semua
                   <HiArrowLongRight className="w-4 h-4" />
                 </button>
               </div>
@@ -163,7 +175,7 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">No latest projects available yet.</p>
+                  <p className="text-gray-500">Belum ada kampanye terbaru</p>
                 </div>
               )}
             </section>
@@ -178,28 +190,23 @@ const Home = () => {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                {Array(2)
-                  .fill("")
-                  .map((_, index) => (
-                    <div
-                      key={index}
-                      className="p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm">
-                          <span className="text-xl font-bold text-gray-400">{index + 1}</span>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
-                            Tips untuk Campaign Sukses
-                          </h3>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
-                            consectetur, adipisci velit.
-                          </p>
-                        </div>
+                {tips.map((tip) => (
+                  <div
+                    key={tip.id}
+                    className="p-6 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors group">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                        <span className="text-xl font-bold text-gray-600">{tip.id}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-2 transition-colors">
+                          {tip.title}
+                        </h3>
+                        <p className="text-sm text-gray-800 leading-relaxed">{tip.description}</p>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </section>
           </div>

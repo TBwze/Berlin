@@ -105,33 +105,33 @@ const Navbar = () => {
               SharedFuture
             </h1>
           </a>
-          <h2 style={{ fontSize: "18px" }} className="mb-5 font-poppins">
+          <h2 style={{ fontSize: "18px" }} className="mb-7 font-poppins">
             Join the Movement: See, Support, Succeed!
           </h2>
           <CustomButton
             btnType="button"
-            title="Jelajahi"
+            title="Jelajahi Kampanye"
             styles="rounded hover:underline text-lg"
             textColor="#000000"
             handleClick={() => navigate("/campaign")}
           />
           <CustomButton
             btnType="button"
-            title="My Campaign"
+            title="Kampanye Saya"
             styles="rounded hover:underline text-lg ml-10"
             textColor="#000000"
             handleClick={() => navigate("/my-campaign")}
           />
           <CustomButton
             btnType="button"
-            title="About Us"
+            title="Tentang kami"
             styles="rounded hover:underline text-lg ml-10"
             textColor="#000000"
             handleClick={() => navigate("/about-us")}
           />
           <CustomButton
             btnType="button"
-            title="Contact Us"
+            title="Hubungi Kami"
             styles="rounded hover:underline text-lg ml-10"
             textColor="#000000"
             handleClick={() => navigate("/contact-us")}
@@ -142,7 +142,7 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <CustomButton
           btnType="button"
-          title="Create Campaign"
+          title="Bikin Kampanye Baru"
           bgColor="bg-white"
           styles="border-2 px-4 font-semibold h-8"
           className="hover:bg-green-200"

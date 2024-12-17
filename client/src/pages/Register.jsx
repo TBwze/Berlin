@@ -54,7 +54,7 @@ export const Register = () => {
     } else {
       setAlert({
         type: "error",
-        message: "Non-ethereum browser detected. You should install MetaMask.",
+        message: "Anda harus menginstall MetaMask.",
         visible: true
       });
       scrollToTop();
@@ -75,7 +75,7 @@ export const Register = () => {
         form.setValue("account", account);
         setAlert({
           type: "success",
-          message: "MetaMask connected successfully!",
+          message: "MetaMask Terhubung!",
           visible: true
         });
         scrollToTop();
@@ -116,7 +116,7 @@ export const Register = () => {
     } else {
       setAlert({
         type: "error",
-        message: "Please connect to an Ethereum wallet to register",
+        message: "Hubungkan dengan MetaMasak untuk register",
         visible: true
       });
       scrollToTop();
@@ -151,7 +151,7 @@ export const Register = () => {
         />
 
         <PopupComponent
-          message="Registration successful! You can now log in."
+          message="Register Berhasil! Silahkan login."
           visible={popupVisible}
           onClose={handleClosePopup}
         />
@@ -207,7 +207,7 @@ export const Register = () => {
 
               <div className="flex flex-col items-start mt-4 w-full">
                 <label htmlFor="profilePicture" className="font-poppins text-black mb-1 text-xs">
-                  Profile Picture
+                  Foto Profil
                 </label>
                 <input
                   type="file"
@@ -226,32 +226,32 @@ export const Register = () => {
                   />
                 )}
               </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-4">
               {!isConnected ? (
                 <CustomButton
-                  title="Connect MetaMask"
+                  title="Hubungkan MetaMask"
                   bgColor="#101E38"
                   textColor="#ffffff"
                   handleClick={onConnect}
                   className="mt-5 px-4"
                 />
               ) : (
-                <div className="text-center">
-                  <h2 className="font-poppins font-semibold text-green-500">
-                    Connected with MetaMask
+                <div>
+                  <h2 className="font-poppins font-semibold text-green-700 mt-5">
+                    MetaMask Terhubung
                   </h2>
                   <TextFieldComponent
                     name="account"
-                    label="Account"
-                    type="text"
+                    label="Akun"
                     control={form.control}
                     required
                     disabled
+                    className="w-full"
                   />
                 </div>
               )}
+            </div>
+
+            <div className="flex flex-col items-center gap-4 w-full">
               <CustomButton
                 btnType="submit"
                 title="Register"

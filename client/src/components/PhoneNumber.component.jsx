@@ -3,8 +3,8 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
 const PhoneNumberInput = ({
-  label = "Phone Number",
-  placeholder = "Enter phone number",
+  label = "Nomor telepon",
+  placeholder = "Masukan nomor telepon",
   value,
   onChange,
   defaultCountry = "ID",

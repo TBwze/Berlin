@@ -45,7 +45,7 @@ const Login = () => {
     } else {
       setAlert({
         type: "error",
-        message: "Non-ethereum browser detected. You should install MetaMask.",
+        message: "Anda harus menginstal MetaMask.",
         visible: true
       });
     }
@@ -64,7 +64,7 @@ const Login = () => {
         form.setValue("account", account);
         setAlert({
           type: "success",
-          message: "MetaMask connected successfully!",
+          message: "MetaMask Terhubung!",
           visible: true
         });
       }
@@ -86,7 +86,7 @@ const Login = () => {
       if (wallet === "") {
         setAlert({
           type: "error",
-          message: "Please connect to MetaMask to login.",
+          message: "Hubungkan dengan MetaMask untuk login.",
           visible: true
         });
       } else {
@@ -106,7 +106,7 @@ const Login = () => {
     setPopupVisible(false);
     navigate("/");
   };
-  
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -123,7 +123,7 @@ const Login = () => {
           onClose={() => setAlert({ ...alert, visible: false })}
         />
 
-        <PopupComponent message="Login successful!" visible={popupVisible} onClose={closePopup} />
+        <PopupComponent message="Login Berhasil!" visible={popupVisible} onClose={closePopup} />
 
         <div className="w-full bg-white border border-black p-6 rounded-lg shadow-md max-w-md mt-5">
           <div className="text-center font-poppins font-bold text-2xl mt-3">
@@ -152,7 +152,7 @@ const Login = () => {
               {!isConnected ? (
                 <div className="flex justify-center items-center mt-3">
                   <CustomButton
-                    title="Connect MetaMask"
+                    title="Hubungkan MetaMask"
                     bgColor="#101E38"
                     handleClick={onConnect}
                     textColor="#ffffff"
@@ -161,14 +161,7 @@ const Login = () => {
                 </div>
               ) : (
                 <div className="app-details mt-6">
-                  <h2
-                    style={{
-                      fontFamily: "Poppins",
-                      fontWeight: "700",
-                      color: "green"
-                    }}>
-                    Connected with MetaMask
-                  </h2>
+                  <h2 className="font-poppins font-semibold text-green-700">MetaMask Terhubung</h2>
                   <TextFieldComponent
                     name="account"
                     label="Account"
