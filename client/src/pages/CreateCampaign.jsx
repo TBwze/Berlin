@@ -17,13 +17,13 @@ const validationSchema = yup.object().shape({
   target: yup
     .number()
     .nullable()
-    .required("Target is required")
-    .min(0.0001, "Minimum target is 0.0001"),
+    .required("Total target perlu diisi")
+    .min(0.0001, "Targel minimal adalah 0.0001"),
   minimal_eth_bronze: yup
     .number()
     .nullable()
-    .required("Minimal ETH Bronze is required")
-    .test("min-eth-check-bronze", "Minimal ETH must be less than the target", function (value) {
+    .required("Minimal ETH peringkat Bronze perlu diisi")
+    .test("min-eth-check-bronze", "Minimal ETH harus kurang dari total target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     }),
@@ -31,12 +31,12 @@ const validationSchema = yup.object().shape({
   minimal_eth_silver: yup
     .number()
     .nullable()
-    .required("Minimal ETH Silver is required")
+    .required("Minimal ETH peringkat Silver perlu diisi")
     .moreThan(
       yup.ref("minimal_eth_bronze"),
-      "Minimal ETH must be greater than minimal ETH value in bronze tier"
+      "Minimal ETH Value harus lebih besar dari Minimal ETH di peringkat bronze"
     )
-    .test("min-eth-check-silver", "Minimal ETH must be less than the target", function (value) {
+    .test("min-eth-check-silver", "Minimal ETH harus kurang dari total target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     }),
@@ -44,12 +44,12 @@ const validationSchema = yup.object().shape({
   minimal_eth_gold: yup
     .number()
     .nullable()
-    .required("Minimal ETH Gold is required")
+    .required("Minimal ETH peringkat Gold perlu diisi")
     .moreThan(
       yup.ref("minimal_eth_silver"),
-      "Minimal ETH Value must be greater than Minimal ETH value in silver tier"
+      "Minimal ETH Value harus lebih besar dari Minimal ETH di peringkat silver"
     )
-    .test("min-eth-check-gold", "Minimal ETH must be less than the target", function (value) {
+    .test("min-eth-check-gold", "Minimal ETH harus kurang dari total target", function (value) {
       const { target } = this.parent;
       return value < target || !value;
     })
@@ -139,7 +139,7 @@ const CreateCampaign = () => {
         onSubmit={form.handleSubmit(handleSaveButton)}>
         <div className="flex flex-col w-1/3">
           <PopupComponent
-            message="Campaign created successfully!"
+            message="Kampanye telah Sukses dibuat!"
             visible={popupVisible}
             onClose={handlePopupClose}
           />
@@ -171,7 +171,7 @@ const CreateCampaign = () => {
           <div className="mt-2">
             <TextFieldDecimalComponent
               name="target"
-              label="Target Amount"
+              label="Total Target"
               control={form.control}
               required
               addOrmentText="ETH"
@@ -237,7 +237,7 @@ const CreateCampaign = () => {
           <div className="border border-gray-300 rounded-lg p-4 mb-7 shadow-lg">
             <div className="flex items-center mb-2">
               <img src="src/assets/gold.png" alt="Gold tier" className="w-8 h-8 mr-2" />
-              <h4 className="text-xl font-semibold font-poppins">Gold Tier</h4>
+              <h4 className="text-xl font-semibold font-poppins">Peringkat Gold</h4>
             </div>
             <TextFieldComponent
               name="hadiah_gold"
@@ -262,7 +262,7 @@ const CreateCampaign = () => {
           <div className="border border-gray-300 rounded-lg p-4 mb-4 shadow-lg">
             <div className="flex items-center mb-2">
               <img src="src/assets/silver.png" alt="Silver tier" className="w-8 h-8 mr-2" />
-              <h4 className="text-xl font-semibold font-poppins">Silver Tier</h4>
+              <h4 className="text-xl font-semibold font-poppins">Peringkat Silver</h4>
             </div>
             <TextFieldComponent
               name="hadiah_silver"
@@ -287,7 +287,7 @@ const CreateCampaign = () => {
           <div className="border border-gray-300 rounded-lg p-4 shadow-lg">
             <div className="flex items-center mb-2">
               <img src="src/assets/bronze.png" alt="Bronze tier" className="w-8 h-8 mr-2" />
-              <h4 className="text-xl font-semibold font-poppins">Bronze Tier</h4>
+              <h4 className="text-xl font-semibold font-poppins">Peringkat Bronze</h4>
             </div>
             <TextFieldComponent
               name="hadiah_bronze"

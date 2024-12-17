@@ -17,7 +17,7 @@ const ContactUs = () => {
     setResult("Sending....");
     const formData = new FormData(event.target);
 
-    formData.append("access_key", "2f0eafbc-ba78-425b-9dfc-9fbddc027523");
+    formData.append("access_key", "5709a2ef-58d0-4e44-a48b-b4bb1389a933");
 
     const response = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
@@ -59,8 +59,8 @@ const ContactUs = () => {
           visible={popupVisible}
           onClose={closePopup}
         />
-        <div className="flex flex-col items-center py-12 px-24 rounded-xl bg-gray-100 shadow-md">
-          <h1 className="font-bold text-4xl mb-10 text-black">Hubungi Kami</h1>
+        <div className="flex flex-col items-center w-[70vw] py-12 px-24 rounded-xl bg-gray-100 shadow-md">
+          <h1 className="font-bold text-4xl mb-10 text-black">Informasi Kontak</h1>
           <div className="flex flex-row gap-8">
             <motion.div
               whileHover={{
@@ -108,9 +108,9 @@ const ContactUs = () => {
             </motion.div>
           </div>
         </div>
-        <div className="flex flex-row justify-around w-full py-12 rounded-xl bg-gray-100 shadow-md mt-10">
+        <div className="flex flex-row justify-between w-[70vw] px-20 py-12 rounded-xl bg-gray-100 shadow-md mt-10">
           <div className="flex flex-col">
-            <h1 className="font-bold text-4xl text-black">Contact Us</h1>
+            <h1 className="font-bold text-4xl text-black">Hubungi Kami</h1>
             <p className="text-balance w-[30vw] mb-4 mt-4 text-black flex text-start">
               Ada pertanyaan, masukan, atau butuh bantuan? Kami siap membantu! Apakah Anda seorang
               pembuat kampanye atau pendukung, jangan ragu untuk menghubungi kami.
@@ -147,7 +147,7 @@ const ContactUs = () => {
                 <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
               </svg>
               <input
-                type="text"
+                type="email"
                 className="grow w-[20vw] bg-transparent focus:outline-none text-gray-900"
                 placeholder="Email"
                 name="email"
@@ -155,7 +155,7 @@ const ContactUs = () => {
               />
             </label>
 
-            <label className="input input-bordered flex items-center gap-2 bg-white border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
+            {/* <label className="input input-bordered flex items-center gap-2 bg-white border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
               <FaPhone className="h-4 w-4 opacity-70 mr-2" />
               <input
                 type="text"
@@ -163,7 +163,7 @@ const ContactUs = () => {
                 placeholder="Nomor telepon"
                 required
               />
-            </label>
+            </label> */}
             <textarea
               className="textarea textarea-bordered min-h-28 max-h-60 bg-white border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900"
               placeholder="Masukan pesan"

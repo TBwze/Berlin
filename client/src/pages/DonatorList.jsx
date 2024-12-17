@@ -16,7 +16,7 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
   const columns = [
     {
       field: "tier",
-      headerName: "Tier",
+      headerName: "Peringkat",
       className: "font-semibold"
     },
     {
@@ -31,12 +31,12 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
     },
     {
       field: "phonenumber",
-      headerName: "Phone Number",
+      headerName: "Nomor Telepon",
       className: "font-semibold"
     },
     {
       field: "amount",
-      headerName: "Amount (ETH)",
+      headerName: "Total Donasi (ETH)",
     }
   ];
 

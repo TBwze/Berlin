@@ -125,7 +125,7 @@ const CommentSection = ({ comment, userId, campaignId, refreshComments }) => {
           <TextFieldComponent
             name="reply"
             label=""
-            placeholder="Add a reply..."
+            placeholder="Masukkan Reply..."
             control={form.control}
             type="textarea"
             rows={3}

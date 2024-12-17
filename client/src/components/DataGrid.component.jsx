@@ -53,7 +53,7 @@ const DataGridComponent = ({
         <div className="flex items-center space-x-4 text-sm text-gray-600">
           <div className="flex items-center space-x-2">
             <label htmlFor="rowsPerPage" className="text-sm text-gray-600 text-nowrap">
-              Rows per page:
+              Baris per halaman:
             </label>
             <select
               id="rowsPerPage"
@@ -75,7 +75,7 @@ const DataGridComponent = ({
             disabled={page === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
             <FaChevronLeft className="h-4 w-4" />
-            <span className="ml-1">Previous</span>
+            <span className="ml-1">Sebelumnya</span>
           </button>
 
           <div className="flex items-center space-x-1">
@@ -95,7 +95,7 @@ const DataGridComponent = ({
             onClick={() => handleChangePage(page + 1)}
             disabled={page === totalPages - 1 || totalPages === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
-            <span className="mr-1">Next</span>
+            <span className="mr-1">Selanjutnya</span>
             <FaChevronRight className="h-4 w-4" />
           </button>
         </div>

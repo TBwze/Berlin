@@ -153,7 +153,7 @@ const Profile = () => {
           </div>
           <div className="w-1/6 flex"></div>
           <div className="w-1/3 p-4">
-            <h1 className="text-2xl font-bold mb-4">Account Settings</h1>
+            <h1 className="text-2xl font-bold mb-4">Pengaturan Akun</h1>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <TextFieldComponent
                 name="username"
@@ -163,13 +163,13 @@ const Profile = () => {
               />
               <TextFieldComponent
                 name="firstname"
-                label="First Name"
+                label="Nama Depan"
                 control={form.control}
                 required
               />
               <TextFieldComponent
                 name="lastname"
-                label="Last Name"
+                label="Nama Belakang"
                 control={form.control}
                 required
               />
@@ -191,13 +191,13 @@ const Profile = () => {
               <div className="flex gap-4 mt-5">
                 <CustomButton
                   btnType="submit"
-                  title="Save Changes"
+                  title="Simpan"
                   bgColor="#4CAF50"
                   textColor="#ffffff"
                   className="px-4 font-medium"
                 />
                 <CustomButton
-                  title="Cancel"
+                  title="Batal"
                   bgColor="#C70000"
                   handleClick={() => navigate("/")}
                   textColor="#ffffff"

@@ -41,7 +41,7 @@ const Admin = () => {
 
   const handleDelete = async (userId) => {
     setIsLoading(true);
-    if (confirm("Are you sure you want to delete this user?")) {
+    if (confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) {
       try {
         await deleteUser(userId);
         deleteCampaign(userId);
@@ -79,7 +79,7 @@ const Admin = () => {
     },
     { headerName: "Username", field: "username" },
     { headerName: "Email", field: "email" },
-    { headerName: "Actions", field: "actions" }
+    { headerName: "Aksi", field: "actions" }
   ];
 
   const rows = users.map((user) => ({
@@ -108,7 +108,7 @@ const Admin = () => {
     <div className="flex flex-col justify-center mx-auto max-w-[1280px] p-4">
       <PageLoad loading={isLoading} />
       <div className="mb-4">
-        <SearchBarComponent onSearch={handleSearch} placeholder="Search by username..." />
+        <SearchBarComponent onSearch={handleSearch} placeholder="Cari Username..." />
       </div>
       <DataGridComponent
         columns={columns}

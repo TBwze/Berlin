@@ -59,14 +59,14 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-gray-800 text-left">{username}</h2>
-          <p className="text-sm text-gray-500">Campaign Supporter</p>
+          <p className="text-sm text-gray-500">Pendukung Kampanye</p>
         </div>
       </div>
 
       {/* Donation Amount Card */}
       <div className="mb-6">
         <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg">
-          <p className="text-sm font-medium text-black mb-1">Total Contribution</p>
+          <p className="text-sm font-medium text-black mb-1">Total Kontribusi</p>
           <div className="flex justify-center items-center">
             <span className="text-3xl font-bold text-green-900">{donationAmount}</span>
             <span className="ml-1 text-lg font-medium text-green-700">ETH</span>
@@ -77,9 +77,9 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
       {/* Reward Tier Section */}
       {badgeInfo ? (
         <div className={`${badgeInfo.bg} p-6 rounded-lg`}>
-          <p className="text-sm font-medium mb-2 text-gray-600">Reward Tier</p>
+          <p className="text-sm font-medium mb-2 text-gray-600">Tingkat Penghargaan</p>
           <div className="flex items-center justify-center">
-            <span className={`text-xl font-bold ${badgeInfo.color}`}>{rewardTier} Supporter</span>
+            <span className={`text-xl font-bold ${badgeInfo.color}`}>Pendukung {rewardTier}</span>
             <div className="flex items-center">
               <img src={badgeInfo.src} alt={`${rewardTier} Badge`} className="w-10 h-10" />
             </div>

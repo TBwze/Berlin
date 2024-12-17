@@ -205,7 +205,7 @@ export const Register = () => {
 
               <PhoneNumberInput value={phonenumber} onChange={setPhonenumber} defaultCountry="ID" />
 
-              <div className="flex flex-col items-start mt-4 w-full">
+              <div className="flex flex-col mt-4 w-full">
                 <label htmlFor="profilePicture" className="font-poppins text-black mb-1 text-xs">
                   Foto Profil
                 </label>
@@ -218,37 +218,40 @@ export const Register = () => {
                file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700
                hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+              <div className="flex flex-col items-center gap-4 w-full">
                 {selectedFile && (
                   <img
                     src={URL.createObjectURL(selectedFile)}
                     alt="Profile Preview"
-                    className="rounded-full object-cover mb-3 w-32 h-32 mt-5"
+                    className="rounded-full object-cover w-32 h-32 mt-5"
                   />
                 )}
-              </div>
-              {!isConnected ? (
+                
+                {!isConnected ? (
                 <CustomButton
                   title="Hubungkan MetaMask"
                   bgColor="#101E38"
                   textColor="#ffffff"
                   handleClick={onConnect}
-                  className="mt-5 px-4"
+                  className="mb-3 mt-1 px-6"
                 />
-              ) : (
-                <div>
-                  <h2 className="font-poppins font-semibold text-green-700 mt-5">
-                    MetaMask Terhubung
-                  </h2>
-                  <TextFieldComponent
-                    name="account"
-                    label="Akun"
-                    control={form.control}
-                    required
-                    disabled
-                    className="w-full"
-                  />
-                </div>
-              )}
+                ) : (
+                  <div>
+                    <h2 className="font-poppins font-semibold text-green-700 mt-5">
+                      MetaMask Terhubung
+                    </h2>
+                    <TextFieldComponent
+                      name="account"
+                      label="Akun"
+                      control={form.control}
+                      required
+                      disabled
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col items-center gap-4 w-full">

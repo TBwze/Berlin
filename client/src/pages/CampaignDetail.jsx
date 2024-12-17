@@ -70,15 +70,15 @@ const CampaignDetail = () => {
   const columns = [
     {
       field: "rank",
-      headerName: "Rank"
+      headerName: "Peringkat"
     },
     {
       field: "username",
-      headerName: "Donor"
+      headerName: "Donatur"
     },
     {
       field: "amount",
-      headerName: "Amount (ETH)"
+      headerName: "Total Donasi (ETH)"
     }
   ];
 
@@ -282,7 +282,7 @@ const CampaignDetail = () => {
                   />
                   <h4 className="text-xl text-left font-bold">
                     {data.username}
-                    <span className="font-normal"> is organizing this crowdfund</span>
+                    <span className="font-normal"> menyelenggarakan crowdfunding ini</span>
                   </h4>
                 </div>
                 <div className="flex">
@@ -351,7 +351,7 @@ const CampaignDetail = () => {
                           <div className="flex-1 space-y-4">
                             <div>
                               <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                                Description
+                                Informasi Penghargaan
                               </h3>
                               <p className="text-sm leading-relaxed text-gray-600">
                                 {reward.description}
@@ -360,7 +360,7 @@ const CampaignDetail = () => {
 
                             <div>
                               <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                                Minimum Donation Required
+                                Donasi Minimum yang Dibutuhkan
                               </h3>
                               <div className="inline-block bg-white border border-gray-200 rounded-lg px-4 py-2">
                                 <span className="text-sm font-medium text-gray-800">
@@ -375,7 +375,7 @@ const CampaignDetail = () => {
                   })}
               </div>
               <div className="flex flex-col gap-2 mt-3">
-                <h2 className="font-bold text-xl text-left">Comments</h2>
+                <h2 className="font-bold text-xl text-left">Komentar</h2>
                 <hr className="border-t border-gray-400 my-2" />
                 <form
                   onSubmit={handleCommentSubmit}
@@ -383,7 +383,7 @@ const CampaignDetail = () => {
                   <TextFieldComponent
                     name="content"
                     label=""
-                    placeholder="Add a Comment..."
+                    placeholder="Masukkan Komentar..."
                     control={form.control}
                     type="textarea"
                     rows={4}
@@ -402,7 +402,7 @@ const CampaignDetail = () => {
                 <div className="flex flex-col gap-2 mt-4">
                   <div>
                     {loadingComments ? (
-                      <p>Loading comments...</p>
+                      <p>Loading Komentar...</p>
                     ) : (
                       comments.map((comment) => (
                         <CommentSection
@@ -457,7 +457,7 @@ const CampaignDetail = () => {
                   <div className="flex flex-col">
                     <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
                     <p className="text-sm">
-                      by <span>{data.username}</span>
+                      Pemilik Kampanye:  <span className="font-semibold">{data.username}</span>
                     </p>
                     <img src={data.imageUrl} alt="Campaign" className="w-full p-2 rounded-2xl" />
                     <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">

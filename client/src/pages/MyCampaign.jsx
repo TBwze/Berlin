@@ -124,9 +124,9 @@ const MyCampaign = () => {
         {/* My Projects Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">My Projects</h2>
+            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Projek Saya</h2>
             <div className="w-full md:w-96">
-              <SearchBarComponent onSearch={handleSearch} placeholder="Search your project..." />
+              <SearchBarComponent onSearch={handleSearch} placeholder="Cari Projek Anda..." />
             </div>
           </div>
 
@@ -149,7 +149,7 @@ const MyCampaign = () => {
             </section>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 rounded-lg">
-              <p className="text-gray-500 text-lg">No projects found.</p>
+              <p className="text-gray-500 text-lg">Projek tidak ditemukan.</p>
             </div>
           )}
 
@@ -157,7 +157,7 @@ const MyCampaign = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
               <label htmlFor="limit" className="font-medium">
-                Items per page:
+                Projek per halaman:
               </label>
               <select
                 id="limit"
@@ -178,7 +178,7 @@ const MyCampaign = () => {
                 disabled={watchedPage === 0}
                 className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                 <FaChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                Sebelumnya
               </button>
 
               <div className="flex items-center space-x-1">
@@ -200,7 +200,7 @@ const MyCampaign = () => {
                 onClick={() => handlePageChange(watchedPage + 1)}
                 disabled={watchedPage === watchedTotalPages - 1 || watchedPage === 0}
                 className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                Next
+                Selanjutnya
                 <FaChevronRight className="h-4 w-4 ml-1" />
               </button>
             </div>
@@ -210,11 +210,11 @@ const MyCampaign = () => {
         {/* Donated Projects Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Donated Projects</h2>
+            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Proyek yang saya donasikan</h2>
             <div className="w-full md:w-96">
               <SearchBarComponent
                 onSearch={handleSearch2}
-                placeholder="Search project you have donated before..."
+                placeholder="Cari Projek yang telah anda donasikan..."
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ const MyCampaign = () => {
             </section>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 rounded-lg">
-              <p className="text-gray-500 text-lg">No projects found.</p>
+              <p className="text-gray-500 text-lg">Projek tidak ditemukan.</p>
             </div>
           )}
 
@@ -246,7 +246,7 @@ const MyCampaign = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
               <label htmlFor="limit" className="font-medium">
-                Items per page:
+                Projek per halaman:
               </label>
               <select
                 id="limit"
@@ -267,7 +267,7 @@ const MyCampaign = () => {
                 disabled={watchedPage2 === 0}
                 className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                 <FaChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                Sebelumnya
               </button>
 
               <div className="flex items-center space-x-1">
@@ -289,7 +289,7 @@ const MyCampaign = () => {
                 onClick={() => handlePageChange2(watchedPage2 + 1)}
                 disabled={watchedPage2 === watchedTotalPages2 - 1 || watchedPage2 === 0}
                 className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                Next
+                Selanjutnya
                 <FaChevronRight className="h-4 w-4 ml-1" />
               </button>
             </div>

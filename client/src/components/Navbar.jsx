@@ -142,7 +142,7 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <CustomButton
           btnType="button"
-          title="Bikin Kampanye Baru"
+          title="Buat Kampanye Baru"
           bgColor="bg-white"
           styles="border-2 px-4 font-semibold h-8"
           className="hover:bg-green-200"

@@ -69,7 +69,7 @@ const Campaign = () => {
 
       {/* Search Bar */}
       <div className="flex w-full max-w-lg mb-8">
-        <SearchBarComponent onSearch={handleSearch} placeholder="Search project..." />
+        <SearchBarComponent onSearch={handleSearch} placeholder="Cari Projek..." />
       </div>
 
       <h2 className="text-lg font-bold mb-10">
@@ -93,7 +93,7 @@ const Campaign = () => {
           </div>
         </section>
       ) : (
-        <p className="text-center text-gray-500">No projects found.</p>
+        <p className="text-center text-gray-500">Projek tidak ditemukan.</p>
       )}
 
       {/* Pagination Controls */}
@@ -102,7 +102,7 @@ const Campaign = () => {
           {/* Rows per page selector */}
           <div className="flex items-center space-x-2">
             <label htmlFor="limit" className="text-sm text-gray-600 text-nowrap">
-              Items per page:
+              Kampanye per halaman:
             </label>
             <select
               id="limit"
@@ -124,7 +124,7 @@ const Campaign = () => {
             disabled={watchedPage === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
             <FaChevronLeft className="h-4 w-4" />
-            <span className="ml-1">Previous</span>
+            <span className="ml-1">Sebelumnya</span>
           </button>
 
           <div className="flex items-center space-x-1">
@@ -144,7 +144,7 @@ const Campaign = () => {
             onClick={() => handlePageChange(watchedPage + 1)}
             disabled={watchedPage === watchedTotalPages - 1 || watchedPage === 0}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-black hover:bg-gray-50 disabled:opacity-50 cursor-pointer">
-            <span className="mr-1">Next</span>
+            <span className="mr-1">Selanjutnya</span>
             <FaChevronRight className="h-4 w-4" />
           </button>
         </div>

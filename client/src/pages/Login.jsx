@@ -92,7 +92,7 @@ const Login = () => {
       } else {
         setAlert({
           type: "error",
-          message: error.message,
+          message: "Email atau Password atau Wallet tidak sesuai",
           visible: true
         });
         scrollToTop();
