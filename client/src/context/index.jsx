@@ -42,8 +42,8 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const targetInWei = ethToWei(targetAmount);
-      // const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-      const deadlineTimestamp = dayjs().add(10, "minute").unix();
+      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      // const deadlineTimestamp = dayjs().add(10, "minute").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
