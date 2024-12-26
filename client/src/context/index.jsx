@@ -18,7 +18,7 @@ const stateContext = createContext();
 const metamaskConfig = metamaskWallet();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract("0x9e51229DE2980fFfEbf4B2D5a6dDB1F290E14CAe");
+  const { contract } = useContract("0x97b1303EABD67303d6FFd57EF980698161DA903C");
   // const { mutateAsync: createCampaignWrite } = useContractWrite(contract, "createCampaign");
 
   const address = useAddress();
@@ -42,8 +42,8 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-      // const deadlineTimestamp = dayjs().add(10, "minute").unix();
+      // const deadlineTimestamp = dayjs().add(deadline, "day").unix();
+      const deadlineTimestamp = dayjs().add(10, "minute").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -86,7 +86,8 @@ export const StateContextProvider = ({ children }) => {
       image: campaignArray[7],
       rewards: campaignArray[8],
       donors: campaignArray[9],
-      exists: campaignArray[10]
+      exists: campaignArray[10],
+      isWithdraw: campaignArray[11]
     };
   };
 
@@ -117,7 +118,12 @@ export const StateContextProvider = ({ children }) => {
       const now = BigInt(Math.floor(Date.now() / 1000)); // Convert current time to seconds
       campaigns = campaigns.filter((campaign) => {
         const deadline = BigInt(campaign.deadline.hex || campaign.deadline); // Ensure deadline is BigInt
-        return deadline > now;
+        const deadlineNotPassed = deadline > now;
+        const isCompletedNotWithdrawn =
+          BigInt(campaign.amountCollected.hex || campaign.amountCollected) >=
+            BigInt(campaign.targetAmount.hex || campaign.targetAmount) && !campaign.isWithdraw;
+        const isCompleted = campaign.isWithdraw;
+        return deadlineNotPassed || isCompleted || isCompletedNotWithdrawn;
       });
 
       // Filter by search query
@@ -154,7 +160,8 @@ export const StateContextProvider = ({ children }) => {
             rewards: campaign.rewards.map((reward) => ({
               minAmount: weiToEth(reward[0].hex || reward[0]),
               description: reward[1]
-            }))
+            })),
+            isWithdraw: campaign.isWithdraw
           };
         })
       );
@@ -199,7 +206,7 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaignById = async (id) => {
     try {
-      const response = await contract.call("getCampaign", id);
+      const response = await contract.call("getCampaign", [id]);
       const [
         owner,
         title,
@@ -210,12 +217,14 @@ export const StateContextProvider = ({ children }) => {
         image,
         rewards,
         donators,
+        exists,
         isWithdraw
       ] = response;
 
       const deadlineTimestamp = new Date(deadline * 1000).getTime();
       const now = Date.now();
-      if (deadlineTimestamp < now && targetAmount > amountCollected) {
+
+      if (deadlineTimestamp < now && isWithdraw === false && targetAmount > amountCollected) {
         throw new Error("Campaign has expired.");
       }
 
@@ -234,6 +243,7 @@ export const StateContextProvider = ({ children }) => {
           description: reward.description
         })),
         donators: donators,
+        exists: exists,
         isWithdraw: isWithdraw
       };
 
@@ -252,7 +262,7 @@ export const StateContextProvider = ({ children }) => {
       if (!signer || !address) {
         throw new Error("Wallet not connected. Please try connecting again.");
       }
-      const transaction = await contract.call("donateToCampaign", campaignId, {
+      const transaction = await contract.call("donateToCampaign", [campaignId], {
         value: ethToWei(amount.toString())
       });
     } catch (error) {
@@ -400,7 +410,7 @@ export const StateContextProvider = ({ children }) => {
         throw new Error("Wallet not connected. Please try connecting again.");
       }
 
-      const data = await contract.call("getDonorsWithRewards", campaignId);
+      const data = await contract.call("getDonorsWithRewards", [campaignId]);
       const [tiers, addresses, amounts] = data;
 
       // First, flatten all data into single array of donor objects

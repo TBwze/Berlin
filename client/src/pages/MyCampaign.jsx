@@ -210,7 +210,9 @@ const MyCampaign = () => {
         {/* Donated Projects Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">Proyek yang saya donasikan</h2>
+            <h2 className="text-2xl font-semibold text-black mb-4 md:mb-0">
+              Kampanye yang saya donasikan
+            </h2>
             <div className="w-full md:w-96">
               <SearchBarComponent
                 onSearch={handleSearch2}

@@ -108,7 +108,9 @@ contract CrowdfundingCampaign {
             uint256 amountCollected,
             string memory image,
             Reward[] memory rewards,
-            address[] memory donors
+            address[] memory donors,
+            bool exists,
+            bool isWithdraw
         )
     {
         Campaign memory campaign = campaigns[_campaignId];
@@ -121,7 +123,9 @@ contract CrowdfundingCampaign {
             campaign.amountCollected,
             campaign.image,
             campaign.rewards,
-            campaign.donors
+            campaign.donors,
+            campaign.exists,
+            campaign.isWithdraw
         );
     }
 

@@ -15,7 +15,7 @@ const CardComponent = ({
   const fundingPercentage = Math.min((amountCollected / targetAmount) * 100, 100).toFixed(1);
 
   return (
-    <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+    <div className="max-w-sm border rounded-lg shadow bg-gray-800 border-gray-700">
       <a href={`/campaign/${id}`}>
         <img
           className="rounded-t-lg w-full h-48 object-cover"
@@ -25,18 +25,18 @@ const CardComponent = ({
       </a>
       <div className="p-5">
         <a href={`/campaign/${id}`}>
-          <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white truncate font-poppins-bold">
+          <h5 className="mb-2 text-2xl font-bold tracking-tight text-white truncate font-poppins-bold">
             {title}
           </h5>
         </a>
 
         {/* Display creator's name or wallet address */}
-        <p className="text-xs text-gray-200 dark:text-gray-200 mb-3 truncate font-poppins">
+        <p className="text-xs text-gray-200 mb-3 truncate font-poppins">
           Pemilik Kampanye: <span className="font-bold">{creator}</span>
         </p>
 
         {/* Progress bar showing the funding percentage */}
-        <div className="relative w-full bg-gray-200 h-4 dark:bg-gray-700 mb-2 rounded-lg">
+        <div className="relative w-full h-4 bg-gray-700 mb-2 rounded-lg">
           <div
             className="bg-green-700 h-full rounded-lg"
             style={{ width: `${fundingPercentage}%` }}></div>
@@ -45,17 +45,15 @@ const CardComponent = ({
           </span>
         </div>
 
-        <p className="mb-3 font-normal dark:text-gray-200 font-poppins text-xs">
+        <p className="mb-3 font-normal text-gray-200 font-poppins text-xs">
           {amountCollected} / {targetAmount} ETH Tercapai
         </p>
 
-        <p className="mb-3 font-normal dark:text-gray-200 font-poppins text-xs">
-          Deadline: {deadline}
-        </p>
+        <p className="mb-3 font-normal text-gray-200 font-poppins text-xs">Deadline: {deadline}</p>
 
         <a
           href={`/campaign/${id}`}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg focus:ring-4 focus:outline-none hover:bg-blue-700 focus:ring-blue-800">
           Lihat detail
           <FaArrowRight className="w-3.5 h-3.5 ms-2" />
         </a>

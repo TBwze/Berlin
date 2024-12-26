@@ -87,7 +87,7 @@ const DonationDetails = ({ campaignId, username, profilePicture }) => {
         </div>
       ) : (
         <div className="bg-gray-50 p-6 rounded-lg">
-          <p className="text-center text-gray-500">Continue donating to earn reward badges!</p>
+          <p className="text-center text-gray-500">Donasi untuk mendapatkan hadiah!</p>
         </div>
       )}
     </div>

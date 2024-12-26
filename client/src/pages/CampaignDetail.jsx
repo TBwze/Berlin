@@ -174,7 +174,7 @@ const CampaignDetail = () => {
     try {
       const donationAmount = form.watch("minimal_eth");
       await donateToCampaign(id, donationAmount);
-      setPopupMessage("Donation Successful!");
+      setPopupMessage("Donasi Berhasil!");
       setPopupVisible(true);
       fetchCampaign();
     } catch (error) {
@@ -206,7 +206,7 @@ const CampaignDetail = () => {
   let is_owner = form.watch("is_owner");
 
   useEffect(() => {
-    if (is_owner && isOneMonthPassed && isTargetMet) {
+    if (is_owner && isOneMonthPassed) {
       if (withdraw === true) {
         removeCampaign();
       } else if (withdraw === false) {
@@ -235,14 +235,14 @@ const CampaignDetail = () => {
     setIsLoading(true);
     try {
       await withdrawFunds(id);
-      setPopupMessage("Funds withdrawn successfully!");
+      setPopupMessage("Dana berhasil ditarik!");
       setPopupVisible(true);
-      document.getElementById("my_modal").showModal();
     } catch (error) {
       alert("Error withdrawing funds: " + error.message);
     } finally {
       setIsLoading(false);
       window.location.reload();
+      document.getElementById("my_modal").showModal();
     }
   };
 
@@ -302,7 +302,7 @@ const CampaignDetail = () => {
               </div>
               <hr style={{ border: "1px solid #ccc" }} />
               <div className="pb-4">
-                <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Proyek</h2>
+                <h2 className="font-bold text-xl text-left pl-4 pb-4">Informasi Kampanye</h2>
                 <p className="text-balance text-justify pl-4">{data.description}</p>
               </div>
               <div className="flex flex-col gap-6 p-4">
@@ -419,103 +419,121 @@ const CampaignDetail = () => {
               </div>
             </div>
             <div className="w-[30vw] h-full top-10 flex flex-col gap-4 ml-10 p-8 rounded-lg shadow-xl border">
-              <p className="font-bold text-right">
-                {data.amountCollected} / {data.targetAmount} Tercapai
-              </p>
-              <div className="flex flex-row items-center gap-3">
-                <progress
-                  className="progress progress-success w-full h-3.5"
-                  value={fundingPercentage}
-                  max="100"></progress>
-                {percentage}%
-              </div>
-              <div className="flex flex-row justify-between">
-                <h3>
-                  <b>Deadline</b>: {data.deadline}
-                </h3>
-              </div>
-
-              {!form.watch("is_owner") && !isDeadlinePassed && (
-                <div className="mb-2">
-                  <CheckDonationAndReward
-                    campaignId={id}
-                    username={username}
-                    profilePicture={userPicture}
-                  />
-                </div>
-              )}
-
-              {!form.watch("is_owner") && !isDeadlinePassed && (
-                <button
-                  className="btn btn-block bg-green-600 text-white hover:bg-green-800 my-1"
-                  onClick={() => document.getElementById("my_modal_2").showModal()}>
-                  Donasi
-                </button>
-              )}
-              <dialog id="my_modal_2" className="modal">
-                <div className="modal-box">
-                  <div className="flex flex-col">
-                    <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
-                    <p className="text-sm">
-                      Pemilik Kampanye:  <span className="font-semibold">{data.username}</span>
-                    </p>
-                    <img src={data.imageUrl} alt="Campaign" className="w-full p-2 rounded-2xl" />
-                    <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">
-                      {data.description}
-                    </p>
+              {withdraw === false ? (
+                <>
+                  <p className="font-bold text-right">
+                    {data.amountCollected} / {data.targetAmount} Tercapai
+                  </p>
+                  <div className="flex flex-row items-center gap-3">
+                    <progress
+                      className="progress progress-success w-full h-3.5"
+                      value={fundingPercentage}
+                      max="100"></progress>
+                    {percentage}%
+                  </div>
+                  <div className="flex flex-row justify-between">
+                    <h3>
+                      <b>Deadline</b>: {data.deadline}
+                    </h3>
                   </div>
 
-                  <form onSubmit={handleDonation} className="flex flex-col mb-2">
-                    <div className="mb-3">
-                      <TextFieldDecimalComponent
-                        name="minimal_eth"
-                        label="Masukkan Nominal Donasi"
-                        control={form.control}
-                        required
-                        addOrmentText="ETH"
+                  {!form.watch("is_owner") && !isDeadlinePassed && (
+                    <div className="mb-2">
+                      <CheckDonationAndReward
+                        campaignId={id}
+                        username={username}
+                        profilePicture={userPicture}
                       />
                     </div>
-                    <CustomButton
-                      btnType="submit"
-                      title="Donasi"
-                      styles="rounded-2xl p-2 text-sm font-semibold"
-                      className="btn-block btn-outline btn-success bg-green-500"
-                      textColor="#ffffff"
-                    />
-                  </form>
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                  <button>close</button>
-                </form>
-              </dialog>
-              {!form.watch("is_owner") && isTargetMet && isDeadlinePassed && (
-                <button
-                  className="btn btn-outline btn-ghost my-1"
-                  onClick={() => document.getElementById("my_modal").showModal()}>
-                  View Donators
-                </button>
-              )}
-              <dialog id="my_modal" className="modal">
-                <div className="modal-box max-w-5xl">
-                  <div className="flex flex-col">
-                    <h1 className="font-bold text-2xl mb-4">Donations</h1>
-                    <CampaignDonatorsGrid campaignId={id} />
-                  </div>
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                  <button>close</button>
-                </form>
-              </dialog>
+                  )}
 
-              <DataGridComponent
-                columns={columns}
-                rows={gridRows}
-                page={form.watch("page")}
-                limit={form.watch("limit")}
-                totalPages={form.watch("total_pages")}
-                handleChangePage={handleChangePageGrid}
-                handleChangeLimit={handleChangeLimitGrid}
-              />
+                  {!form.watch("is_owner") && !isDeadlinePassed && (
+                    <button
+                      className="btn btn-block bg-green-600 text-white hover:bg-green-800 my-1"
+                      onClick={() => document.getElementById("my_modal_2").showModal()}>
+                      Donasi
+                    </button>
+                  )}
+                  <dialog id="my_modal_2" className="modal">
+                    <div className="modal-box">
+                      <div className="flex flex-col">
+                        <h3 className="font-bold text-xl text-center text-balance">{data.title}</h3>
+                        <p className="text-sm">
+                          Pemilik Kampanye: <span className="font-semibold">{data.username}</span>
+                        </p>
+                        <img
+                          src={data.imageUrl}
+                          alt="Campaign"
+                          className="w-full p-2 rounded-2xl"
+                        />
+                        <p className="text-balance text-justify text-sm p-3 max-h-40 overflow-y-auto">
+                          {data.description}
+                        </p>
+                      </div>
+
+                      <form onSubmit={handleDonation} className="flex flex-col mb-2">
+                        <div className="mb-3">
+                          <TextFieldDecimalComponent
+                            name="minimal_eth"
+                            label="Masukkan Nominal Donasi"
+                            control={form.control}
+                            required
+                            addOrmentText="ETH"
+                          />
+                        </div>
+                        <CustomButton
+                          btnType="submit"
+                          title="Donasi"
+                          styles="rounded-2xl p-2 text-sm font-semibold"
+                          className="btn-block btn-outline btn-success bg-green-500"
+                          textColor="#ffffff"
+                        />
+                      </form>
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                      <button>close</button>
+                    </form>
+                  </dialog>
+
+                  <DataGridComponent
+                    columns={columns}
+                    rows={gridRows}
+                    page={form.watch("page")}
+                    limit={form.watch("limit")}
+                    totalPages={form.watch("total_pages")}
+                    handleChangePage={handleChangePageGrid}
+                    handleChangeLimit={handleChangeLimitGrid}
+                  />
+                </>
+              ) : (
+                <>
+                  <p className="font-bold text-center text-2xl">Kampanye Selesai</p>
+                  <p className="font-bold text-right">Target Tercapai</p>
+                  <div className="flex flex-row items-center gap-3">
+                    <progress
+                      className="progress progress-success w-full h-3.5"
+                      value="100"
+                      max="100"></progress>
+                    100%
+                  </div>
+                  <button
+                    className="btn btn-outline btn-ghost my-1"
+                    onClick={() => document.getElementById("my_modal").showModal()}>
+                    Lihat Donatur
+                  </button>
+                  <dialog id="my_modal" className="modal">
+                    <div className="modal-box max-w-5xl">
+                      <div className="flex flex-col">
+                        <h1 className="font-bold text-2xl mb-4">Donatur</h1>
+                        <CampaignDonatorsGrid campaignId={id} />
+                      </div>
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                      <button>close</button>
+                    </form>
+                  </dialog>
+                </>
+              )}
             </div>
           </div>
         </div>

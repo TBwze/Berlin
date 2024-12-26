@@ -36,7 +36,7 @@ const CampaignDonatorsGrid = ({ campaignId }) => {
     },
     {
       field: "amount",
-      headerName: "Total Donasi (ETH)",
+      headerName: "Total Donasi (ETH)"
     }
   ];
 

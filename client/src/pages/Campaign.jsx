@@ -69,11 +69,11 @@ const Campaign = () => {
 
       {/* Search Bar */}
       <div className="flex w-full max-w-lg mb-8">
-        <SearchBarComponent onSearch={handleSearch} placeholder="Cari Projek..." />
+        <SearchBarComponent onSearch={handleSearch} placeholder="Cari Kampanye..." />
       </div>
 
       <h2 className="text-lg font-bold mb-10">
-        Jelajahi <span className="text-[#2E6950]">{filteredCampaigns.length} Projek</span>
+        Jelajahi <span className="text-[#2E6950]">{filteredCampaigns.length} Kampanye</span>
       </h2>
       {filteredCampaigns.length > 0 ? (
         <section className="w-full mb-8">
@@ -93,7 +93,7 @@ const Campaign = () => {
           </div>
         </section>
       ) : (
-        <p className="text-center text-gray-500">Projek tidak ditemukan.</p>
+        <p className="text-center text-gray-500">Kampanye tidak ditemukan.</p>
       )}
 
       {/* Pagination Controls */}

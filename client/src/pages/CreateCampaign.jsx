@@ -150,8 +150,8 @@ const CreateCampaign = () => {
           <div className="mt-2">
             <TextFieldComponent
               name="judul_proyek"
-              label="Judul Proyek"
-              placeholder="Masukan Judul Proyek"
+              label="Judul Kampanye"
+              placeholder="Masukan Judul Kampanye"
               control={form.control}
               required
             />
@@ -160,8 +160,8 @@ const CreateCampaign = () => {
           <div className="mt-2">
             <TextFieldComponent
               name="deskripsi_proyek"
-              label="Deskripsi Proyek"
-              placeholder="Informasi untuk memperjelas intensi projek dan kampanye"
+              label="Deskripsi Kampanye"
+              placeholder="Informasi untuk memperjelas intensi kampanye"
               control={form.control}
               required
               type="textarea"
@@ -183,7 +183,7 @@ const CreateCampaign = () => {
             <DropdownComponent
               control={form.control}
               name="deadline"
-              label="Durasi Proyek"
+              label="Durasi Kampanye"
               optionData={[
                 { deadline: 30, days: "30 hari" },
                 { deadline: 60, days: "60 hari" },
@@ -192,7 +192,7 @@ const CreateCampaign = () => {
               optionId="deadline"
               optionLabel="days"
               required
-              placeholder="Pilih Durasi Proyek"
+              placeholder="Pilih Durasi Kampanye"
             />
           </div>
           {/* Upload Image */}
