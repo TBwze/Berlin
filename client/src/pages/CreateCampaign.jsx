@@ -133,7 +133,7 @@ const CreateCampaign = () => {
   };
   return (
     <div className="max-w-[1280px] mx-auto p-4 bg-white flex flex-col">
-      <PageLoad isLoading={isLoading} />
+      <PageLoad loading={isLoading} />
       <form
         className="flex flex-row items-center justify-around"
         onSubmit={form.handleSubmit(handleSaveButton)}>

@@ -64,12 +64,13 @@ const Home = () => {
       const userDonation = await fetchUserDonation(campaign.id);
       if (
         userDonation.data > 0 &&
+        campaign.isWithdraw === false &&
         new Date(campaign.deadline).getTime() < Date.now() &&
         parseFloat(campaign.amountCollected) < parseFloat(campaign.targetAmount)
       ) {
         await refundDonation(campaign.id);
         setPopupVisible(true);
-        setPopupMessage(`Refund dari campaign ${campaign.title}`);
+        setPopupMessage(`Refund dari kampanye: ${campaign.title}`);
       }
     }
     setIsLoading(false);

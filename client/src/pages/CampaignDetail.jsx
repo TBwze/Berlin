@@ -241,9 +241,8 @@ const CampaignDetail = () => {
       alert("Error withdrawing funds: " + error.message);
     } finally {
       setIsLoading(false);
-      window.location.reload();
-      document.getElementById("my_modal").showModal();
     }
+    window.location.reload();
   };
 
   const handleChangePageGrid = async (page) => {

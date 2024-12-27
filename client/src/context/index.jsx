@@ -42,8 +42,7 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
-      // const deadlineTimestamp = dayjs().add(10, "minute").unix();
+      const deadlineTimestamp = dayjs().add(10, "minute").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -224,7 +223,11 @@ export const StateContextProvider = ({ children }) => {
       const deadlineTimestamp = new Date(deadline * 1000).getTime();
       const now = Date.now();
 
-      if (deadlineTimestamp < now && isWithdraw === false && targetAmount > amountCollected) {
+      if (
+        deadlineTimestamp < now &&
+        isWithdraw === false &&
+        weiToEth(targetAmount) > weiToEth(amountCollected)
+      ) {
         throw new Error("Campaign has expired.");
       }
 
@@ -249,6 +252,7 @@ export const StateContextProvider = ({ children }) => {
 
       return formatResponse(formattedCampaign);
     } catch (error) {
+      console.log(error);
       throw new Error("Failed to get Campaign");
     }
   };
@@ -361,6 +365,7 @@ export const StateContextProvider = ({ children }) => {
       const transaction = await contract.call("withdrawFunds", [campaignId]);
       return transaction;
     } catch (error) {
+      console.log("errr: ", error);
       throw new Error("Failed to withdraw funds");
     }
   };
