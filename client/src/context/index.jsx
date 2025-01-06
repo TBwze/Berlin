@@ -365,7 +365,6 @@ export const StateContextProvider = ({ children }) => {
       const transaction = await contract.call("withdrawFunds", [campaignId]);
       return transaction;
     } catch (error) {
-      console.log("errr: ", error);
       throw new Error("Failed to withdraw funds");
     }
   };

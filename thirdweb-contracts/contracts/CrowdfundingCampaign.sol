@@ -243,18 +243,29 @@ contract CrowdfundingCampaign {
         uint256 _campaignId
     ) public onlyOwner(_campaignId) campaignExists(_campaignId) {
         Campaign storage campaign = campaigns[_campaignId];
+
         require(
             block.timestamp >= campaign.deadline,
-            "Campaign is still active."
-        );
-        require(
-            campaign.amountCollected >= campaign.targetAmount,
-            "Campaign has not reached the target amount."
+            "Campaign deadline has not been reached yet"
         );
 
-        payable(campaign.owner).transfer(campaign.amountCollected);
+        require(
+            campaign.amountCollected >= campaign.targetAmount,
+            "Campaign has not reached the target amount"
+        );
+
+        // Add this check
+        require(
+            address(this).balance >= campaign.amountCollected,
+            "Contract has insufficient balance"
+        );
+
+        uint256 amount = campaign.amountCollected;
         campaign.amountCollected = 0;
         campaign.isWithdraw = true;
+
+        (bool success, ) = payable(campaign.owner).call{value: amount}("");
+        require(success, "Transfer failed");
     }
 
     // Function to get all donors along with their donation, ordered by donations (desc)

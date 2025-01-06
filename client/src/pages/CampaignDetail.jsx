@@ -290,7 +290,7 @@ const CampaignDetail = () => {
                       <CustomButton
                         className="btn btn-success bg-green-500"
                         btnType="button"
-                        title="Withdraw Funds"
+                        title="Tarik dana"
                         styles="font-semibold rounded px-4 text-nowrap"
                         textColor="#ffffff"
                         handleClick={handleWithdrawFunds}
