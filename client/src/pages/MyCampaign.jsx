@@ -143,6 +143,7 @@ const MyCampaign = () => {
                     amountCollected={campaign.amountCollected}
                     deadline={campaign.deadline}
                     imageUrl={campaign.imageUrl}
+                    isWithdraw={campaign.isWithdraw}
                   />
                 ))}
               </div>
@@ -234,6 +235,7 @@ const MyCampaign = () => {
                     amountCollected={campaign.amountCollected}
                     deadline={campaign.deadline}
                     imageUrl={campaign.imageUrl}
+                    isWithdraw={campaign.isWithdraw}
                   />
                 ))}
               </div>

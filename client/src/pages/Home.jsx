@@ -132,6 +132,7 @@ const Home = () => {
                       amountCollected={campaign.amountCollected}
                       deadline={campaign.deadline}
                       imageUrl={campaign.imageUrl}
+                      isWithdraw={campaign.isWithdraw}
                     />
                   ))}
                 </div>
@@ -171,6 +172,7 @@ const Home = () => {
                       amountCollected={campaign.amountCollected}
                       deadline={campaign.deadline}
                       imageUrl={campaign.imageUrl}
+                      isWithdraw={campaign.isWithdraw}
                     />
                   ))}
                 </div>

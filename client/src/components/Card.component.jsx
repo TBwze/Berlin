@@ -9,7 +9,8 @@ const CardComponent = ({
   amountCollected,
   deadline,
   imageUrl,
-  creator
+  creator,
+  isWithdraw
 }) => {
   // Calculate the funding percentage
   const fundingPercentage = Math.min((amountCollected / targetAmount) * 100, 100).toFixed(1);
@@ -39,14 +40,14 @@ const CardComponent = ({
         <div className="relative w-full h-4 bg-gray-700 mb-2 rounded-lg">
           <div
             className="bg-green-700 h-full rounded-lg"
-            style={{ width: `${fundingPercentage}%` }}></div>
+            style={{ width: isWithdraw ? "100%" : `${fundingPercentage}%` }}></div>
           <span className="absolute inset-0 flex justify-center items-center text-xs text-white font-poppins-500">
-            {fundingPercentage}%
+            {isWithdraw ? "100%" : `${fundingPercentage}%`}
           </span>
         </div>
 
         <p className="mb-3 font-normal text-gray-200 font-poppins text-xs">
-          {amountCollected} / {targetAmount} ETH Tercapai
+          {isWithdraw ? "Target Tercapai" : `${amountCollected} / ${targetAmount} ETH Tercapai`}
         </p>
 
         <p className="mb-3 font-normal text-gray-200 font-poppins text-xs">Deadline: {deadline}</p>

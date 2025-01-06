@@ -88,6 +88,7 @@ const Campaign = () => {
                 amountCollected={campaign.amountCollected}
                 deadline={campaign.deadline}
                 imageUrl={campaign.imageUrl}
+                isWithdraw={campaign.isWithdraw}
               />
             ))}
           </div>
