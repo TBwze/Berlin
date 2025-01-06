@@ -42,7 +42,7 @@ export const StateContextProvider = ({ children }) => {
       }
 
       const targetInWei = ethToWei(targetAmount);
-      const deadlineTimestamp = dayjs().add(10, "minute").unix();
+      const deadlineTimestamp = dayjs().add(deadline, "day").unix();
 
       const formattedRewards = rewards.map((reward) => ({
         minAmount: ethToWei(reward.minAmount),
@@ -193,7 +193,8 @@ export const StateContextProvider = ({ children }) => {
             rewards: campaign.rewards.map((reward) => ({
               minAmount: weiToEth(reward[0].hex || reward[0]),
               description: reward[1]
-            }))
+            })),
+            isWithdraw: campaign.isWithdraw
           };
         })
       );

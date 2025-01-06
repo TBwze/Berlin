@@ -13,7 +13,7 @@ const CardComponent = ({
   isWithdraw
 }) => {
   // Calculate the funding percentage
-  const fundingPercentage = Math.min((amountCollected / targetAmount) * 100, 100).toFixed(1);
+  const fundingPercentage = Math.min((amountCollected / targetAmount) * 100, 100).toFixed(3);
 
   return (
     <div className="max-w-sm border rounded-lg shadow bg-gray-800 border-gray-700">

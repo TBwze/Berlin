@@ -78,6 +78,12 @@ const Home = () => {
 
   const popularProjects = [...data]
     .sort((a, b) => {
+      // Prioritize projects with isWithdraw === true
+      if (b.isWithdraw !== a.isWithdraw) {
+        return b.isWithdraw ? 1 : -1; // b.isWithdraw comes first
+      }
+
+      // If both have the same isWithdraw status, sort by funding percentage
       const percentageA = parseFloat(a.amountCollected) / parseFloat(a.targetAmount) || 0;
       const percentageB = parseFloat(b.amountCollected) / parseFloat(b.targetAmount) || 0;
       return percentageB - percentageA; // Descending order
