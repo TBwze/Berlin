@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = "http://localhost:5000";
+export const API_BASE_URL = "https://skripsi-backend-theta.vercel.app";
 export const USER_URL = "/user";
 export const COMMENT_URL = "/comment";
 
